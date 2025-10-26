@@ -28,7 +28,7 @@ export function Header() {
         <div className="mr-4 flex">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="mr-2 md:hidden">
+              <Button variant="ghost" size="icon" className="mr-2">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Open Menu</span>
               </Button>
@@ -56,9 +56,6 @@ export function Header() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>{user.displayName}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard">ダッシュボード</Link>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <LogoutButton />
