@@ -9,9 +9,9 @@
   - [x] `docker-compose.yml` を作成します。
 - [ ] **コンテナの定義**:
   - [x] Next.js用のサービスを定義します（ホットリロード有効）。
-  - [ ] Firebase Local Emulator Suite（Auth, Firestore, Functions）用のサービスを定義します。
-- [ ] **環境の起動と連携**:
-  - [ ] `docker-compose up` でコンテナを起動し、Next.jsアプリがFirebaseエミュレータを参照するように設定します。
+  - [x] Firebase Local Emulator Suite（Auth, Firestore, Functions）用のサービスを定義します。
+- [x] **環境の起動と連携**:
+  - [x] `docker-compose up` でコンテナを起動し、Next.jsアプリがFirebaseエミュレータを参照するように設定します。
 
 ## Phase 1: プロジェクト初期設定
 

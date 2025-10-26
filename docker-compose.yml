@@ -36,7 +36,7 @@ services:
       - "9099:9099" # Auth Emulator
       - "8080:8080" # Firestore Emulator
       - "5001:5001" # Functions Emulator
-      - "5000:5000" # Hosting Emulator
+      - "5050:5000" # Hosting Emulator (Port changed from 5000 to avoid conflict)
     volumes:
       # Mount project files needed by the emulator
       # These files need to be created by 'firebase init'
