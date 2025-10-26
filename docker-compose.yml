@@ -21,6 +21,7 @@ services:
       - NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=firebase:9099
       - NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=firebase:8080
       - NEXT_PUBLIC_FUNCTIONS_EMULATOR_HOST=firebase:5001
+    tty: true
     depends_on:
       - firebase
     networks:
