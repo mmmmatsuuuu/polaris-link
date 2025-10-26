@@ -16,11 +16,11 @@
 ## Phase 1: プロジェクト初期設定
 
 - [x] **Next.jsプロジェクトの作成**: `create-next-app` を使用して、TypeScript環境のプロジェクトを初期化します。
-- [ ] **Firebaseプロジェクトのセットアップ**:
-  - [ ] Firebaseコンソールで本番用の新規プロジェクトを作成します。
-  - [ ] Authentication (Googleログイン) を有効化します。
-  - [ ] Cloud Firestore データベースを作成します。
-  - [ ] WebアプリをFirebaseプロジェクトに追加し、設定情報(`firebaseConfig`)を取得します。
+- [x] **Firebaseプロジェクトのセットアップ**:
+  - [x] Firebaseコンソールで本番用の新規プロジェクトを作成します。
+  - [x] Authentication (Googleログイン) を有効化します。
+  - [x] Cloud Firestore データベースを作成します。
+  - [x] WebアプリをFirebaseプロジェクトに追加し、設定情報(`firebaseConfig`)を取得します。
 - [x] **フロントエンドのセットアップ**:
   - [x] Tailwind CSSを導入します。
   - [x] `shadcn/ui` をセットアップし、基本的なコンポーネントを導入します。
