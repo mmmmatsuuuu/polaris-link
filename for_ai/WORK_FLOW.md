@@ -4,28 +4,28 @@
 
 ## Phase 0: 開発環境の構築 (Docker)
 
-- [ ] **Docker設定ファイルの作成**:
-  - [ ] `Dockerfile` を作成し、Next.jsの実行環境を定義します。
-  - [ ] `docker-compose.yml` を作成します。
+- [x] **Docker設定ファイルの作成**:
+  - [x] `Dockerfile` を作成し、Next.jsの実行環境を定義します。
+  - [x] `docker-compose.yml` を作成します。
 - [ ] **コンテナの定義**:
-  - [ ] Next.js用のサービスを定義します（ホットリロード有効）。
+  - [x] Next.js用のサービスを定義します（ホットリロード有効）。
   - [ ] Firebase Local Emulator Suite（Auth, Firestore, Functions）用のサービスを定義します。
 - [ ] **環境の起動と連携**:
   - [ ] `docker-compose up` でコンテナを起動し、Next.jsアプリがFirebaseエミュレータを参照するように設定します。
 
 ## Phase 1: プロジェクト初期設定
 
-- [ ] **Next.jsプロジェクトの作成**: `create-next-app` を使用して、TypeScript環境のプロジェクトを初期化します。
+- [x] **Next.jsプロジェクトの作成**: `create-next-app` を使用して、TypeScript環境のプロジェクトを初期化します。
 - [ ] **Firebaseプロジェクトのセットアップ**:
   - [ ] Firebaseコンソールで本番用の新規プロジェクトを作成します。
   - [ ] Authentication (Googleログイン) を有効化します。
   - [ ] Cloud Firestore データベースを作成します。
   - [ ] WebアプリをFirebaseプロジェクトに追加し、設定情報(`firebaseConfig`)を取得します。
-- [ ] **フロントエンドのセットアップ**:
-  - [ ] Tailwind CSSを導入します。
-  - [ ] `shadcn/ui` をセットアップし、基本的なコンポーネントを導入します。
-  - [ ] Firebase SDKをインストールし、初期化処理を実装します（開発環境と本番環境で設定を切り替えられるようにします）。
-- [ ] **バージョン管理**:
+- [x] **フロントエンドのセットアップ**:
+  - [x] Tailwind CSSを導入します。
+  - [x] `shadcn/ui` をセットアップし、基本的なコンポーネントを導入します。
+  - [x] Firebase SDKをインストールし、初期化処理を実装します（開発環境と本番環境で設定を切り替えられるようにします）。
+- [x] **バージョン管理**:
   - [x] GitHubリポジトリを作成し、プロジェクトをプッシュします。
 
 ## Phase 2: 認証と基本レイアウト
