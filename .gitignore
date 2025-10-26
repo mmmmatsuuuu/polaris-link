@@ -38,8 +38,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 # firebase
-.firebaserc
-firebase.json
+# .firebaserc and firebase.json should be tracked in git
