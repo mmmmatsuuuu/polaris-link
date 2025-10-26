@@ -1,0 +1,64 @@
+# Defines and runs the multi-container Docker application.
+# Services:
+#   - app: The Next.js frontend application.
+#   - firebase: The Firebase Local Emulator Suite.
+
+services:
+  # Next.js App Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: polaris-link-app
+    ports:
+      - "3000:3000" # Map host port 3000 to container port 3000 for Next.js app
+    volumes:
+      - .:/app # Mount the project directory to the container for hot-reloading
+      - /app/node_modules # Exclude node_modules from the mount to use container's version
+      - /app/.next # Exclude .next from the mount
+    environment:
+      # Environment variables for the Next.js app to connect to Firebase emulators
+      - NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=firebase:9099
+      - NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=firebase:8080
+      - NEXT_PUBLIC_FUNCTIONS_EMULATOR_HOST=firebase:5001
+    depends_on:
+      - firebase
+    networks:
+      - polaris-link-net
+
+  # Firebase Emulator Suite Service
+  firebase:
+    # Using a pre-built image with Firebase CLI and Java
+    image: spine3/firebase-emulator:latest
+    container_name: polaris-link-firebase-emulator
+    ports:
+      - "4000:4000" # Emulator Suite UI
+      - "9099:9099" # Auth Emulator
+      - "8080:8080" # Firestore Emulator
+      - "5001:5001" # Functions Emulator
+      - "5050:5000" # Hosting Emulator (Port changed from 5000 to avoid conflict)
+    volumes:
+      # Mount project files needed by the emulator
+      # These files need to be created by 'firebase init'
+      - ./firebase.json:/app/firebase.json
+      - ./.firebaserc:/app/.firebaserc
+      # Mount the functions source code if it exists in a 'functions' directory
+      - ./functions:/app/functions
+      # Mount a directory for emulator data persistence
+      - firebase_data:/app/emulator_data
+    # Command to start emulators and import/export data
+    command: >
+      firebase emulators:start
+      --project=demo-polaris-link
+      --only=auth,firestore,functions,hosting
+      --import=/app/emulator_data
+      --export-on-exit=/app/emulator_data
+    networks:
+      - polaris-link-net
+
+networks:
+  polaris-link-net:
+    driver: bridge
+
+volumes:
+  firebase_data:
