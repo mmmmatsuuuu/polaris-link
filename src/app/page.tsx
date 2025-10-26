@@ -8,16 +8,15 @@ export default function Home() {
   const { user, loading } = useAuth();
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <h1 className="text-4xl font-bold">Polaris-Link</h1>
-      </div>
+    <div className="container flex flex-col items-center justify-center py-24">
+      <h1 className="text-4xl font-bold">Polaris-Link</h1>
+      <p className="mt-2 text-muted-foreground">A new way to learn.</p>
 
       <div className="mt-8">
         {loading ? (
           <p>読み込み中...</p>
         ) : user ? (
-          <div>
+          <div className="text-center">
             <p>ようこそ, {user.displayName || 'User'} さん</p>
             <div className="mt-4">
               <LogoutButton />
@@ -27,6 +26,6 @@ export default function Home() {
           <LoginButton />
         )}
       </div>
-    </main>
+    </div>
   );
 }
