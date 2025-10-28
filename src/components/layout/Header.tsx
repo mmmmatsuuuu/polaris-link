@@ -13,20 +13,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetTrigger, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
+import { useState } from 'react';
 
 export function Header() {
   const { user, loading } = useAuth();
+  const [open, setOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
         <div className="mr-4 flex">
-          <Sheet>
+          <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="mr-2">
                 <Menu className="h-5 w-5" />
@@ -35,7 +37,7 @@ export function Header() {
             </SheetTrigger>
             <SheetContent side="left" className="pr-0">
               <SheetTitle className="sr-only">Main Menu</SheetTitle>
-              <Sidebar />
+              <Sidebar setOpen={setOpen} />
             </SheetContent>
           </Sheet>
           <Link href="/" className="mr-6 flex items-center space-x-2">
