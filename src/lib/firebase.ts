@@ -20,10 +20,25 @@ const db = getFirestore(app);
 // const analytics = getAnalytics(app);
 
 if (process.env.NODE_ENV === 'development') {
-  console.log('Running in development mode, connecting to Firebase Emulators');
+  console.log('Running in development mode, attempting to connect to Firebase Emulators');
+
   try {
-    connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
-    connectFirestoreEmulator(db, '127.0.0.1', 8080);
+    const authEmulatorHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST;
+    if (authEmulatorHost) {
+      connectAuthEmulator(auth, `http://${authEmulatorHost}`, { disableWarnings: true });
+      console.log(`Successfully connected to Auth Emulator at ${authEmulatorHost}`);
+    } else {
+      console.log('Auth Emulator host not found, skipping connection.');
+    }
+
+    const firestoreEmulatorHost = process.env.NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST;
+    if (firestoreEmulatorHost) {
+      const [host, port] = firestoreEmulatorHost.split(':');
+      connectFirestoreEmulator(db, host, parseInt(port, 10));
+      console.log(`Successfully connected to Firestore Emulator at ${host}:${port}`);
+    } else {
+      console.log('Firestore Emulator host not found, skipping connection.');
+    }
   } catch (error) {
     console.error('Error connecting to Firebase Emulators: ', error);
   }

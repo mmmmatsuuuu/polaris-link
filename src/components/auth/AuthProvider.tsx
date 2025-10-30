@@ -22,9 +22,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log('Auth state changed. User:', user);
       if (user) {
         const userRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(userRef);
+        console.log('Fetched user document:', docSnap.exists() ? docSnap.data() : 'No document found');
 
         let appUser: AppUser;
 
@@ -46,7 +48,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             createdAt: serverTimestamp(),
             lastLogin: serverTimestamp(),
           };
+          console.log('Creating new user document with data:', newUser);
           await setDoc(userRef, newUser);
+          console.log('Created new user document for:', newUser);
           appUser = { ...user, role: 'student' };
         }
         setUser(appUser);
