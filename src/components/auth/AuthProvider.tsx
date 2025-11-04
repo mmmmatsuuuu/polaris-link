@@ -5,22 +5,30 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
+export interface AppUser extends User {
+  role: 'student' | 'teacher';
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({ user: null, loading: true });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log('Auth state changed. User:', user);
       if (user) {
         const userRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(userRef);
+        console.log('Fetched user document:', docSnap.exists() ? docSnap.data() : 'No document found');
+
+        let appUser: AppUser;
 
         if (docSnap.exists()) {
           // 2回目以降のログイン：最終ログイン日時などを更新
@@ -29,17 +37,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             email: user.email,
             lastLogin: serverTimestamp(),
           });
+          const userData = docSnap.data();
+          appUser = { ...user, role: userData.role };
         } else {
           // 初回ログイン：新しいドキュメントを作成
-          await setDoc(userRef, {
+          const newUser = {
             name: user.displayName,
             email: user.email,
             role: 'student', // デフォルトの役割
             createdAt: serverTimestamp(),
             lastLogin: serverTimestamp(),
-          });
+          };
+          console.log('Creating new user document with data:', newUser);
+          await setDoc(userRef, newUser);
+          console.log('Created new user document for:', newUser);
+          appUser = { ...user, role: 'student' };
         }
-        setUser(user);
+        setUser(appUser);
       } else {
         setUser(null);
       }

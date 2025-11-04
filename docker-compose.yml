@@ -18,9 +18,9 @@ services:
       - /app/.next # Exclude .next from the mount
     environment:
       # Environment variables for the Next.js app to connect to Firebase emulators
-      - NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=firebase:9099
-      - NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=firebase:8080
-      - NEXT_PUBLIC_FUNCTIONS_EMULATOR_HOST=firebase:5001
+      - NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
+      - NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=localhost:8080
+      - NEXT_PUBLIC_FUNCTIONS_EMULATOR_HOST=localhost:5001
     tty: true
     depends_on:
       - firebase
@@ -42,6 +42,7 @@ services:
       # Mount project files needed by the emulator
       # These files need to be created by 'firebase init'
       - ./firebase.json:/app/firebase.json
+      - ./firestore.rules:/app/firestore.rules
       - ./.firebaserc:/app/.firebaserc
       # Mount the functions source code if it exists in a 'functions' directory
       - ./functions:/app/functions
@@ -49,11 +50,12 @@ services:
       - firebase_data:/app/emulator_data
     # Command to start emulators and import/export data
     command: >
-      firebase emulators:start
-      --project=demo-polaris-link
-      --only=auth,firestore,functions,hosting
-      --import=/app/emulator_data
-      --export-on-exit=/app/emulator_data
+      sh -c "firebase emulators:start 
+      --project demo-polaris-link 
+      --only auth,firestore,functions,hosting 
+      --import /app/emulator_data 
+      --export-on-exit /app/emulator_data"
+
     networks:
       - polaris-link-net
 
