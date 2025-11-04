@@ -51,10 +51,10 @@ services:
     # Command to start emulators and import/export data
     command: >
       sh -c "firebase emulators:start 
-      --project=demo-polaris-link 
-      --only=auth,firestore,functions,hosting 
-      --import=/app/emulator_data 
-      --export-on-exit=/app/emulator_data"
+      --project demo-polaris-link 
+      --only auth,firestore,functions,hosting 
+      --import /app/emulator_data 
+      --export-on-exit /app/emulator_data"
 
     networks:
       - polaris-link-net
