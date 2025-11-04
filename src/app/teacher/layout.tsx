@@ -7,5 +7,5 @@ export default function TeacherLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <PrivateRoute requiredRole="teacher">{children}</PrivateRoute>;
+  return <PrivateRoute requiredRoles={['teacher']}>{children}</PrivateRoute>;
 }

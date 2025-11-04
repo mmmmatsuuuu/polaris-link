@@ -1,32 +1,39 @@
 'use client';
 
-import { useAuth, AppUser } from '@/components/auth/AuthProvider';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect } from 'react';
 
 interface PrivateRouteProps {
   children: ReactNode;
-  requiredRole: 'student' | 'teacher';
+  requiredRoles: ('student' | 'teacher')[];
 }
 
-export const PrivateRoute = ({ children, requiredRole }: PrivateRouteProps) => {
+export const PrivateRoute = ({ children, requiredRoles }: PrivateRouteProps) => {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.push('/login');
-      } else if (user.role !== requiredRole) {
-        // Redirect to a different page if the role doesn't match
-        // For now, let's redirect to the home page.
-        router.push('/');
-      }
+    if (loading) {
+      return;
     }
-  }, [user, loading, router, requiredRole]);
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    const isAuthorized = requiredRoles.includes(user.role);
+    if (!isAuthorized) {
+      router.push('/');
+    }
+  }, [user, loading, router, requiredRoles]);
 
-  if (loading || !user || user.role !== requiredRole) {
-    // You can render a loading spinner or a skeleton screen here
+  if (loading || !user) {
+    return <div>Loading...</div>;
+  }
+
+  const isAuthorized = requiredRoles.includes(user.role);
+
+  if (!isAuthorized) {
     return <div>Loading...</div>;
   }
 
