@@ -1,0 +1,42 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile.dev
+    container_name: next-dev
+    volumes:
+      - ./web:/app:cached         # ソースをホストと同期（mac/Windows で :cached を推奨）
+      - /app/node_modules         # node_modules をコンテナに確保
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-project
+      - NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=host.docker.internal:9099
+      - NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=host.docker.internal:8080
+    depends_on:
+      - firebase
+
+  firebase:
+    image: davidmyersdev/firebase-tools:latest  # 例。お好みの firebase-tools イメージに変更可
+    container_name: firebase-emulator
+    working_dir: /workspace
+    volumes:
+      - ./firebase:/workspace
+      - ./firebase/emulator-data:/data    # ここにエクスポート/インポートする（永続化）
+    ports:
+      - "4000:4000"   # Emulator UI
+      - "8080:8080"   # Firestore emulator
+      - "9000:9000"   # Storage emulator (例)
+      - "9099:9099"   # Auth emulator
+      - "5001:5001"   # Functions emulator (例)
+    command: >
+      sh -c "firebase emulators:start
+             --project demo-project
+             --import=/data/import
+             --export-on-exit
+             --only firestore,auth,functions,storage
+             --host 0.0.0.0"
+    environment:
+      - COLUMNS=80
+    tty: true
