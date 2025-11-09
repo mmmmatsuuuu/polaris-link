@@ -7,8 +7,8 @@ WORKDIR /app
 RUN apk add --no-cache bash
 
 # 依存だけ先にインストールしておく（キャッシュ活用）
-COPY web/package.json web/package-lock.json* ./ 
-RUN npm ci
+# COPY web/package.json web/package-lock.json* ./ 
+# RUN npm ci
 
 # アプリコードはマウントで上書きする想定
 COPY web/ ./
