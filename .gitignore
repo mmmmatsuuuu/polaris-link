@@ -1,1 +1,7 @@
 .env
+
+# web/
+./web/node_modules
+
+# firebase/
+./firebase/emulator-data
