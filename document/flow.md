@@ -7,3 +7,9 @@
 - [x] コンテナ起動の確認
 - [x] create-next-appの実行と
 - [x] Next.jsの起動の確認
+
+## アプリとDBの接続確認
+- [x] アプリとDBの通信確認
+- [ ] アプリからfirestoreへのデータ作成の確認
+- [ ] アプリからfirestoreへのデータ削除の確認
+- [ ] アプリからfirebase authへの認証の確認
