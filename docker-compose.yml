@@ -1,67 +1,43 @@
-# Defines and runs the multi-container Docker application.
-# Services:
-#   - app: The Next.js frontend application.
-#   - firebase: The Firebase Local Emulator Suite.
-
 services:
-  # Next.js App Service
-  app:
+  web:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: polaris-link-app
-    ports:
-      - "3000:3000" # Map host port 3000 to container port 3000 for Next.js app
+      dockerfile: ./web/Dockerfile
+    container_name: next-dev
     volumes:
-      - .:/app # Mount the project directory to the container for hot-reloading
-      - /app/node_modules # Exclude node_modules from the mount to use container's version
-      - /app/.next # Exclude .next from the mount
-    environment:
-      # Environment variables for the Next.js app to connect to Firebase emulators
-      - NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
-      - NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=localhost:8080
-      - NEXT_PUBLIC_FUNCTIONS_EMULATOR_HOST=localhost:5001
+      - ./web:/app:cached         # ソースをホストと同期（mac/Windows で :cached を推奨）
+      - /app/node_modules         # node_modules をコンテナに確保
+    ports:
+      - "3000:3000"
     tty: true
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-project
+      - NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=host.docker.internal:9099
+      - NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=host.docker.internal:8080
     depends_on:
       - firebase
-    networks:
-      - polaris-link-net
 
-  # Firebase Emulator Suite Service
   firebase:
-    # Using a pre-built image with Firebase CLI and Java
-    image: spine3/firebase-emulator:latest
-    container_name: polaris-link-firebase-emulator
-    ports:
-      - "4000:4000" # Emulator Suite UI
-      - "9099:9099" # Auth Emulator
-      - "8080:8080" # Firestore Emulator
-      - "5001:5001" # Functions Emulator
-      - "5050:5000" # Hosting Emulator (Port changed from 5000 to avoid conflict)
+    image: andreysenov/firebase-tools:latest  # 例。お好みの firebase-tools イメージに変更可
+    container_name: firebase-emulator
+    working_dir: /workspace
     volumes:
-      # Mount project files needed by the emulator
-      # These files need to be created by 'firebase init'
-      - ./firebase.json:/app/firebase.json
-      - ./firestore.rules:/app/firestore.rules
-      - ./.firebaserc:/app/.firebaserc
-      # Mount the functions source code if it exists in a 'functions' directory
-      - ./functions:/app/functions
-      # Mount a directory for emulator data persistence
-      - firebase_data:/app/emulator_data
-    # Command to start emulators and import/export data
+      - ./firebase:/workspace
+      - ./firebase/emulator-data:/data    # ここにエクスポート/インポートする（永続化）
+    ports:
+      - "4000:4000"   # Emulator UI
+      - "8080:8080"   # Firestore emulator
+      - "9199:9199"   # Storage emulator (例)
+      - "9099:9099"   # Auth emulator
+      - "5001:5001"   # Functions emulator (例)
     command: >
-      sh -c "firebase emulators:start 
-      --project demo-polaris-link 
-      --only auth,firestore,functions,hosting 
-      --import /app/emulator_data 
-      --export-on-exit /app/emulator_data"
-
-    networks:
-      - polaris-link-net
-
-networks:
-  polaris-link-net:
-    driver: bridge
-
-volumes:
-  firebase_data:
+      sh -c "firebase emulators:start
+             --import=/data/import
+             --export-on-exit
+             --only firestore,auth,functions,storage
+             --host 0.0.0.0"
+    environment:
+      - COLUMNS=80
+      - FIREBASE_TOKEN=${FIREBASE_TOKEN}
+    tty: true
