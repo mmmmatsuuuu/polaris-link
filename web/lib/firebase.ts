@@ -6,7 +6,7 @@ import {
   enableIndexedDbPersistence,
 } from "firebase/firestore";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
-import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getAuth, connectAuthEmulator, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -21,6 +21,7 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
 // Dockerコンテナからホストマシン（で公開されているエミュレータ）に接続するためのホスト名
 const host = "127.0.0.1";
@@ -41,4 +42,4 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
-export { app, db, storage, auth };
+export { app, db, storage, auth, googleProvider };
