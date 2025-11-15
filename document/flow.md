@@ -12,7 +12,7 @@
 - [x] アプリとDBの通信確認
 - [x] アプリからfirestoreへのデータ作成の確認
 - [x] アプリからfirestoreへのデータ削除の確認
-- [ ] アプリからfirebase authへの認証の確認
+- [x] アプリからfirebase authへの認証の確認
 
 ## デプロイの確認
 - [ ] next.jsをvercelにデプロイする
