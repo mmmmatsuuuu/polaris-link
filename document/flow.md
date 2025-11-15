@@ -15,9 +15,9 @@
 - [x] アプリからfirebase authへの認証の確認
 
 ## デプロイの確認
-- [ ] next.jsをvercelにデプロイする
-- [ ] デプロイしたアプリからfirebaseへの接続設定をする
-- [ ] アプリからfirebase authで認証できることを確認する
-- [ ] アプリからfirestoreへのデータ作成・削除の確認
+- [x] next.jsをvercelにデプロイする
+- [x] デプロイしたアプリからfirebaseへの接続設定をする
+- [x] アプリからfirebase authで認証できることを確認する
+- [x] アプリからfirestoreへのデータ作成・削除の確認
 
 ## 要件定義
