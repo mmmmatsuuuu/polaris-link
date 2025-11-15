@@ -7,3 +7,17 @@
 - [x] コンテナ起動の確認
 - [x] create-next-appの実行と
 - [x] Next.jsの起動の確認
+
+## アプリとDBの接続確認
+- [x] アプリとDBの通信確認
+- [x] アプリからfirestoreへのデータ作成の確認
+- [x] アプリからfirestoreへのデータ削除の確認
+- [x] アプリからfirebase authへの認証の確認
+
+## デプロイの確認
+- [ ] next.jsをvercelにデプロイする
+- [ ] デプロイしたアプリからfirebaseへの接続設定をする
+- [ ] アプリからfirebase authで認証できることを確認する
+- [ ] アプリからfirestoreへのデータ作成・削除の確認
+
+## 要件定義

@@ -12,7 +12,7 @@ services:
     tty: true
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-project
+      - NEXT_PUBLIC_FIREBASE_PROJECT_ID=polaris-link
       - NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=host.docker.internal:9099
       - NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=host.docker.internal:8080
     depends_on:
@@ -24,19 +24,18 @@ services:
     working_dir: /workspace
     volumes:
       - ./firebase:/workspace
-      - ./firebase/emulator-data:/data    # ここにエクスポート/インポートする（永続化）
     ports:
       - "4000:4000"   # Emulator UI
       - "8080:8080"   # Firestore emulator
       - "9199:9199"   # Storage emulator (例)
       - "9099:9099"   # Auth emulator
       - "5001:5001"   # Functions emulator (例)
-    command: >
-      sh -c "firebase emulators:start
-             --import=/data/import
-             --export-on-exit
-             --only firestore,auth,functions,storage
-             --host 0.0.0.0"
+      - "4500:4500"   # Functions emulator (例)
+      - "9150:9150"   # Functions emulator (例)
+    # command: >
+    #   sh -c "firebase emulators:start
+    #          --import=/data
+    #          --export-on-exit=/data"
     environment:
       - COLUMNS=80
       - FIREBASE_TOKEN=${FIREBASE_TOKEN}

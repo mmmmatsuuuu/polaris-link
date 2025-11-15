@@ -17,4 +17,4 @@ ENV PORT=3000
 EXPOSE 3000
 
 # 開発用コマンド（host 0.0.0.0 で外からアクセス可に）
-CMD ["npm", "run", "dev"]
+# CMD ["npm", "run", "dev"]
