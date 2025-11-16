@@ -46,7 +46,7 @@ Firebase Auth   Firestore   Storage   Cloud Functions
 - **認証ガード**: Firebase Auth のカスタムクレームは利用せず、メールアドレスホワイトリストと `users.role` で判定。教師権限はFirebase Consoleで付与。教師アカウントでも生徒向け機能にアクセスできるようにし、動作確認や配信テストに活用する。
 - **Cloud Functions (Node.js)**:
     1. CSVインポート: Storageアップロードをトリガーし、CSVを解析してFirestoreにバルク書き込み。
-    2. 進捗集計: `video_progress` / `test_attempts` 更新時に `progress_snapshots` を再計算。
+    2. 進捗集計: `video_progress` / `test_attempts` 更新時に `progress_snapshots` を再計算。集計処理では `users.role == 'student'` のログのみを対象とし、教師アカウントで記録されたデータは除外する。
     3. 手動トリガーAPI: 管理画面からHTTP経由で集計再実行やキャッシュ無効化を行う。
 - **セキュリティルール**:
     - 公開コンテンツは読み取り許可（`publishStatus == public`）。私的情報が含まれるコレクション（`users`, `video_progress`, `test_attempts` など）は認証必須。
@@ -75,13 +75,13 @@ Firebase Auth   Firestore   Storage   Cloud Functions
 1. 生徒が Firebase Auth でログイン -> middleware が JWTを検証。
 2. クライアントで YouTubeプレイヤーを再生し、規定時間到達時に Route Handler `POST /api/video-progress` を呼び出し、IDトークンを送信。
 3. Route Handler が Firebase Admin SDK で Firestore (`video_progress`) に書き込み。
-4. Cloud Functions がトリガーされ、`progress_snapshots` を更新。
+4. Cloud Functions がトリガーされ、`progress_snapshots` を更新（`users.role == 'student'` のログのみ集計）。
 
 ### 6.3 小テスト受験
 1. クライアントが `POST /api/quiz/start` を呼び、`questionsPerAttempt` に基づきランダム抽選した問題セットを受信。
 2. 回答送信時に `POST /api/quiz/submit` で答案を送信。
 3. Route Handler が正誤判定し、`test_attempts` に回答を保存。
-4. 結果はクライアントに返し、Cloud Functionsで進捗集計。
+4. 結果はクライアントに返し、Cloud Functionsで進捗集計（教師アカウントの受験データは集計から除外）。
 
 ### 6.4 CSV一括登録
 1. 教師が管理画面でCSVをアップロード -> Storage `/csv_uploads/` へ保存。
@@ -94,14 +94,14 @@ Firebase Auth   Firestore   Storage   Cloud Functions
 - Next.js middlewareで保護: `/dashboard`, `/teacher` などは必ずmiddleware経由でIDトークン検証。
 - Firestore Security Rules:
     - `subjects/units/lessons/contents`: `publishStatus == 'public'` の読み取りのみ未ログイン許可。それ以外は認証必須。
-    - `video_progress`, `test_attempts`: `request.auth.uid == resource.data.userId` のみ読み書き許可。教師が生徒UIでテストする場合も自身のUIDでログが残る。教師向けの他ユーザー閲覧は Cloud Functions 経由で行い、サーバーサイドで集計結果を返す。
+    - `video_progress`, `test_attempts`: `request.auth.uid == resource.data.userId` のみ読み書き許可。教師が生徒UIでテストする場合も自身のUIDでログが残る。教師向けの他ユーザー閲覧は Cloud Functions 経由で行い、サーバーサイドで集計結果を返す。これらのコレクションでは `lastWatchedAt`/`finishedAt` を必須フィールドとして扱い、後述のログ削除手順で期間フィルタできるようにする。
     - `users`: 読み取りは本人と教師のみ、書き込みは教師のみ。
 
 ## 8. 運用/監視
 
 - **ログ**: Vercel/Next.jsのアクセスログ、Firebase Functions のログをCloud Loggingで確認。
 - **アラート**: Functions失敗やStorageアップロード失敗時にメール通知（必要ならOpsgenie等）。
-- **バックアップ**: 年度末に Firestore から BigQuery/Cloud Storageへエクスポート（`document/design/log_export_and_cleanup.md` 参照）。
+- **バックアップ**: 年度末に Firestore から BigQuery/Cloud Storageへエクスポートし、`lastWatchedAt`/`finishedAt` を用いた期間指定でログを削除する（`document/design/log_export_and_cleanup.md` 参照）。
 - **手動作業**: CSVインポートやログ削除の手順をドキュメント化し、作業履歴を残す。
 
 ## 9. 今後の拡張余地

@@ -153,7 +153,7 @@
 1. 学習者が授業内の小テストコンテンツを開始すると、`questions` コレクションから `isActive == true` のドキュメントを取得。
 2. `metadata.questionsPerAttempt`（デフォルト5）で指定された数だけランダム抽選し、そのIDを `selectedQuestionIds` に格納する。
 3. 抽選結果と問題文をクライアントに返し、回答と正誤判定を行った上で `answers` 配列に保存する。
-4. 1受験あたりの正答率は `summary` で算出し、`progress_snapshots` などの集計に反映。
+4. 1受験あたりの正答率は `summary` で算出し、`progress_snapshots` などの集計に反映（`users.role == 'student'` のデータのみ対象）。
 
 ### `progress_snapshots`
 - 教師/生徒ダッシュボードで高速に表示するための集計結果をキャッシュ。
@@ -164,7 +164,7 @@
     - `metrics`: object
         - 例: `{ completedVideos: number, pendingVideos: number, quizAccuracy: number }`
     - `updatedAt`: Timestamp
-- 更新はCloud Functionsで定期的に行う想定。
+- 更新はCloud Functionsで定期的に行う想定。集計時には `users.role == 'student'` のログのみ対象とし、教師アカウントで記録された視聴・テスト結果は含めない。
 
 ### `csv_import_jobs`
 - Fields:
