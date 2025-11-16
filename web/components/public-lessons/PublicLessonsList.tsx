@@ -12,7 +12,7 @@ import {
   Text,
 } from "@radix-ui/themes";
 import LoginPrompt from "@/components/LoginPrompt";
-import { PublicLesson } from "@/lib/publicContent";
+import type { PublicLesson } from "@/types/publicLessons";
 
 type PublicLessonsListProps = {
   lessons: PublicLesson[];

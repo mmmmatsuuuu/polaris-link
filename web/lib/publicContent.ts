@@ -1,130 +1,115 @@
-export type PublicContentItem = {
-  id: string;
-  title: string;
-  kind: "video" | "quiz" | "resource";
-  description: string;
-  meta?: string;
-};
-
-export type PublicLesson = {
-  id: string;
-  title: string;
-  subject: string;
-  unit: string;
-  academicYear: string;
-  description: string;
-  summary: string;
-  lastUpdated: string;
-  tags: string[];
-  highlights: PublicContentItem[];
-  videos: PublicContentItem[];
-  quizzes: PublicContentItem[];
-  resources: PublicContentItem[];
-};
+import type { PublicLesson } from "@/types/publicLessons";
 
 const lessons: PublicLesson[] = [
   {
-    id: "world-history-01",
-    title: "世界史A：産業革命と近代社会",
-    subject: "世界史",
-    unit: "ヨーロッパの近代化",
+    id: "info1-open-data",
+    title: "情報I：オープンデータで社会課題を読み解く",
+    subject: "情報I",
+    unit: "データの活用と情報モラル",
     academicYear: "2024",
     description:
-      "18世紀の産業革命が社会や政治、文化に与えた影響を動画と小テストで学びます。",
+      "政府統計ポータルなどのオープンデータから課題を読み解き、可視化・考察する基礎を学ぶ授業です。",
     summary:
-      "産業革命の背景から結果までを体系的に学ぶ授業。動画50分、小テスト計15問を収録。",
-    lastUpdated: "2024-04-12",
-    tags: ["歴史", "近代", "世界史A"],
+      "統計ポータルの使い方からCSV取り込み、スプレッドシートでのグラフ化までを一気通貫で扱います。",
+    lastUpdated: "2024-06-15",
+    tags: ["データ活用", "情報モラル"],
     highlights: [
       {
-        id: "highlight-video",
-        title: "産業革命のキーワードを15分で総復習",
+        id: "info1-highlight-video",
+        title: "社会を変えるデータ活用の事例",
         kind: "video",
-        description:
-          "主要な発明と社会変化を図解で整理。初学者でも理解しやすい構成です。",
-        meta: "15min",
+        description: "国内外の成功事例をピックアップしてモチベーションを高めます。",
+        meta: "12min",
       },
       {
-        id: "highlight-quiz",
-        title: "蒸気機関と工場制手工業",
+        id: "info1-highlight-quiz",
+        title: "統計リテラシーチェック",
         kind: "quiz",
-        description: "発明者や年代を問う基礎クイズ5問で理解を確認。",
-        meta: "5問",
+        description: "平均・中央値・グラフの読み取りなど基礎力を確認。",
+        meta: "6問",
       },
     ],
     videos: [
       {
-        id: "video-01",
-        title: "産業革命の背景",
+        id: "info1-hands-on-video",
+        title: "CSVをスプレッドシートに読み込む",
         kind: "video",
-        description: "農業革命や人口増加など、産業革命前夜を解説します。",
-        meta: "12min",
-      },
-      {
-        id: "video-02",
-        title: "技術革新と社会構造の変化",
-        kind: "video",
-        description: "紡績機や蒸気機関の広がりと工場制度を学びます。",
-        meta: "20min",
+        description: "e-StatからダウンロードしたCSVを整形し、グラフにする手順を解説。",
+        meta: "18min",
       },
     ],
     quizzes: [
       {
-        id: "quiz-01",
-        title: "技術革新チェック",
+        id: "info1-quiz-basics",
+        title: "データ活用の注意点",
         kind: "quiz",
-        description: "発明品と発明者をマッチさせる問題構成。",
-        meta: "5問",
+        description: "公開データを扱う際の倫理や注意点を問う選択式問題。",
+        meta: "6問",
       },
     ],
     resources: [
       {
-        id: "resource-01",
-        title: "授業スライドPDF",
+        id: "info1-resource-guideline",
+        title: "オープンデータサイト一覧",
         kind: "resource",
-        description: "授業で使用するスライド資料。",
+        description: "e-Statや自治体ポータルなどのURLをまとめたリンク集。",
       },
     ],
   },
   {
-    id: "math-geometry-angles",
-    title: "数学I：図形の性質と証明",
-    subject: "数学",
-    unit: "平面図形",
+    id: "info2-network-design",
+    title: "情報II：学校LANの設計とセキュリティ",
+    subject: "情報II",
+    unit: "コンピュータシステムとネットワーク",
     academicYear: "2024",
     description:
-      "平行線と角、合同条件など図形の基本定理を動画と演習で確認します。",
-    summary: "図形の基本を押さえる授業。例題動画と正誤判定付き小テストを収録。",
-    lastUpdated: "2024-05-02",
-    tags: ["数学", "図形", "数学I"],
+      "学校LANを題材にネットワーク構成図の読み書き、セキュリティ脅威への備えを学ぶ授業です。",
+    summary:
+      "IPv4/IPv6、VLAN設計、認証方式などを俯瞰し、実際の構成案をチームでまとめる演習を含みます。",
+    lastUpdated: "2024-06-20",
+    tags: ["ネットワーク", "セキュリティ"],
     highlights: [
       {
-        id: "highlight-math-video",
-        title: "平行線と錯角・同位角の関係",
+        id: "info2-highlight-video",
+        title: "学校LANの全体像を10分で理解",
         kind: "video",
-        description: "色付けアニメーションで視覚的に理解します。",
+        description: "必要な機器と配置、利用者導線を俯瞰するイントロ動画。",
         meta: "10min",
+      },
+      {
+        id: "info2-highlight-quiz",
+        title: "セキュリティリスク診断",
+        kind: "quiz",
+        description: "よくある脅威と対策をケーススタディ形式で出題。",
+        meta: "8問",
       },
     ],
     videos: [
       {
-        id: "math-video-1",
-        title: "図形の基本用語",
+        id: "info2-config-video",
+        title: "VLANとDHCPの設定デモ",
         kind: "video",
-        description: "三角形や多角形の定義を確認。",
-        meta: "8min",
+        description: "仮想環境での設定手順とポイントを解説。",
+        meta: "22min",
       },
     ],
     quizzes: [
       {
-        id: "math-quiz-1",
-        title: "平行線と角の関係",
+        id: "info2-quiz-security",
+        title: "ネットワーク基礎力チェック",
         kind: "quiz",
-        description: "図を見て角度を求める問題。",
-        meta: "5問",
+        description: "IPアドレス計算やアクセス制御に関する基礎問題。",
+        meta: "8問",
       },
     ],
-    resources: [],
+    resources: [
+      {
+        id: "info2-resource-checklist",
+        title: "LAN設計チェックリスト",
+        kind: "resource",
+        description: "ヒアリング項目やセキュリティ確認手順をまとめたPDF想定資料。",
+      },
+    ],
   },
 ];
 

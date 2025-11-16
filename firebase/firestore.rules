@@ -2,18 +2,90 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
 
-    // This rule allows anyone with your Firestore database reference to view, edit,
-    // and delete all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // all client requests to your Firestore database will be denied until you Update
-    // your rules
+    function isTeacher() {
+      return isSignedIn() && request.auth.token.role == "teacher";
+    }
+
+    function isStudent() {
+      return isSignedIn() && request.auth.token.role == "student";
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isPublicResource() {
+      return resource != null && resource.data.publishStatus == "public";
+    }
+
+    match /users/{userId} {
+      allow read: if isTeacher() || isOwner(userId);
+      allow create, update, delete: if isTeacher();
+    }
+
+    match /app_configs/{configId} {
+      allow read: if true;
+      allow write: if isTeacher();
+    }
+
+    match /csv_import_jobs/{jobId} {
+      allow read, write: if isTeacher();
+    }
+
+    match /subjects/{subjectId} {
+      allow read: if isPublicResource() || isTeacher();
+      allow create, update, delete: if isTeacher();
+    }
+
+    match /units/{unitId} {
+      allow read: if isPublicResource() || isTeacher();
+      allow create, update, delete: if isTeacher();
+    }
+
+    match /lessons/{lessonId} {
+      allow read, write: if true;
+
+      match /contents/{contentId} {
+        allow read, write: if true;
+
+        match /questions/{questionId} {
+          allow read: if isTeacher() || isStudent();
+          allow create, update, delete: if isTeacher();
+        }
+      }
+    }
+
+    match /video_progress/{docId} {
+      allow read: if isTeacher() ||
+        (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() &&
+        request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isTeacher() ||
+        (isOwner(resource.data.userId) &&
+          request.resource.data.userId == request.auth.uid);
+    }
+
+    match /test_attempts/{docId} {
+      allow read: if isTeacher() ||
+        (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() &&
+        request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /progress_snapshots/{snapshotId} {
+      allow read: if isTeacher() ||
+        (isSignedIn() && resource.data.targetType == "user" &&
+          resource.data.targetId == request.auth.uid);
+      allow write: if isTeacher();
+    }
+
     match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2025, 11, 25);
+      allow read, write: if false;
     }
   }
 }
