@@ -1,102 +1,43 @@
 import { NextResponse } from "next/server";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  setDoc,
-} from "firebase/firestore";
+import { collection, doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/server";
-
-type LessonPayload = {
-  id: string;
-  title?: string;
-  subject?: string;
-  unit?: string;
-  academicYear?: number | string;
-  description?: string;
-  summary?: string;
-  lastUpdated?: string;
-  tags?: string[];
-  publishStatus?: "public" | "private";
-  order?: number;
-  availableYears?: number[];
-  contents?: ContentPayload[];
-};
-
-type ContentPayload = {
-  id: string;
-  title?: string;
-  description?: string;
-  type?: "video" | "quiz" | "resource";
-  order?: number;
-  publishStatus?: "public" | "private";
-  metadata?: Record<string, unknown>;
-};
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const lessons = Array.isArray(body) ? body : body.lessons;
+    const collections = normalizePayload(body);
 
-    if (!Array.isArray(lessons)) {
+    if (collections.length === 0) {
       return NextResponse.json(
-        { error: "Invalid payload. Expecting an array or { lessons: [] }." },
+        {
+          error:
+            "Invalid payload. Provide { collectionName: [{ id: string, ... }] } or an array of documents.",
+        },
         { status: 400 },
       );
     }
 
-    const lessonsCollection = collection(db, "lessons");
     const results: string[] = [];
 
-    for (const [index, rawLesson] of lessons.entries()) {
-      const lesson = rawLesson as LessonPayload;
+    for (const { path, documents } of collections) {
+      const pathSegments = path
+        .split("/")
+        .map((segment) => segment.trim())
+        .filter(Boolean);
 
-      if (!lesson.id) {
-        continue;
+      if (pathSegments.length === 0 || pathSegments.length % 2 === 0) {
+        throw new Error(
+          `Invalid collection path "${path}". Provide a collection path like "lessons" or "subjects/subjectA/units".`,
+        );
       }
 
-      const lessonRef = doc(lessonsCollection, lesson.id);
-      await setDoc(lessonRef, {
-        title: lesson.title ?? "",
-        subject: lesson.subject ?? "",
-        unit: lesson.unit ?? "",
-        academicYear: lesson.academicYear ?? "",
-        description: lesson.description ?? "",
-        summary: lesson.summary ?? "",
-        lastUpdated: lesson.lastUpdated ?? new Date().toISOString().slice(0, 10),
-        tags: Array.isArray(lesson.tags) ? lesson.tags : [],
-        publishStatus: lesson.publishStatus ?? "public",
-        order: typeof lesson.order === "number" ? lesson.order : index + 1,
-        availableYears: Array.isArray(lesson.availableYears)
-          ? lesson.availableYears
-          : lesson.academicYear
-            ? [Number(lesson.academicYear)]
-            : [],
-      });
-
-      const contentsRef = collection(lessonRef, "contents");
-      const existing = await getDocs(contentsRef);
-      await Promise.all(existing.docs.map((contentDoc) => deleteDoc(contentDoc.ref)));
-
-      const contents = Array.isArray(lesson.contents) ? lesson.contents : [];
-      for (const [contentIndex, rawContent] of contents.entries()) {
-        const content = rawContent as ContentPayload;
-        if (!content.id) continue;
-
-        const contentDoc = doc(contentsRef, content.id);
-        await setDoc(contentDoc, {
-          title: content.title ?? "",
-          description: content.description ?? "",
-          type: content.type ?? "resource",
-          order:
-            typeof content.order === "number" ? content.order : contentIndex + 1,
-          publishStatus: content.publishStatus ?? "public",
-          metadata: content.metadata ?? {},
-        });
+      const collectionRef = collection(db, ...pathSegments);
+      for (const { id, data } of documents) {
+        if (!id) continue;
+        const docRef = doc(collectionRef, id);
+        await setDoc(docRef, data);
+        results.push(`${path}/${id}`);
       }
-
-      results.push(lesson.id);
     }
 
     return NextResponse.json({ imported: results });
@@ -107,4 +48,81 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+}
+
+type RawPayload = Record<string, unknown>;
+type NormalizedCollection = {
+  path: string;
+  documents: Array<{ id: string; data: Record<string, unknown> }>;
+};
+
+function normalizePayload(body: unknown): NormalizedCollection[] {
+  let payload: RawPayload | unknown = body;
+
+  if (Array.isArray(body)) {
+    payload = { lessons: body };
+  }
+
+  if (!isPlainObject(payload)) {
+    return [];
+  }
+
+  const collections: NormalizedCollection[] = [];
+
+  for (const [path, value] of Object.entries(payload)) {
+    if (!value) continue;
+
+    const documents = toDocumentsArray(value);
+    if (!documents.length) continue;
+
+    collections.push({ path, documents });
+  }
+
+  return collections;
+}
+
+function toDocumentsArray(
+  value: unknown,
+): Array<{ id: string; data: Record<string, unknown> }> {
+  if (Array.isArray(value)) {
+    return value
+      .map((item, index) => {
+        if (!isPlainObject(item)) {
+          throw new Error(`Document at index ${index} is not an object.`);
+        }
+        const docId = extractId(item);
+        if (!docId) {
+          throw new Error(`Document at index ${index} is missing an "id" field.`);
+        }
+        return { id: docId, data: item };
+      })
+      .filter(({ id }) => Boolean(id));
+  }
+
+  if (isPlainObject(value)) {
+    return Object.entries(value).map(([key, docValue]) => {
+      if (!isPlainObject(docValue)) {
+        throw new Error(`Document "${key}" is not an object.`);
+      }
+      const docId = extractId(docValue) ?? key;
+      if (!docId) {
+        throw new Error(`Document "${key}" is missing an id.`);
+      }
+      return { id: docId, data: docValue };
+    });
+  }
+
+  return [];
+}
+
+function extractId(data: Record<string, unknown>): string | null {
+  const idCandidate = data.id ?? data.docId;
+  if (typeof idCandidate === "string" && idCandidate.trim()) {
+    return idCandidate.trim();
+  }
+  return null;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }

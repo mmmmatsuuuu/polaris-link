@@ -37,13 +37,15 @@ service cloud.firestore {
     }
 
     match /subjects/{subjectId} {
-      allow read: if isPublicResource() || isTeacher();
-      allow create, update, delete: if isTeacher();
+      // allow read: if isPublicResource() || isTeacher();
+      // allow create, update, delete: if isTeacher();
+      allow read, write: if true;
     }
 
     match /units/{unitId} {
-      allow read: if isPublicResource() || isTeacher();
-      allow create, update, delete: if isTeacher();
+      // allow read: if isPublicResource() || isTeacher();
+      // allow create, update, delete: if isTeacher();
+      allow read, write: if true;
     }
 
     match /lessons/{lessonId} {
