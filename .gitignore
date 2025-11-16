@@ -1,5 +1,7 @@
 .env
 
+.codex
+
 # web/
 ./web/node_modules
 

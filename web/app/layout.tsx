@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthProvider";
+import RadixThemeProvider from "@/components/providers/RadixThemeProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,9 +16,9 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <RadixThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </RadixThemeProvider>
       </body>
     </html>
   );
