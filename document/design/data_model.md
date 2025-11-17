@@ -6,17 +6,16 @@
 
 - **トップレベルコレクションで階層を表現**: 科目・単元・授業を別コレクションに分割し、IDで参照する（ネストし過ぎるとクエリが煩雑になるため）。
 - **公開状態フィールドを単一で管理**: `publishStatus`（`public`/`private`）で公開・非公開を制御し、公開中のみ生徒画面や未ログイン閲覧に出す。
-- **年度管理**: `academicYear`（例: `2024`）や`availableYears`配列で有効年度を管理し、CSV一括登録時に年度ごとに反映。
 - **監査/集計向けログ分離**: 視聴/テスト結果は専用ログコレクションで管理し、進捗表示用の集計はCloud Functionsで別ドキュメントに反映することも視野に入れる。
 
 ## コレクション一覧
 
 | コレクション/パス | 役割 |
 | --- | --- |
-| `app_configs` | 年度設定やCSVテンプレートなど運用パラメータを保存。 |
+| `app_configs` | CSVテンプレートや公開設定など運用パラメータを保存。 |
 | `users` | 教師/生徒ユーザーの属性、権限、在籍情報を管理。 |
-| `subjects` | 科目。名称、表示順、公開状態、年度設定など。 |
-| `units` | 単元。`subjectId`と紐付け、公開状態や年度設定を保持。 |
+| `subjects` | 科目。名称、表示順、公開状態を管理。 |
+| `units` | 単元。`subjectId`と紐付け、公開状態を保持。 |
 | `lessons` | 授業。`subjectId`/`unitId`参照、コンテンツメタ情報、公開/非公開。 |
 | `lessons/{lessonId}/contents` | 各授業内の学習コンテンツ（動画/小テスト/リンク）。 |
 | `lessons/{lessonId}/contents/{contentId}/questions` | 小テスト用の問題定義。 |
@@ -30,10 +29,9 @@
 ### `app_configs`
 - `docId`: 例 `default`
 - Fields:
-    - `currentAcademicYear`: number — 運用中の年度。
-    - `availableYears`: number[] — 登録済み年度一覧。
     - `csvTemplates`: { `students`: string, `subjects`: string, ... } — Storage上のテンプレートファイルパス。
     - `allowPublicView`: boolean — 未ログイン閲覧可否（基本true）。
+    - `announcement`: string — トップページ/ダッシュボードに表示する運用メッセージ（任意）。
 
 ### `users`
 - `docId`: Firebase Auth UID。
@@ -42,11 +40,10 @@
     - `email`: string
     - `studentNumber`: number — 学籍番号
     - `displayName`: string
-    - `academicYear`: number — 入学年度や管理年度。
     - `notes`: string — CSVインポートメモ等（任意）。
     - `createdAt`/`updatedAt`: Timestamp
 - Index例:
-    - `role asc, academicYear desc`（年度ごとの生徒一覧）。
+    - `role asc, createdAt desc`（最新登録の生徒一覧）。
     - `email` にユニーク制約（アプリ側で検証）。
 
 ### `subjects`
@@ -55,7 +52,6 @@
     - `description`: string
     - `order`: number — 表示順。
     - `publishStatus`: `'public' | 'private'`
-    - `availableYears`: number[] — その科目を使用する年度。
     - `createdBy`: userId
     - `updatedAt`: Timestamp
 - Index例: `publishStatus asc, order asc`（公開科目の並び替え）。
@@ -67,7 +63,6 @@
     - `description`: string
     - `order`: number
     - `publishStatus`: `'public' | 'private'`
-    - `availableYears`: number[]
     - `createdBy`, `updatedAt`
 - Index例:
     - `subjectId asc, order asc`（科目内の単元一覧取得）。
@@ -80,7 +75,6 @@
     - `title`: string
     - `description`: string
     - `publishStatus`: `'public' | 'private'`
-    - `availableYears`: number[]
     - `tags`: string[]（任意）
     - `order`: number — 単元内での並び順。
     - `createdBy`, `updatedAt`
@@ -160,7 +154,6 @@
 - Fields:
     - `targetType`: `'user' | 'lesson' | 'content'`
     - `targetId`: string
-    - `academicYear`: number
     - `metrics`: object
         - 例: `{ completedVideos: number, pendingVideos: number, quizAccuracy: number }`
     - `updatedAt`: Timestamp
@@ -183,7 +176,7 @@
     - CSVテンプレート、インポート用ファイルを`/csv_uploads/{timestamp}_{type}.csv`のように格納。
     - 添付教材（YouTube以外のファイル）が必要になった場合に備えて`/lesson_assets/{lessonId}/`を確保しておく。
 - **Cloud Functions提案**
-    - CSVアップロード処理、進捗集計、公開状態変更時のキャッシュ整合性調整、卒業生の`academicYear`・属性更新。
+    - CSVアップロード処理、進捗集計、公開状態変更時のキャッシュ整合性調整、卒業生アカウントの有効/無効切り替え。
 
 ## 今後の検討メモ
 

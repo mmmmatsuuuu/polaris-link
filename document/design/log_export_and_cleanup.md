@@ -30,6 +30,5 @@
 - 次年度以降も同じ手順で再利用できるよう、改善点や注意事項を追記しておく。
 
 ## 今後の改善アイデア
-- `video_progress` / `test_attempts` に `academicYear` フィールドを追加し、年度で直接フィルタできるようにする。
 - BigQuery へのエクスポートと削除を自動化するバッチ（Cloud Functions + Cloud Scheduler）の導入。
-- エクスポート削除前に進捗サマリを `progress_snapshots` に固定化し、過去年度の参照ページを用意する。
+- エクスポート削除前に進捗サマリを `progress_snapshots` に固定化し、過去期間の参照ページを用意する。
