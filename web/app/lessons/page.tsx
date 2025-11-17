@@ -1,382 +1,97 @@
-"use client";
+import Link from "next/link";
 
-import { useEffect, useMemo, useState } from "react";
-import {
-  collection,
-  DocumentData,
-  getDocs,
-  orderBy,
-  query,
-  QueryDocumentSnapshot,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase/client";
-import type {
-  Lesson,
-  LessonContent,
-  Subject,
-  Unit,
-} from "@/types/catalog";
-import type { LessonCard, SubjectSectionData } from "@/app/lessons/types";
-import { CatalogHero } from "@/components/lessons/CatalogHero";
-import { SubjectSections } from "@/components/lessons/SubjectSections";
-
-const DEFAULT_LESSON_DESCRIPTION = "授業概要を入力してください。";
+const subjects = [
+  {
+    id: "literacy",
+    name: "情報リテラシー",
+    description: "基本操作から情報モラルまでを網羅した入門コース。",
+    units: [
+      { name: "デジタル基礎", lessons: 3 },
+      { name: "情報モラル", lessons: 2 },
+    ],
+  },
+  {
+    id: "science",
+    name: "理科探究",
+    description: "動画・演習を通じて観察力と考察力を鍛える科目。",
+    units: [
+      { name: "化学反応", lessons: 4 },
+      { name: "生物の仕組み", lessons: 3 },
+    ],
+  },
+  {
+    id: "history",
+    name: "世界史",
+    description: "時代別のストーリーを映像と年表で学ぶ。",
+    units: [
+      { name: "古代文明", lessons: 2 },
+      { name: "近代革命", lessons: 3 },
+    ],
+  },
+];
 
 export default function LessonsPage() {
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [units, setUnits] = useState<Unit[]>([]);
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [lessonContents, setLessonContents] = useState<LessonContent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function loadCatalog() {
-      setError(null);
-      setLoading(true);
-      try {
-        const [subjectsSnapshot, unitsSnapshot, lessonsSnapshot] =
-          await Promise.all([
-            getDocs(query(collection(db, "subjects"), orderBy("order", "asc"))),
-            getDocs(query(collection(db, "units"), orderBy("order", "asc"))),
-            getDocs(query(collection(db, "lessons"), orderBy("order", "asc"))),
-          ]);
-
-        const subjectDocs = subjectsSnapshot.docs
-          .map(mapSubjectDocument)
-          .filter((subject): subject is Subject => Boolean(subject));
-
-        const unitDocs = unitsSnapshot.docs
-          .map(mapUnitDocument)
-          .filter((unit): unit is Unit => Boolean(unit));
-
-        const hydratedLessons = await Promise.all(
-          lessonsSnapshot.docs.map((lessonDoc) => hydrateLessonDocument(lessonDoc)),
-        );
-        const publicLessons = hydratedLessons.filter(
-          (entry): entry is HydratedLesson => Boolean(entry),
-        );
-
-        if (!isMounted) return;
-
-        setSubjects(subjectDocs);
-        setUnits(unitDocs);
-        setLessons(publicLessons.map((entry) => entry.lesson));
-        setLessonContents(publicLessons.flatMap((entry) => entry.contents));
-      } catch (catalogError) {
-        console.error("Failed to load catalog", catalogError);
-        if (isMounted) {
-          setError("カタログデータの取得に失敗しました");
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadCatalog();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const lessonCards = useMemo(
-    () => buildLessonCards(subjects, units, lessons, lessonContents),
-    [subjects, units, lessons, lessonContents],
-  );
-  const subjectSections = useMemo(
-    () => buildSubjectSections(subjects, units, lessonCards),
-    [subjects, units, lessonCards],
-  );
-
-  const heroStats = useMemo(
-    () => [
-      { label: "科目", value: subjects.length },
-      { label: "単元", value: units.length },
-      { label: "授業", value: lessons.length },
-    ],
-    [subjects.length, units.length, lessons.length],
-  );
-
-  const statusMessage = loading
-    ? "Firestoreからカタログデータを読み込んでいます..."
-    : error;
-
   return (
-    <main className="bg-slate-50 pb-24">
-      <CatalogHero stats={heroStats} statusMessage={statusMessage} />
-      <SubjectSections sections={subjectSections} loading={loading} />
+    <main className="bg-slate-50">
+      <section className="mx-auto max-w-6xl px-6 py-16">
+        <div className="rounded-3xl bg-white p-10 shadow-sm">
+          <p className="text-sm font-semibold text-sky-600">公開授業カタログ</p>
+          <h1 className="mt-3 text-3xl font-bold text-slate-900">科目一覧</h1>
+          <p className="mt-3 text-slate-600">
+            科目カードをクリックするとサンプルの科目ページに遷移し、さらに授業ページや小テストページへ移動できます。
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3 text-sm text-slate-500">
+            <span className="rounded-full bg-slate-100 px-4 py-1">科目数 3</span>
+            <span className="rounded-full bg-slate-100 px-4 py-1">単元数 8</span>
+            <span className="rounded-full bg-slate-100 px-4 py-1">授業数 20</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-16 md:grid-cols-2">
+        {subjects.map((subject) => (
+          <div key={subject.id} className="rounded-3xl bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">{subject.name}</h2>
+                <p className="text-sm text-slate-500">{subject.description}</p>
+              </div>
+              <Link
+                href="/lessons/subject-sample"
+                className="rounded-full border border-slate-200 px-4 py-1 text-sm font-medium text-slate-700"
+              >
+                詳細
+              </Link>
+            </div>
+            <div className="mt-4 space-y-2">
+              {subject.units.map((unit) => (
+                <div
+                  key={unit.name}
+                  className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-sm"
+                >
+                  <span>{unit.name}</span>
+                  <span className="text-slate-500">授業 {unit.lessons}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-24">
+        <div className="rounded-3xl border border-dashed border-slate-300 bg-white/70 p-6 text-center">
+          <h3 className="text-lg font-semibold text-slate-900">紐付けのない授業も公開中</h3>
+          <p className="mt-2 text-sm text-slate-600">
+            科目や単元に属していない授業はアーカイブページから検索できます。
+          </p>
+          <Link
+            href="/lessons/archive"
+            className="mt-4 inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white"
+          >
+            アーカイブを見る
+          </Link>
+        </div>
+      </section>
     </main>
   );
-}
-
-type HydratedLesson = { lesson: Lesson; contents: LessonContent[] };
-
-async function hydrateLessonDocument(
-  docSnap: QueryDocumentSnapshot<DocumentData>,
-): Promise<HydratedLesson | null> {
-  const lesson = mapLessonDocument(docSnap);
-  if (!lesson) {
-    return null;
-  }
-
-  const contentsSnapshot = await getDocs(
-    query(collection(docSnap.ref, "contents"), orderBy("order", "asc")),
-  );
-  const contents = contentsSnapshot.docs
-    .map((contentDoc) => mapLessonContentDocument(docSnap.id, contentDoc))
-    .filter((content): content is LessonContent => Boolean(content));
-
-  return { lesson, contents };
-}
-
-function mapSubjectDocument(
-  docSnap: QueryDocumentSnapshot<DocumentData>,
-): Subject | null {
-  const data = docSnap.data();
-  const publishStatus = normalizePublishStatus(data.publishStatus);
-  if (publishStatus !== "public") {
-    return null;
-  }
-
-  return {
-    id: docSnap.id,
-    order: typeof data.order === "number" ? data.order : 0,
-    publishStatus,
-    availableYears: toNumberArray(data.availableYears),
-    name: typeof data.name === "string" && data.name ? data.name : "名称未設定の科目",
-    description:
-      typeof data.description === "string" ? data.description : "科目の説明を入力してください。",
-    createdBy: typeof data.createdBy === "string" ? data.createdBy : undefined,
-    updatedAt: typeof data.updatedAt === "string" ? data.updatedAt : undefined,
-  };
-}
-
-function mapUnitDocument(
-  docSnap: QueryDocumentSnapshot<DocumentData>,
-): Unit | null {
-  const data = docSnap.data();
-  const publishStatus = normalizePublishStatus(data.publishStatus);
-  if (publishStatus !== "public") {
-    return null;
-  }
-
-  const subjectId = typeof data.subjectId === "string" ? data.subjectId : "";
-  if (!subjectId) {
-    return null;
-  }
-
-  return {
-    id: docSnap.id,
-    subjectId,
-    order: typeof data.order === "number" ? data.order : 0,
-    publishStatus,
-    availableYears: toNumberArray(data.availableYears),
-    name: typeof data.name === "string" && data.name ? data.name : "名称未設定の単元",
-    description:
-      typeof data.description === "string" ? data.description : "単元の説明を入力してください。",
-    createdBy: typeof data.createdBy === "string" ? data.createdBy : undefined,
-    updatedAt: typeof data.updatedAt === "string" ? data.updatedAt : undefined,
-  };
-}
-
-function mapLessonDocument(
-  docSnap: QueryDocumentSnapshot<DocumentData>,
-): Lesson | null {
-  const data = docSnap.data();
-  const publishStatus = normalizePublishStatus(data.publishStatus);
-  if (publishStatus !== "public") {
-    return null;
-  }
-
-  const subjectId = typeof data.subjectId === "string" ? data.subjectId : "";
-  if (!subjectId) {
-    return null;
-  }
-
-  const unitId = typeof data.unitId === "string" ? data.unitId : null;
-
-  return {
-    id: docSnap.id,
-    subjectId,
-    unitId,
-    title: typeof data.title === "string" && data.title ? data.title : "名称未設定の授業",
-    description:
-      typeof data.description === "string" ? data.description : DEFAULT_LESSON_DESCRIPTION,
-    tags: toStringArray(data.tags),
-    order: typeof data.order === "number" ? data.order : 0,
-    publishStatus,
-    availableYears: toNumberArray(data.availableYears),
-    createdBy: typeof data.createdBy === "string" ? data.createdBy : undefined,
-    updatedAt: typeof data.updatedAt === "string" ? data.updatedAt : undefined,
-  };
-}
-
-function mapLessonContentDocument(
-  lessonId: string,
-  docSnap: QueryDocumentSnapshot<DocumentData>,
-): LessonContent | null {
-  const data = docSnap.data();
-  const publishStatus = normalizePublishStatus(data.publishStatus);
-  if (publishStatus !== "public") {
-    return null;
-  }
-
-  const type =
-    data.type === "quiz" || data.type === "link"
-      ? data.type
-      : "video";
-
-  return {
-    id: docSnap.id,
-    lessonId,
-    type,
-    title: typeof data.title === "string" && data.title ? data.title : "名称未設定のコンテンツ",
-    description:
-      typeof data.description === "string"
-        ? data.description
-        : "コンテンツの説明を入力してください。",
-    publishStatus,
-    order: typeof data.order === "number" ? data.order : 0,
-    metadata: buildContentMetadata(type, data.metadata),
-    createdBy: typeof data.createdBy === "string" ? data.createdBy : undefined,
-    updatedAt: typeof data.updatedAt === "string" ? data.updatedAt : undefined,
-  };
-}
-
-function buildContentMetadata(
-  type: LessonContent["type"],
-  rawMetadata: unknown,
-): LessonContent["metadata"] {
-  const metadata = isPlainObject(rawMetadata) ? rawMetadata : {};
-
-  if (type === "video") {
-    return {
-      type: "video",
-      youtubeVideoId:
-        typeof metadata.youtubeVideoId === "string"
-          ? metadata.youtubeVideoId
-          : "",
-      durationSec:
-        typeof metadata.durationSec === "number" ? metadata.durationSec : 0,
-      badgeLabel:
-        typeof metadata.badgeLabel === "string" ? metadata.badgeLabel : undefined,
-    };
-  }
-
-  if (type === "quiz") {
-    return {
-      type: "quiz",
-      questionPoolSize:
-        typeof metadata.questionPoolSize === "number"
-          ? metadata.questionPoolSize
-          : 0,
-      questionsPerAttempt:
-        typeof metadata.questionsPerAttempt === "number"
-          ? metadata.questionsPerAttempt
-          : 0,
-      timeLimitSec:
-        typeof metadata.timeLimitSec === "number"
-          ? metadata.timeLimitSec
-          : undefined,
-      allowRetry:
-        typeof metadata.allowRetry === "boolean" ? metadata.allowRetry : false,
-    };
-  }
-
-  return {
-    type: "link",
-    url: typeof metadata.url === "string" ? metadata.url : "",
-    badge: typeof metadata.badge === "string" ? metadata.badge : undefined,
-  };
-}
-
-function normalizePublishStatus(value: unknown): "public" | "private" {
-  return value === "private" ? "private" : "public";
-}
-
-function toNumberArray(value: unknown): number[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value
-    .map((item) => Number(item))
-    .filter((num) => Number.isFinite(num))
-    .sort();
-}
-
-function toStringArray(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.filter((item): item is string => typeof item === "string");
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function buildLessonCards(
-  subjects: Subject[],
-  units: Unit[],
-  lessons: Lesson[],
-  lessonContents: LessonContent[],
-): LessonCard[] {
-  const subjectMap = new Map(subjects.map((subject) => [subject.id, subject]));
-  const unitMap = new Map(units.map((unit) => [unit.id, unit]));
-  const contentMap = new Map<string, LessonContent[]>();
-
-  lessonContents.forEach((content) => {
-    const list = contentMap.get(content.lessonId) ?? [];
-    list.push(content);
-    contentMap.set(content.lessonId, list);
-  });
-
-  return lessons
-    .map((lesson) => {
-      const subject = subjectMap.get(lesson.subjectId);
-      if (!subject) return null;
-      const unit = lesson.unitId ? unitMap.get(lesson.unitId) ?? null : null;
-      const contents = contentMap.get(lesson.id) ?? [];
-      return { lesson, subject, unit, contents };
-    })
-    .filter((card): card is LessonCard => card !== null)
-    .sort((a, b) => a.lesson.order - b.lesson.order);
-}
-
-function buildSubjectSections(
-  subjects: Subject[],
-  units: Unit[],
-  lessonCards: LessonCard[],
-): SubjectSectionData[] {
-  return subjects
-    .map((subject) => {
-      const subjectLessons = lessonCards.filter(
-        (card) => card.subject.id === subject.id,
-      );
-      const subjectUnits = units
-        .filter((unit) => unit.subjectId === subject.id)
-        .sort((a, b) => a.order - b.order);
-
-      const unitsWithLessons = subjectUnits
-        .map((unit) => ({
-          unit,
-          lessons: subjectLessons.filter((card) => card.lesson.unitId === unit.id),
-        }))
-        .filter((group) => group.lessons.length > 0);
-
-      const unassignedLessons = subjectLessons.filter(
-        (card) => !card.lesson.unitId,
-      );
-
-      return { subject, units: unitsWithLessons, unassignedLessons };
-    })
-    .filter(
-      (section) =>
-        section.units.length > 0 || section.unassignedLessons.length > 0,
-    )
-    .sort((a, b) => a.subject.order - b.subject.order);
 }
