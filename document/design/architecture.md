@@ -23,7 +23,7 @@ Firebase Auth   Firestore   Storage   Cloud Functions
 
 | 層 | 技術 | 役割 |
 | --- | --- | --- |
-| フロントエンド | Next.js 14+, TypeScript, Tailwind CSS | 教師・生徒向けUI、公開ページ。 |
+| フロントエンド | Next.js 14+, TypeScript, Tailwind CSS, Radix UI | 教師・生徒向けUI、公開ページ。 |
 | 認証 | Firebase Authentication (Google) | OAuthログイン、セッション管理。 |
 | データ | Cloud Firestore | コンテンツ、ユーザー、ログ、CSVジョブ。 |
 | ストレージ | Firebase Storage | CSVアップロード、テンプレート、将来的な教材。 |

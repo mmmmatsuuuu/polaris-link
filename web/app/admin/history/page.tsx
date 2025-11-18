@@ -1,3 +1,15 @@
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Flex,
+  Heading,
+  Section,
+  Table,
+  Text,
+} from "@radix-ui/themes";
+
 const logs = [
   { subject: "情報リテラシー", lesson: "SNSと個人情報", user: "hanako@example.com", watch: "12分", quiz: "80%" },
   { subject: "理科探究", lesson: "化学反応", user: "taro@example.com", watch: "5分", quiz: "未受験" },
@@ -5,54 +17,56 @@ const logs = [
 
 export default function HistoryAdminPage() {
   return (
-    <main className="bg-white">
-      <section className="border-b border-slate-100 bg-slate-50">
-        <div className="mx-auto max-w-6xl px-6 py-10">
-          <p className="text-sm text-slate-500">ログ確認</p>
-          <h1 className="text-3xl font-bold text-slate-900">利用履歴管理</h1>
-          <p className="mt-2 text-slate-600">フィルター: 期間=2024/04/01-2024/04/30、科目=情報リテラシー（UIモック）</p>
-        </div>
-      </section>
+    <Box className="bg-white">
+      <Section className="border-b border-slate-100 bg-slate-50">
+        <Flex direction="column" gap="2" className="mx-auto max-w-6xl">
+          <Text color="gray">ログ確認</Text>
+          <Heading size="7">利用履歴管理</Heading>
+          <Text color="gray">フィルター: 期間=2024/04/01-2024/04/30、科目=情報リテラシー（UIモック）</Text>
+        </Flex>
+      </Section>
 
-      <section className="mx-auto max-w-6xl px-6 py-10">
-        <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-wrap gap-2 text-xs text-slate-500">
-              <span className="rounded-full bg-slate-100 px-3 py-1">期間: 今月</span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">科目: 情報リテラシー</span>
-            </div>
-            <div className="flex gap-2 text-sm">
-              <button className="rounded-full border border-slate-300 px-4 py-2 text-slate-700">CSVエクスポート</button>
-              <button className="rounded-full border border-rose-300 px-4 py-2 text-rose-700">古いログを削除</button>
-            </div>
-          </div>
-          <div className="mt-6 overflow-auto text-sm">
-            <table className="w-full min-w-[600px] text-left">
-              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-                <tr>
-                  <th className="px-4 py-2">科目/授業</th>
-                  <th className="px-4 py-2">ユーザー</th>
-                  <th className="px-4 py-2">視聴時間</th>
-                  <th className="px-4 py-2">小テスト</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log) => (
-                  <tr key={log.lesson} className="border-t border-slate-100">
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-slate-900">{log.lesson}</p>
-                      <p className="text-xs text-slate-500">{log.subject}</p>
-                    </td>
-                    <td className="px-4 py-3 text-slate-500">{log.user}</td>
-                    <td className="px-4 py-3 text-slate-500">{log.watch}</td>
-                    <td className="px-4 py-3 text-slate-500">{log.quiz}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-    </main>
+      <Section>
+        <Card variant="classic" className="mx-auto max-w-6xl">
+          <Flex direction={{ initial: "column", md: "row" }} justify="between" align={{ initial: "start", md: "center" }} gap="3">
+            <Flex gap="2" wrap="wrap">
+              <Badge variant="soft">期間: 今月</Badge>
+              <Badge variant="soft">科目: 情報リテラシー</Badge>
+            </Flex>
+            <Flex gap="2">
+              <Button variant="soft">CSVエクスポート</Button>
+              <Button color="red" variant="soft">
+                古いログを削除
+              </Button>
+            </Flex>
+          </Flex>
+          <Table.Root mt="4">
+            <Table.Header>
+              <Table.Row>
+                <Table.ColumnHeaderCell>科目/授業</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>ユーザー</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>視聴時間</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>小テスト</Table.ColumnHeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {logs.map((log) => (
+                <Table.Row key={log.lesson}>
+                  <Table.RowHeaderCell>
+                    <Text weight="medium">{log.lesson}</Text>
+                    <Text size="2" color="gray">
+                      {log.subject}
+                    </Text>
+                  </Table.RowHeaderCell>
+                  <Table.Cell>{log.user}</Table.Cell>
+                  <Table.Cell>{log.watch}</Table.Cell>
+                  <Table.Cell>{log.quiz}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+        </Card>
+      </Section>
+    </Box>
   );
 }

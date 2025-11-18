@@ -1,4 +1,15 @@
 import Link from "next/link";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Heading,
+  Section,
+  Text,
+} from "@radix-ui/themes";
 
 const subjects = [
   {
@@ -32,66 +43,76 @@ const subjects = [
 
 export default function LessonsPage() {
   return (
-    <main className="bg-slate-50">
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="rounded-3xl bg-white p-10 shadow-sm">
-          <p className="text-sm font-semibold text-sky-600">公開授業カタログ</p>
-          <h1 className="mt-3 text-3xl font-bold text-slate-900">科目一覧</h1>
-          <p className="mt-3 text-slate-600">
-            科目カードをクリックするとサンプルの科目ページに遷移し、さらに授業ページや小テストページへ移動できます。
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3 text-sm text-slate-500">
-            <span className="rounded-full bg-slate-100 px-4 py-1">科目数 3</span>
-            <span className="rounded-full bg-slate-100 px-4 py-1">単元数 8</span>
-            <span className="rounded-full bg-slate-100 px-4 py-1">授業数 20</span>
-          </div>
-        </div>
-      </section>
+    <Box className="bg-slate-50">
+      <Section size="3">
+        <Card variant="surface" className="mx-auto max-w-6xl">
+          <Flex direction="column" gap="3">
+            <Badge color="blue" radius="full">
+              公開授業カタログ
+            </Badge>
+            <Heading size="7" className="text-slate-900">
+              科目一覧
+            </Heading>
+            <Text color="gray">
+              科目カードをクリックするとサンプルの科目ページに遷移し、さらに授業ページや小テストページへ移動できます。
+            </Text>
+            <Flex wrap="wrap" gap="2">
+              <Badge variant="soft">科目数 3</Badge>
+              <Badge variant="soft">単元数 8</Badge>
+              <Badge variant="soft">授業数 20</Badge>
+            </Flex>
+          </Flex>
+        </Card>
+      </Section>
 
-      <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-16 md:grid-cols-2">
-        {subjects.map((subject) => (
-          <div key={subject.id} className="rounded-3xl bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900">{subject.name}</h2>
-                <p className="text-sm text-slate-500">{subject.description}</p>
-              </div>
-              <Link
-                href="/lessons/subject-sample"
-                className="rounded-full border border-slate-200 px-4 py-1 text-sm font-medium text-slate-700"
-              >
-                詳細
-              </Link>
-            </div>
-            <div className="mt-4 space-y-2">
-              {subject.units.map((unit) => (
-                <div
-                  key={unit.name}
-                  className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-sm"
-                >
-                  <span>{unit.name}</span>
-                  <span className="text-slate-500">授業 {unit.lessons}</span>
+      <Section size="2">
+        <Grid
+          columns={{ initial: "1", md: "2" }}
+          gap="4"
+          className="mx-auto max-w-6xl"
+        >
+          {subjects.map((subject) => (
+            <Card key={subject.id} variant="classic">
+              <Flex justify="between" align="center" mb="3">
+                <div>
+                  <Heading size="5">{subject.name}</Heading>
+                  <Text size="2" color="gray">
+                    {subject.description}
+                  </Text>
                 </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </section>
+                <Button asChild variant="soft" radius="full">
+                  <Link href="/lessons/subject-sample">詳細</Link>
+                </Button>
+              </Flex>
+              <Flex direction="column" gap="2">
+                {subject.units.map((unit) => (
+                  <Card key={unit.name} variant="surface">
+                    <Flex justify="between">
+                      <Text>{unit.name}</Text>
+                      <Text color="gray">授業 {unit.lessons}</Text>
+                    </Flex>
+                  </Card>
+                ))}
+              </Flex>
+            </Card>
+          ))}
+        </Grid>
+      </Section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-24">
-        <div className="rounded-3xl border border-dashed border-slate-300 bg-white/70 p-6 text-center">
-          <h3 className="text-lg font-semibold text-slate-900">紐付けのない授業も公開中</h3>
-          <p className="mt-2 text-sm text-slate-600">
+      <Section size="2">
+        <Card
+          variant="surface"
+          className="mx-auto max-w-6xl border border-dashed border-slate-300 text-center"
+        >
+          <Heading size="4">紐付けのない授業も公開中</Heading>
+          <Text mt="2" color="gray">
             科目や単元に属していない授業はアーカイブページから検索できます。
-          </p>
-          <Link
-            href="/lessons/archive"
-            className="mt-4 inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white"
-          >
-            アーカイブを見る
-          </Link>
-        </div>
-      </section>
-    </main>
+          </Text>
+          <Button asChild mt="4" radius="full">
+            <Link href="/lessons/archive">アーカイブを見る</Link>
+          </Button>
+        </Card>
+      </Section>
+    </Box>
   );
 }

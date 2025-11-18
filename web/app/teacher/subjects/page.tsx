@@ -1,3 +1,13 @@
+import {
+  Badge,
+  Box,
+  Card,
+  Flex,
+  Heading,
+  Section,
+  Text,
+} from "@radix-ui/themes";
+
 const subjects = [
   {
     name: "情報リテラシー",
@@ -12,47 +22,51 @@ const subjects = [
     name: "理科探究",
     completion: 54,
     quizAccuracy: 62,
-    units: [
-      { name: "化学反応", completion: 50, quizAccuracy: 58 },
-    ],
+    units: [{ name: "化学反応", completion: 50, quizAccuracy: 58 }],
   },
 ];
 
 export default function TeacherSubjectUsagePage() {
   return (
-    <main className="bg-white">
-      <section className="border-b border-slate-100 bg-slate-50">
-        <div className="mx-auto max-w-6xl px-6 py-10">
-          <p className="text-sm text-slate-500">集計</p>
-          <h1 className="text-3xl font-bold text-slate-900">科目別利用状況</h1>
-          <p className="mt-2 text-slate-600">フィルター: 科目=すべて / 期間=今月（UIモック）</p>
-        </div>
-      </section>
+    <Box className="bg-white">
+      <Section className="border-b border-slate-100 bg-slate-50">
+        <Flex direction="column" gap="2" className="mx-auto max-w-6xl">
+          <Text color="gray">集計</Text>
+          <Heading size="7">科目別利用状況</Heading>
+          <Text color="gray">フィルター: 科目=すべて / 期間=今月（UIモック）</Text>
+        </Flex>
+      </Section>
 
-      <section className="mx-auto max-w-6xl px-6 py-10 space-y-6">
-        {subjects.map((subject) => (
-          <div key={subject.name} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900">{subject.name}</h2>
-                <p className="text-sm text-slate-500">完了率 {subject.completion}% / 小テスト正答率 {subject.quizAccuracy}%</p>
-              </div>
-              <div className="flex gap-2 text-xs text-slate-500">
-                <span className="rounded-full bg-slate-100 px-3 py-1">公開中</span>
-                <span className="rounded-full bg-slate-100 px-3 py-1">閲覧 230 件</span>
-              </div>
-            </div>
-            <div className="mt-4 space-y-3">
-              {subject.units.map((unit) => (
-                <div key={unit.name} className="rounded-2xl bg-slate-50 p-4">
-                  <p className="text-sm font-semibold text-slate-700">{unit.name}</p>
-                  <p className="text-xs text-slate-500">完了率 {unit.completion}% / 正答率 {unit.quizAccuracy}%</p>
+      <Section>
+        <Flex direction="column" gap="4" className="mx-auto max-w-6xl">
+          {subjects.map((subject) => (
+            <Card key={subject.name} variant="classic">
+              <Flex justify="between" align={{ initial: "start", md: "center" }} direction={{ initial: "column", md: "row" }} gap="3">
+                <div>
+                  <Heading size="5">{subject.name}</Heading>
+                  <Text color="gray">
+                    完了率 {subject.completion}% / 小テスト正答率 {subject.quizAccuracy}%
+                  </Text>
                 </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </section>
-    </main>
+                <Flex gap="2" wrap="wrap">
+                  <Badge variant="soft">公開中</Badge>
+                  <Badge variant="soft">閲覧 230 件</Badge>
+                </Flex>
+              </Flex>
+              <Flex direction="column" gap="2" mt="4">
+                {subject.units.map((unit) => (
+                  <Card key={unit.name} variant="surface">
+                    <Text weight="medium">{unit.name}</Text>
+                    <Text size="2" color="gray">
+                      完了率 {unit.completion}% / 正答率 {unit.quizAccuracy}%
+                    </Text>
+                  </Card>
+                ))}
+              </Flex>
+            </Card>
+          ))}
+        </Flex>
+      </Section>
+    </Box>
   );
 }

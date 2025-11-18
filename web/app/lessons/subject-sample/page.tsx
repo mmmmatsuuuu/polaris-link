@@ -1,4 +1,15 @@
 import Link from "next/link";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Heading,
+  Section,
+  Text,
+} from "@radix-ui/themes";
 
 const units = [
   {
@@ -26,80 +37,87 @@ const breadcrumbs = [
 
 export default function SubjectSamplePage() {
   return (
-    <main className="bg-white">
-      <section className="border-b border-slate-100 bg-slate-50">
-        <div className="mx-auto max-w-6xl px-6 py-10">
-          <nav className="text-sm text-slate-500">
+    <Box className="bg-white">
+      <Section size="3" className="border-b border-slate-100 bg-slate-50">
+        <Flex direction="column" gap="3" className="mx-auto max-w-6xl">
+          <Flex gap="2" wrap="wrap" className="text-sm text-slate-500">
             {breadcrumbs.map((crumb, index) => (
-              <span key={crumb.label}>
+              <Flex key={crumb.label} align="center" gap="2">
                 <Link href={crumb.href} className="text-slate-600 hover:text-slate-900">
                   {crumb.label}
                 </Link>
-                {index < breadcrumbs.length - 1 && <span className="mx-2">/</span>}
-              </span>
+                {index < breadcrumbs.length - 1 && <span>/</span>}
+              </Flex>
             ))}
-          </nav>
-          <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-sm font-semibold text-sky-600">科目</p>
-              <h1 className="text-3xl font-bold text-slate-900">情報リテラシー</h1>
-              <p className="mt-2 max-w-2xl text-slate-600">
+          </Flex>
+          <Flex
+            direction={{ initial: "column", md: "row" }}
+            justify="between"
+            align="start"
+            gap="4"
+          >
+            <Flex direction="column" gap="2">
+              <Badge color="blue" radius="full">
+                科目
+              </Badge>
+              <Heading size="8">情報リテラシー</Heading>
+              <Text color="gray">
                 ハードウェア・ソフトウェアの基礎、クラウドサービス、安全な情報の扱い方などを動画と小テストで段階的に学びます。
-              </p>
-            </div>
-            <div className="grid gap-2 text-sm text-slate-600 md:text-right">
-              <span>単元数: 2</span>
-              <span>公開授業: 4</span>
-              <span>最終更新: 2024/04/01</span>
-            </div>
-          </div>
-        </div>
-      </section>
+              </Text>
+            </Flex>
+            <Flex direction="column" gap="1" align={{ initial: "start", md: "end" }}>
+              <Text color="gray">単元数: 2</Text>
+              <Text color="gray">公開授業: 4</Text>
+              <Text color="gray">最終更新: 2024/04/01</Text>
+            </Flex>
+          </Flex>
+        </Flex>
+      </Section>
 
-      <section className="mx-auto max-w-6xl px-6 py-12">
-        <div className="grid gap-6">
+      <Section size="3">
+        <Grid className="mx-auto max-w-6xl" gap="4">
           {units.map((unit) => (
-            <div key={unit.name} className="rounded-3xl border border-slate-100 p-6 shadow-sm">
-              <div className="flex items-start justify-between">
+            <Card key={unit.name} variant="classic">
+              <Flex justify="between" align="start">
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-900">{unit.name}</h2>
-                  <p className="mt-2 text-sm text-slate-500">{unit.summary}</p>
+                  <Heading size="5">{unit.name}</Heading>
+                  <Text color="gray">{unit.summary}</Text>
                 </div>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">
-                  授業 {unit.lessons.length}
-                </span>
-              </div>
-              <div className="mt-4 space-y-3">
+                <Badge variant="soft">授業 {unit.lessons.length}</Badge>
+              </Flex>
+              <Flex direction="column" gap="3" mt="4">
                 {unit.lessons.map((lesson) => (
-                  <div key={lesson.title} className="rounded-2xl bg-slate-50 p-4">
-                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                  <Card key={lesson.title} variant="surface">
+                    <Flex
+                      direction={{ initial: "column", md: "row" }}
+                      justify="between"
+                      align={{ initial: "start", md: "center" }}
+                      gap="3"
+                    >
                       <div>
-                        <p className="text-base font-medium text-slate-900">{lesson.title}</p>
-                        <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                        <Text weight="medium">{lesson.title}</Text>
+                        <Flex gap="2" mt="2" wrap="wrap">
                           {lesson.tags.map((tag) => (
-                            <span key={tag} className="rounded-full bg-white px-3 py-1 text-slate-500">
+                            <Badge key={tag} variant="soft">
                               {tag}
-                            </span>
+                            </Badge>
                           ))}
-                        </div>
+                        </Flex>
                       </div>
-                      <div className="flex flex-col items-start gap-2 text-sm text-slate-500 md:items-end">
-                        <span>{lesson.status}</span>
-                        <Link
-                          href="/lessons/subject-sample/lesson-sample"
-                          className="rounded-full bg-slate-900 px-4 py-1 text-xs font-semibold text-white"
-                        >
-                          授業ページへ
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
+                      <Flex direction="column" align={{ initial: "start", md: "end" }} gap="2">
+                        <Text color="gray">{lesson.status}</Text>
+                        <Button asChild radius="full" size="2">
+                          <Link href="/lessons/subject-sample/lesson-sample">授業ページへ</Link>
+                        </Button>
+                      </Flex>
+                    </Flex>
+                  </Card>
                 ))}
-              </div>
-            </div>
+              </Flex>
+            </Card>
           ))}
-        </div>
-      </section>
-    </main>
+        </Grid>
+      </Section>
+    </Box>
   );
 }

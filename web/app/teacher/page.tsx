@@ -1,4 +1,15 @@
 import Link from "next/link";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Heading,
+  Section,
+  Text,
+} from "@radix-ui/themes";
 
 const stats = [
   { label: "公開授業", value: 24 },
@@ -13,50 +24,66 @@ const activities = [
 
 export default function TeacherDashboardPage() {
   return (
-    <main className="bg-slate-50">
-      <section className="border-b border-slate-100 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10 md:flex-row md:items-center md:justify-between">
+    <Box className="bg-slate-50">
+      <Section className="border-b border-slate-100 bg-white">
+        <Flex
+          className="mx-auto max-w-6xl"
+          direction={{ initial: "column", md: "row" }}
+          justify="between"
+          align={{ initial: "start", md: "center" }}
+          gap="4"
+        >
           <div>
-            <p className="text-sm text-slate-500">教師ダッシュボード</p>
-            <h1 className="text-3xl font-bold text-slate-900">生徒の状況を俯瞰</h1>
-            <p className="mt-2 text-slate-600">概要カードから公開授業・ログ数を確認し、下部のリンクで詳細ページへ遷移します。</p>
+            <Badge variant="soft">教師ダッシュボード</Badge>
+            <Heading size="7" mt="2">
+              生徒の状況を俯瞰
+            </Heading>
+            <Text color="gray">
+              概要カードから公開授業・ログ数を確認し、下部のリンクで詳細ページへ遷移します。
+            </Text>
           </div>
-          <div className="flex flex-wrap gap-2 text-sm">
-            <Link href="/teacher/subjects" className="rounded-full bg-slate-900 px-4 py-2 font-semibold text-white">
-              科目利用状況
-            </Link>
-            <Link href="/teacher/students" className="rounded-full border border-slate-300 px-4 py-2 text-slate-700">
-              生徒別利用状況
-            </Link>
-          </div>
-        </div>
-      </section>
+          <Flex gap="2" wrap="wrap">
+            <Button asChild>
+              <Link href="/teacher/subjects">科目利用状況</Link>
+            </Button>
+            <Button asChild variant="soft">
+              <Link href="/teacher/students">生徒別利用状況</Link>
+            </Button>
+          </Flex>
+        </Flex>
+      </Section>
 
-      <section className="mx-auto grid max-w-6xl gap-4 px-6 py-10 md:grid-cols-3">
-        {stats.map((stat) => (
-          <div key={stat.label} className="rounded-3xl bg-white p-6 text-center shadow-sm">
-            <p className="text-sm text-slate-500">{stat.label}</p>
-            <p className="mt-2 text-3xl font-bold text-slate-900">{stat.value}</p>
-          </div>
-        ))}
-      </section>
+      <Section>
+        <Grid className="mx-auto max-w-6xl" columns={{ initial: "1", md: "3" }} gap="4">
+          {stats.map((stat) => (
+            <Card key={stat.label} variant="classic" className="text-center">
+              <Text color="gray">{stat.label}</Text>
+              <Heading size="6">{stat.value}</Heading>
+            </Card>
+          ))}
+        </Grid>
+      </Section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-16">
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900">最近の活動</h2>
-          <div className="mt-4 space-y-3 text-sm text-slate-600">
+      <Section>
+        <Card variant="classic" className="mx-auto max-w-6xl">
+          <Heading size="5">最近の活動</Heading>
+          <Flex direction="column" gap="3" mt="4">
             {activities.map((activity) => (
-              <div key={activity.label} className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-                <div>
-                  <p className="font-medium text-slate-900">{activity.label}</p>
-                  <p>{activity.detail}</p>
-                </div>
-                <span className="text-xs text-slate-500">{activity.time}</span>
-              </div>
+              <Card key={activity.label} variant="surface">
+                <Flex justify="between" align="center">
+                  <div>
+                    <Text weight="medium">{activity.label}</Text>
+                    <Text color="gray">{activity.detail}</Text>
+                  </div>
+                  <Text size="2" color="gray">
+                    {activity.time}
+                  </Text>
+                </Flex>
+              </Card>
             ))}
-          </div>
-        </div>
-      </section>
-    </main>
+          </Flex>
+        </Card>
+      </Section>
+    </Box>
   );
 }

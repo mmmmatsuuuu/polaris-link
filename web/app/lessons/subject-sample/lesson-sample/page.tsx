@@ -1,101 +1,120 @@
 import Link from "next/link";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Heading,
+  Section,
+  Text,
+} from "@radix-ui/themes";
 
 const videos = [
   { title: "動画01: SNSの危険性", duration: "12:34", status: "視聴済み" },
   { title: "動画02: 情報共有のマナー", duration: "08:20", status: "未視聴" },
 ];
 
-const quizzes = [
-  { title: "小テストA", progress: 80, attempts: 2 },
-];
+const quizzes = [{ title: "小テストA", progress: 80, attempts: 2 }];
 
-const extras = [
-  { title: "チェックリスト", type: "PDF", note: "投稿前の確認フロー" },
-];
+const extras = [{ title: "チェックリスト", type: "PDF", note: "投稿前の確認フロー" }];
 
 export default function LessonSamplePage() {
   return (
-    <main className="bg-slate-50">
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-5xl px-6 py-10">
+    <Box className="bg-slate-50">
+      <Section className="border-b border-slate-200 bg-white">
+        <Flex direction="column" gap="3" className="mx-auto max-w-5xl">
           <Link href="/lessons/subject-sample" className="text-sm text-slate-500">
             ← 情報リテラシーに戻る
           </Link>
-          <div className="mt-4">
-            <p className="text-sm font-semibold text-sky-600">授業</p>
-            <h1 className="text-3xl font-bold text-slate-900">SNSと個人情報の守り方</h1>
-            <p className="mt-2 text-slate-600">
-              SNSで起こりがちな個人情報の拡散事故を事例ベースで学び、安全な投稿方法を考える授業です。
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2 text-xs uppercase tracking-wide text-slate-500">
-              <span className="rounded-full bg-slate-100 px-3 py-1">タグ: 情報モラル</span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">公開中</span>
-            </div>
-          </div>
-        </div>
-      </section>
+          <Badge color="blue" radius="full">
+            授業
+          </Badge>
+          <Heading size="8">SNSと個人情報の守り方</Heading>
+          <Text color="gray">
+            SNSで起こりがちな個人情報の拡散事故を事例ベースで学び、安全な投稿方法を考える授業です。
+          </Text>
+          <Flex gap="2">
+            <Badge variant="soft">タグ: 情報モラル</Badge>
+            <Badge variant="soft">公開中</Badge>
+          </Flex>
+        </Flex>
+      </Section>
 
-      <section className="mx-auto max-w-5xl px-6 py-10 space-y-8">
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">動画</h2>
-            <span className="text-sm text-slate-500">{videos.length} 本</span>
-          </div>
-          <div className="mt-4 space-y-3">
-            {videos.map((video) => (
-              <div key={video.title} className="rounded-2xl border border-slate-100 p-4">
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="font-medium text-slate-900">{video.title}</p>
-                    <p className="text-sm text-slate-500">{video.duration}</p>
-                  </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">{video.status}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <Section>
+        <Flex direction="column" gap="5" className="mx-auto max-w-5xl">
+          <Card variant="classic">
+            <Flex justify="between" align="center">
+              <Heading size="5">動画</Heading>
+              <Text color="gray">{videos.length} 本</Text>
+            </Flex>
+            <Flex direction="column" gap="3" mt="3">
+              {videos.map((video) => (
+                <Card key={video.title} variant="surface">
+                  <Flex justify="between" align={{ initial: "start", md: "center" }} direction={{ initial: "column", md: "row" }}>
+                    <div>
+                      <Text weight="medium">{video.title}</Text>
+                      <Text size="2" color="gray">
+                        {video.duration}
+                      </Text>
+                    </div>
+                    <Badge variant="soft">{video.status}</Badge>
+                  </Flex>
+                </Card>
+              ))}
+            </Flex>
+          </Card>
 
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">小テスト</h2>
-            <span className="text-sm text-slate-500">{quizzes.length} 件</span>
-          </div>
-          <div className="mt-4 space-y-3">
-            {quizzes.map((quiz) => (
-              <div key={quiz.title} className="rounded-2xl border border-slate-100 p-4">
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="font-medium text-slate-900">{quiz.title}</p>
-                    <p className="text-sm text-slate-500">正答率 {quiz.progress}%</p>
-                  </div>
-                  <div className="flex flex-col items-start gap-2 md:items-end">
-                    <span className="text-xs text-slate-500">受験 {quiz.attempts} 回</span>
-                    <Link
-                      href="/lessons/subject-sample/lesson-sample/quiz"
-                      className="rounded-full bg-slate-900 px-4 py-1 text-xs font-semibold text-white"
-                    >
-                      小テストへ
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+          <Card variant="classic">
+            <Flex justify="between" align="center">
+              <Heading size="5">小テスト</Heading>
+              <Text color="gray">{quizzes.length} 件</Text>
+            </Flex>
+            <Flex direction="column" gap="3" mt="3">
+              {quizzes.map((quiz) => (
+                <Card key={quiz.title} variant="surface">
+                  <Flex
+                    justify="between"
+                    direction={{ initial: "column", md: "row" }}
+                    align={{ initial: "start", md: "center" }}
+                    gap="3"
+                  >
+                    <div>
+                      <Text weight="medium">{quiz.title}</Text>
+                      <Text size="2" color="gray">
+                        正答率 {quiz.progress}%
+                      </Text>
+                    </div>
+                    <Flex direction="column" align={{ initial: "start", md: "end" }} gap="2">
+                      <Text size="2" color="gray">
+                        受験 {quiz.attempts} 回
+                      </Text>
+                      <Button asChild radius="full">
+                        <Link href="/lessons/subject-sample/lesson-sample/quiz">小テストへ</Link>
+                      </Button>
+                    </Flex>
+                  </Flex>
+                </Card>
+              ))}
+            </Flex>
+          </Card>
 
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900">その他教材</h2>
-          <div className="mt-4 space-y-3">
-            {extras.map((extra) => (
-              <div key={extra.title} className="rounded-2xl border border-slate-100 p-4">
-                <p className="font-medium text-slate-900">{extra.title}</p>
-                <p className="text-sm text-slate-500">{extra.type} / {extra.note}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </main>
+          <Card variant="classic">
+            <Heading size="5">その他教材</Heading>
+            <Grid gap="3" mt="3">
+              {extras.map((extra) => (
+                <Card key={extra.title} variant="surface">
+                  <Text weight="medium">{extra.title}</Text>
+                  <Text size="2" color="gray">
+                    {extra.type} / {extra.note}
+                  </Text>
+                </Card>
+              ))}
+            </Grid>
+          </Card>
+        </Flex>
+      </Section>
+    </Box>
   );
 }

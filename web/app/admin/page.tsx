@@ -1,4 +1,12 @@
 import Link from "next/link";
+import {
+  Box,
+  Card,
+  Grid,
+  Heading,
+  Section,
+  Text,
+} from "@radix-ui/themes";
 
 const links = [
   { label: "科目管理", href: "/admin/subjects", description: "科目の登録・公開切替" },
@@ -12,24 +20,34 @@ const links = [
 
 export default function AdminHubPage() {
   return (
-    <main className="bg-slate-50">
-      <section className="border-b border-slate-100 bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-10">
-          <p className="text-sm text-slate-500">管理メニュー</p>
-          <h1 className="text-3xl font-bold text-slate-900">教師向け管理ページ</h1>
-          <p className="mt-2 text-slate-600">各カードから個別の管理画面へ遷移します。UIモックのため実際の操作は行えません。</p>
+    <Box className="bg-slate-50">
+      <Section className="border-b border-slate-100 bg-white">
+        <div className="mx-auto max-w-6xl">
+          <Text color="gray">管理メニュー</Text>
+          <Heading size="7">教師向け管理ページ</Heading>
+          <Text color="gray">各カードから個別の管理画面へ遷移します。UIモックのため実際の操作は行えません。</Text>
         </div>
-      </section>
+      </Section>
 
-      <section className="mx-auto grid max-w-6xl gap-4 px-6 py-10 md:grid-cols-2">
-        {links.map((link) => (
-          <Link key={link.href} href={link.href} className="rounded-3xl bg-white p-6 shadow-sm transition hover:shadow-md">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{link.label}</p>
-            <p className="mt-2 text-lg font-semibold text-slate-900">{link.description}</p>
-            <p className="mt-4 text-sm text-slate-500">一括登録ページも各画面から参照できます。</p>
-          </Link>
-        ))}
-      </section>
-    </main>
+      <Section>
+        <Grid columns={{ initial: "1", md: "2" }} gap="4" className="mx-auto max-w-6xl">
+          {links.map((link) => (
+            <Card key={link.href} variant="classic" asChild>
+              <Link href={link.href} className="block">
+                <Text size="1" color="gray" className="uppercase tracking-wide">
+                  {link.label}
+                </Text>
+                <Heading size="4" mt="2">
+                  {link.description}
+                </Heading>
+                <Text size="2" color="gray" mt="2">
+                  一括登録ページも各画面から参照できます。
+                </Text>
+              </Link>
+            </Card>
+          ))}
+        </Grid>
+      </Section>
+    </Box>
   );
 }

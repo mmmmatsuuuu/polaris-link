@@ -1,3 +1,14 @@
+import {
+  Badge,
+  Box,
+  Card,
+  Flex,
+  Grid,
+  Heading,
+  Section,
+  Text,
+} from "@radix-ui/themes";
+
 const archivedLessons = [
   {
     title: "デザイン思考入門",
@@ -15,44 +26,62 @@ const archivedLessons = [
 
 export default function ArchivePage() {
   return (
-    <main className="bg-white">
-      <section className="border-b border-slate-100 bg-slate-50">
-        <div className="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-10 md:flex-row md:items-center md:justify-between">
+    <Box className="bg-white">
+      <Section className="border-b border-slate-100 bg-slate-50">
+        <Flex
+          direction={{ initial: "column", md: "row" }}
+          justify="between"
+          align={{ initial: "start", md: "center" }}
+          className="mx-auto max-w-5xl"
+          gap="4"
+        >
           <div>
-            <p className="text-sm font-semibold text-sky-600">アーカイブ</p>
-            <h1 className="text-3xl font-bold text-slate-900">未紐付け授業一覧</h1>
-            <p className="mt-2 text-slate-600">タグや更新日でソートして授業を探せます（UIモックのため動作は固定です）。</p>
+            <Badge color="blue" radius="full">
+              アーカイブ
+            </Badge>
+            <Heading size="7" mt="2">
+              未紐付け授業一覧
+            </Heading>
+            <Text color="gray">タグや更新日でソートして授業を探せます（UIモックのため動作は固定です）。</Text>
           </div>
-          <div className="flex flex-wrap gap-2 text-xs text-slate-500">
-            <span className="rounded-full bg-white px-3 py-1">フィルター: 動画</span>
-            <span className="rounded-full bg-white px-3 py-1">ソート: 更新日</span>
-          </div>
-        </div>
-      </section>
+          <Flex gap="2" wrap="wrap">
+            <Badge variant="soft">フィルター: 動画</Badge>
+            <Badge variant="soft">ソート: 更新日</Badge>
+          </Flex>
+        </Flex>
+      </Section>
 
-      <section className="mx-auto grid max-w-5xl gap-4 px-6 py-10">
-        {archivedLessons.map((lesson) => (
-          <div key={lesson.title} className="rounded-3xl border border-slate-100 p-6 shadow-sm">
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-lg font-semibold text-slate-900">{lesson.title}</p>
-                <p className="text-sm text-slate-500">所属: {lesson.subject}</p>
-                <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
-                  {lesson.tags.map((tag) => (
-                    <span key={tag} className="rounded-full bg-slate-100 px-3 py-1">
-                      {tag}
-                    </span>
-                  ))}
+      <Section>
+        <Grid className="mx-auto max-w-5xl" gap="4">
+          {archivedLessons.map((lesson) => (
+            <Card key={lesson.title} variant="classic">
+              <Flex justify="between" align="start" direction={{ initial: "column", md: "row" }} gap="3">
+                <div>
+                  <Heading size="5">{lesson.title}</Heading>
+                  <Text size="2" color="gray">
+                    所属: {lesson.subject}
+                  </Text>
+                  <Flex gap="2" mt="2">
+                    {lesson.tags.map((tag) => (
+                      <Badge key={tag} variant="soft">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </Flex>
                 </div>
-              </div>
-              <div className="text-sm text-slate-500">
-                <p>更新日 {lesson.updated}</p>
-                <p>公開状態: 公開</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </section>
-    </main>
+                <div>
+                  <Text size="2" color="gray">
+                    更新日 {lesson.updated}
+                  </Text>
+                  <Text size="2" color="gray">
+                    公開状態: 公開
+                  </Text>
+                </div>
+              </Flex>
+            </Card>
+          ))}
+        </Grid>
+      </Section>
+    </Box>
   );
 }

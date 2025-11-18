@@ -1,4 +1,14 @@
 import Link from "next/link";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Flex,
+  Heading,
+  Section,
+  Text,
+} from "@radix-ui/themes";
 
 const summary = {
   score: 4,
@@ -30,43 +40,63 @@ const questions = [
 
 export default function QuizResultPage() {
   return (
-    <main className="bg-slate-50">
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-4xl flex-col gap-4 px-6 py-10 md:flex-row md:items-center md:justify-between">
+    <Box className="bg-slate-50">
+      <Section className="border-b border-slate-200 bg-white">
+        <Flex
+          className="mx-auto max-w-4xl"
+          direction={{ initial: "column", md: "row" }}
+          justify="between"
+          align={{ initial: "start", md: "center" }}
+          gap="4"
+        >
           <div>
-            <p className="text-sm font-semibold text-slate-500">採点結果</p>
-            <h1 className="text-3xl font-bold text-slate-900">SNSセキュリティチェック</h1>
-            <p className="mt-1 text-slate-600">受験日時: 2024/04/12 10:00</p>
+            <Text color="gray">採点結果</Text>
+            <Heading size="7">SNSセキュリティチェック</Heading>
+            <Text color="gray">受験日時: 2024/04/12 10:00</Text>
           </div>
-          <div className="flex flex-col gap-2 text-sm text-slate-500 md:items-end">
-            <span>正答率 {summary.accuracy}% ({summary.score}/{summary.total})</span>
-            <span>所要時間 {summary.time}</span>
-            <Link href="/lessons/subject-sample/lesson-sample/quiz" className="text-sky-600">
-              再受験する
-            </Link>
-          </div>
-        </div>
-      </section>
+          <Flex direction="column" gap="2" align={{ initial: "start", md: "end" }}>
+            <Text color="gray">
+              正答率 {summary.accuracy}% ({summary.score}/{summary.total})
+            </Text>
+            <Text color="gray">所要時間 {summary.time}</Text>
+            <Button asChild variant="ghost">
+              <Link href="/lessons/subject-sample/lesson-sample/quiz">再受験する</Link>
+            </Button>
+          </Flex>
+        </Flex>
+      </Section>
 
-      <section className="mx-auto max-w-4xl px-6 py-10 space-y-6">
-        {questions.map((question, index) => (
-          <div key={question.prompt} className="rounded-3xl bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">問題 {index + 1}</p>
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                  question.correct ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
-                }`}
-              >
-                {question.correct ? "正解" : "不正解"}
-              </span>
-            </div>
-            <p className="mt-2 text-lg font-medium text-slate-900">{question.prompt}</p>
-            <p className="mt-3 text-sm text-slate-500">あなたの回答: {question.answer}</p>
-            <p className="mt-3 rounded-2xl bg-slate-50 p-3 text-sm text-slate-600">{question.explanation}</p>
-          </div>
-        ))}
-      </section>
-    </main>
+      <Section>
+        <Flex direction="column" gap="4" className="mx-auto max-w-4xl">
+          {questions.map((question, index) => (
+            <Card key={question.prompt} variant="classic">
+              <Flex justify="between" align="center">
+                <Text size="1" color="gray" className="uppercase tracking-wide">
+                  問題 {index + 1}
+                </Text>
+                <Badge
+                  color={question.correct ? "green" : "red"}
+                  variant="soft"
+                  radius="full"
+                >
+                  {question.correct ? "正解" : "不正解"}
+                </Badge>
+              </Flex>
+              <Heading size="4" mt="2">
+                {question.prompt}
+              </Heading>
+              <Text mt="2" color="gray">
+                あなたの回答: {question.answer}
+              </Text>
+              <Card variant="surface" mt="3">
+                <Text size="2" color="gray">
+                  {question.explanation}
+                </Text>
+              </Card>
+            </Card>
+          ))}
+        </Flex>
+      </Section>
+    </Box>
   );
 }
