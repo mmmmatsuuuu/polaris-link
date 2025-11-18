@@ -8,8 +8,10 @@ import {
   Grid,
   Heading,
   Section,
+  Tabs,
   Text,
 } from "@radix-ui/themes";
+import { Breadcrumb } from "@/components/common/Breadcrumb";
 
 const videos = [
   { title: "動画01: SNSの危険性", duration: "12:34", status: "視聴済み" },
@@ -21,16 +23,17 @@ const quizzes = [{ title: "小テストA", progress: 80, attempts: 2 }];
 const extras = [{ title: "チェックリスト", type: "PDF", note: "投稿前の確認フロー" }];
 
 export default function LessonSamplePage() {
+  const breadcrumbs = [
+    { label: "トップ", href: "/" },
+    { label: "授業一覧", href: "/lessons" },
+    { label: "情報リテラシー", href: "/lessons/subject-sample" },
+    { label: "SNSと個人情報の守り方" },
+  ];
   return (
     <Box className="bg-slate-50">
       <Section className="border-b border-slate-200 bg-white">
         <Flex direction="column" gap="3" className="mx-auto max-w-5xl">
-          <Link href="/lessons/subject-sample" className="text-sm text-slate-500">
-            ← 情報リテラシーに戻る
-          </Link>
-          <Badge color="blue" radius="full">
-            授業
-          </Badge>
+          <Breadcrumb items={breadcrumbs} />
           <Heading size="8">SNSと個人情報の守り方</Heading>
           <Text color="gray">
             SNSで起こりがちな個人情報の拡散事故を事例ベースで学び、安全な投稿方法を考える授業です。
@@ -49,21 +52,38 @@ export default function LessonSamplePage() {
               <Heading size="5">動画</Heading>
               <Text color="gray">{videos.length} 本</Text>
             </Flex>
-            <Flex direction="column" gap="3" mt="3">
+            <Tabs.Root defaultValue={videos[0]?.title ?? ""} className="mt-4">
+              <Tabs.List>
+                {videos.map((video) => (
+                  <Tabs.Trigger key={video.title} value={video.title}>
+                    {video.title}
+                  </Tabs.Trigger>
+                ))}
+              </Tabs.List>
               {videos.map((video) => (
-                <Card key={video.title} variant="surface">
-                  <Flex justify="between" align={{ initial: "start", md: "center" }} direction={{ initial: "column", md: "row" }}>
-                    <div>
-                      <Text weight="medium">{video.title}</Text>
-                      <Text size="2" color="gray">
-                        {video.duration}
-                      </Text>
-                    </div>
-                    <Badge variant="soft">{video.status}</Badge>
-                  </Flex>
-                </Card>
+                <Tabs.Content key={video.title} value={video.title} className="mt-4">
+                  <Card variant="ghost">
+                    <Flex direction={{ initial: "column", md: "row" }} justify="between" align={{ initial: "start", md: "center" }}>
+                      <div>
+                        <Text weight="medium">{video.title}</Text>
+                        <Text size="2" color="gray">
+                          {video.duration}
+                        </Text>
+                      </div>
+                      <Badge variant="soft">{video.status}</Badge>
+                    </Flex>
+                    <Box className="mt-4 h-64 rounded-xl bg-slate-200">
+                      <Flex align="center" justify="center" className="h-full text-sm text-slate-600">
+                        YouTubeプレイヤー（仮）
+                      </Flex>
+                    </Box>
+                    <Text size="2" color="gray" className="mt-3">
+                      動画をタブで切り替えて内容を確認できます。
+                    </Text>
+                  </Card>
+                </Tabs.Content>
               ))}
-            </Flex>
+            </Tabs.Root>
           </Card>
 
           <Card variant="classic">
@@ -105,10 +125,17 @@ export default function LessonSamplePage() {
             <Grid gap="3" mt="3">
               {extras.map((extra) => (
                 <Card key={extra.title} variant="surface">
-                  <Text weight="medium">{extra.title}</Text>
-                  <Text size="2" color="gray">
-                    {extra.type} / {extra.note}
-                  </Text>
+                  <Flex gap="4" justify="between" align="center">
+                    <Flex gap="4" align="center">
+                      <Text weight="medium">{extra.title}</Text>
+                      <Text size="2" color="gray">
+                        {extra.type} / {extra.note}
+                      </Text>
+                    </Flex>
+                    <Button asChild radius="full">
+                      <Link href="/lessons/subject-sample/lesson-sample/quiz">開く</Link>
+                    </Button>
+                  </Flex>
                 </Card>
               ))}
             </Grid>

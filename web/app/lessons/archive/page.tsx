@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Badge,
   Box,
@@ -8,75 +9,95 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
+import { StarIcon, StarFilledIcon } from "@radix-ui/react-icons";
+import { Breadcrumb } from "@/components/common/Breadcrumb";
 
-const archivedLessons = [
+const archivedUnits = [
   {
-    title: "デザイン思考入門",
-    subject: "未分類",
-    tags: ["動画", "資料"],
-    updated: "2024/03/01",
-  },
-  {
-    title: "課題解決ワークショップ",
-    subject: "未分類",
-    tags: ["動画", "小テスト"],
-    updated: "2024/02/15",
+    name: "未分類授業",
+    summary: "科目に紐付いていない授業をまとめて表示します。",
+    lessons: [
+      { title: "デザイン思考入門", status: "未完了", tags: ["動画", "資料"] },
+      { title: "課題解決ワークショップ", status: "完了", tags: ["動画", "小テスト"] },
+    ],
   },
 ];
 
 export default function ArchivePage() {
+  const breadcrumbs = [
+    { label: "トップ", href: "/" },
+    { label: "授業一覧", href: "/lessons" },
+    { label: "アーカイブ" },
+  ];
   return (
     <Box className="bg-white">
-      <Section className="border-b border-slate-100 bg-slate-50">
-        <Flex
-          direction={{ initial: "column", md: "row" }}
-          justify="between"
-          align={{ initial: "start", md: "center" }}
-          className="mx-auto max-w-5xl"
-          gap="4"
-        >
-          <div>
-            <Badge color="blue" radius="full">
-              アーカイブ
-            </Badge>
-            <Heading size="7" mt="2">
-              未紐付け授業一覧
-            </Heading>
-            <Text color="gray">タグや更新日でソートして授業を探せます（UIモックのため動作は固定です）。</Text>
-          </div>
-          <Flex gap="2" wrap="wrap">
-            <Badge variant="soft">フィルター: 動画</Badge>
-            <Badge variant="soft">ソート: 更新日</Badge>
+      <Section size="3" className="border-b border-slate-100 bg-slate-50">
+        <Flex direction="column" gap="3" className="mx-auto max-w-6xl">
+          <Breadcrumb items={breadcrumbs} />
+          <Flex
+            direction={{ initial: "column", md: "row" }}
+            justify="between"
+            align="start"
+            gap="4"
+          >
+            <Flex direction="column" gap="2">
+              <Heading size="8">アーカイブ授業</Heading>
+              <Text color="gray">
+                科目・単元に紐付いていない授業をまとめた一覧です。タグや更新日でソートして授業を探せます。
+              </Text>
+            </Flex>
+            <Flex gap="2" wrap="wrap">
+              <Badge variant="soft">フィルター: 動画</Badge>
+              <Badge variant="soft">ソート: 更新日</Badge>
+            </Flex>
           </Flex>
         </Flex>
       </Section>
 
-      <Section>
-        <Grid className="mx-auto max-w-5xl" gap="4">
-          {archivedLessons.map((lesson) => (
-            <Card key={lesson.title} variant="classic">
-              <Flex justify="between" align="start" direction={{ initial: "column", md: "row" }} gap="3">
+      <Section size="3">
+        <Grid className="mx-auto max-w-6xl" gap="4">
+          {archivedUnits.map((unit) => (
+            <Card key={unit.name} variant="ghost">
+              <Flex justify="between" align="start">
                 <div>
-                  <Heading size="5">{lesson.title}</Heading>
-                  <Text size="2" color="gray">
-                    所属: {lesson.subject}
-                  </Text>
-                  <Flex gap="2" mt="2">
-                    {lesson.tags.map((tag) => (
-                      <Badge key={tag} variant="soft">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </Flex>
+                  <Heading size="5">{unit.name}</Heading>
+                  <Text color="gray">{unit.summary}</Text>
                 </div>
-                <div>
-                  <Text size="2" color="gray">
-                    更新日 {lesson.updated}
-                  </Text>
-                  <Text size="2" color="gray">
-                    公開状態: 公開
-                  </Text>
-                </div>
+                <Badge variant="soft">授業 {unit.lessons.length}</Badge>
+              </Flex>
+              <Flex direction="column" gap="3" mt="4">
+                {unit.lessons.map((lesson) => (
+                  <Card key={lesson.title} variant="surface">
+                    <Flex
+                      direction={{ initial: "column", md: "row" }}
+                      justify="between"
+                      align={{ initial: "start", md: "center" }}
+                      gap="3"
+                    >
+                      <div>
+                        <Flex gap="2" align="center">
+                          {lesson.status === "完了" ? <StarFilledIcon /> : <StarIcon />}
+                          <Text weight="medium">{lesson.title}</Text>
+                        </Flex>
+                        <Flex gap="2" mt="2" wrap="wrap">
+                          {lesson.tags.map((tag) => (
+                            <Badge key={tag} variant="soft">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </Flex>
+                      </div>
+                      <Flex direction="column" align={{ initial: "start", md: "end" }} gap="2">
+                        <Badge variant="soft" color={lesson.status === "完了" ? "green" : "gray"}>
+                          {lesson.status}
+                        </Badge>
+                        <Link href="/lessons/subject-sample/lesson-sample" className="text-sm text-sky-600">
+                          授業ページへ
+                        </Link>
+                      </Flex>
+                    </Flex>
+                  </Card>
+                ))}
               </Flex>
             </Card>
           ))}

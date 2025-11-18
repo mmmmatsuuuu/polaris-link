@@ -9,6 +9,7 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
+import { Breadcrumb } from "@/components/common/Breadcrumb";
 
 const summary = {
   score: 4,
@@ -39,16 +40,21 @@ const questions = [
 ];
 
 export default function QuizResultPage() {
+  const breadcrumbs = [
+    { label: "トップ", href: "/" },
+    { label: "授業一覧", href: "/lessons" },
+    { label: "情報リテラシー", href: "/lessons/subject-sample" },
+    { label: "SNSと個人情報の守り方", href: "/lessons/subject-sample/lesson-sample" },
+    { label: "小テスト", href: "/lessons/subject-sample/lesson-sample/quiz" },
+    { label: "結果" },
+  ];
   return (
     <Box className="bg-slate-50">
       <Section className="border-b border-slate-200 bg-white">
-        <Flex
-          className="mx-auto max-w-4xl"
-          direction={{ initial: "column", md: "row" }}
-          justify="between"
-          align={{ initial: "start", md: "center" }}
-          gap="4"
-        >
+        <Flex direction="column" gap="3" className="mx-auto max-w-4xl">
+          <Breadcrumb items={breadcrumbs} />
+        </Flex>
+        <Flex className="mx-auto max-w-4xl" direction={{ initial: "column", md: "row" }} justify="between" align={{ initial: "start", md: "center" }} gap="4">
           <div>
             <Text color="gray">採点結果</Text>
             <Heading size="7">SNSセキュリティチェック</Heading>
@@ -61,6 +67,9 @@ export default function QuizResultPage() {
             <Text color="gray">所要時間 {summary.time}</Text>
             <Button asChild variant="ghost">
               <Link href="/lessons/subject-sample/lesson-sample/quiz">再受験する</Link>
+            </Button>
+            <Button asChild variant="ghost">
+              <Link href="/lessons/subject-sample/lesson-sample">授業に戻る</Link>
             </Button>
           </Flex>
         </Flex>

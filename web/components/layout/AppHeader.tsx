@@ -8,7 +8,7 @@ import {
   IconButton,
 } from "@radix-ui/themes";
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
-import { AppSidebar } from "./DropdownMenu";
+import { Menu } from "./DropdownMenu";
 
 export function AppHeader() {
   return (
@@ -33,7 +33,7 @@ export function AppHeader() {
               </IconButton>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content sideOffset={8} align="start">
-              <AppSidebar />
+              <Menu />
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         </Flex>

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  Badge,
   Box,
   Button,
   Card,
@@ -10,6 +9,7 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
+import { Breadcrumb } from "@/components/common/Breadcrumb";
 
 const subjects = [
   {
@@ -42,25 +42,22 @@ const subjects = [
 ];
 
 export default function LessonsPage() {
+  const breadcrumbItems = [
+    { label: "トップ", href: "/" },
+    { label: "授業一覧" },
+  ];
   return (
     <Box className="bg-slate-50">
       <Section size="3">
         <Card variant="surface" className="mx-auto max-w-6xl">
           <Flex direction="column" gap="3">
-            <Badge color="blue" radius="full">
-              公開授業カタログ
-            </Badge>
+            <Breadcrumb items={breadcrumbItems} />
             <Heading size="7" className="text-slate-900">
               科目一覧
             </Heading>
             <Text color="gray">
               科目カードをクリックするとサンプルの科目ページに遷移し、さらに授業ページや小テストページへ移動できます。
             </Text>
-            <Flex wrap="wrap" gap="2">
-              <Badge variant="soft">科目数 3</Badge>
-              <Badge variant="soft">単元数 8</Badge>
-              <Badge variant="soft">授業数 20</Badge>
-            </Flex>
           </Flex>
         </Card>
       </Section>
@@ -80,8 +77,8 @@ export default function LessonsPage() {
                     {subject.description}
                   </Text>
                 </div>
-                <Button asChild variant="soft" radius="full">
-                  <Link href="/lessons/subject-sample">詳細</Link>
+                <Button asChild variant="solid" radius="full">
+                  <Link href="/lessons/subject-sample">開く</Link>
                 </Button>
               </Flex>
               <Flex direction="column" gap="2">
@@ -108,7 +105,7 @@ export default function LessonsPage() {
           <Text mt="2" color="gray">
             科目や単元に属していない授業はアーカイブページから検索できます。
           </Text>
-          <Button asChild mt="4" radius="full">
+          <Button asChild mt="8" radius="full">
             <Link href="/lessons/archive">アーカイブを見る</Link>
           </Button>
         </Card>

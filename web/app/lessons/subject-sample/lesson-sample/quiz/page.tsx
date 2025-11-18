@@ -9,6 +9,7 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
+import { Breadcrumb } from "@/components/common/Breadcrumb";
 
 const questions = [
   {
@@ -22,13 +23,18 @@ const questions = [
 ];
 
 export default function QuizPage() {
+  const breadcrumbs = [
+    { label: "トップ", href: "/" },
+    { label: "授業一覧", href: "/lessons" },
+    { label: "情報リテラシー", href: "/lessons/subject-sample" },
+    { label: "SNSと個人情報の守り方", href: "/lessons/subject-sample/lesson-sample" },
+    { label: "小テスト" },
+  ];
   return (
     <Box className="bg-white">
       <Section className="border-b border-slate-200 bg-slate-50">
         <Flex direction="column" gap="3" className="mx-auto max-w-4xl">
-          <Link href="/lessons/subject-sample/lesson-sample" className="text-sm text-slate-500">
-            ← 授業ページに戻る
-          </Link>
+          <Breadcrumb items={breadcrumbs} />
           <Heading size="7">小テスト: SNSセキュリティチェック</Heading>
           <Text color="gray">
             全5問 / 制限時間 5 分 / 再受験可。下記の「テストを開始」ボタンを押すと、各問題が一覧表示されます。
@@ -50,17 +56,14 @@ export default function QuizPage() {
               gap="3"
             >
               <div>
-                <Text color="gray">テスト開始</Text>
                 <Heading size="5">問題一覧</Heading>
+                <Text size="2" color="gray">
+                  以下の問題に回答してください。
+                </Text>
                 <Text size="2" color="gray">
                   このモックでは回答操作は行いません。
                 </Text>
               </div>
-              <Button asChild radius="full">
-                <Link href="/lessons/subject-sample/lesson-sample/quiz/result">
-                  テストを開始（結果ページ例へ）
-                </Link>
-              </Button>
             </Flex>
           </Card>
 
@@ -83,6 +86,19 @@ export default function QuizPage() {
               </Card>
             ))}
           </Flex>
+          
+          <Card>
+            <Flex direction="column" gap="4">
+              <Text>
+                解答に問題がなければ、下記のボタンを押してテストを提出してください。
+              </Text>
+              <Button asChild radius="full">
+                <Link href="/lessons/subject-sample/lesson-sample/quiz/result">
+                  解答
+                </Link>
+              </Button>
+            </Flex>
+          </Card>
         </Flex>
       </Section>
     </Box>

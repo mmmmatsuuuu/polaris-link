@@ -15,7 +15,7 @@ const teacherLinks = [
   { href: "/admin", label: "管理ページ" },
 ];
 
-export function AppSidebar() {
+export function Menu() {
   return (
     <>
       <NavSection title="生徒" links={studentLinks} />
