@@ -46,6 +46,34 @@ export default function StudentDashboardPage() {
 
       <Section>
         <Grid className="mx-auto max-w-6xl" gap="4" columns={{ initial: "1", md: "2" }}>
+          <Card variant="classic">
+            <Heading size="5">教師からのお知らせ</Heading>
+            <Text mt="2" color="gray">
+              5月の小テストは5/20(月)までに受験してください。疑問点は教師ページのメッセージフォームから連絡してください。
+            </Text>
+          </Card>
+          <Card variant="classic">
+            <Heading size="5">最近の学習履歴</Heading>
+            <Flex direction="column" gap="3" mt="4">
+              {timeline.map((entry) => (
+                <Card key={entry.time} variant="surface">
+                  <Flex justify="between" align="center">
+                    <div>
+                      <Text weight="medium">{entry.label}</Text>
+                      <Text color="gray">{entry.time}</Text>
+                    </div>
+                    <Badge variant="soft">{entry.type}</Badge>
+                  </Flex>
+                </Card>
+              ))}
+            </Flex>
+          </Card>
+        </Grid>
+      </Section>
+
+      <Section>
+        <Heading size="5" className="pb-6 text-center">科目別進捗状況</Heading>
+        <Grid className="mx-auto max-w-6xl" gap="4" columns={{ initial: "1" }}>
           {progressCards.map((card) => (
             <Card key={card.subject} variant="classic">
               <Text color="gray">科目</Text>
@@ -61,32 +89,7 @@ export default function StudentDashboardPage() {
               </Text>
             </Card>
           ))}
-          <Card variant="classic">
-            <Heading size="5">教師からのお知らせ</Heading>
-            <Text mt="2" color="gray">
-              5月の小テストは5/20(月)までに受験してください。疑問点は教師ページのメッセージフォームから連絡してください。
-            </Text>
-          </Card>
         </Grid>
-      </Section>
-
-      <Section>
-        <Card variant="classic" className="mx-auto max-w-6xl">
-          <Heading size="5">最近の学習履歴</Heading>
-          <Flex direction="column" gap="3" mt="4">
-            {timeline.map((entry) => (
-              <Card key={entry.time} variant="surface">
-                <Flex justify="between" align="center">
-                  <div>
-                    <Text weight="medium">{entry.label}</Text>
-                    <Text color="gray">{entry.time}</Text>
-                  </div>
-                  <Badge variant="soft">{entry.type}</Badge>
-                </Flex>
-              </Card>
-            ))}
-          </Flex>
-        </Card>
       </Section>
     </Box>
   );

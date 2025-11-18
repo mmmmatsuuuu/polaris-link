@@ -1,6 +1,8 @@
+import Link from "next/link";
 import {
   Badge,
   Box,
+  Button,
   Card,
   Flex,
   Heading,
@@ -14,6 +16,13 @@ const tree = [
     units: [
       {
         name: "デジタル基礎",
+        lessons: [
+          { title: "授業01", video: 100, quiz: 80 },
+          { title: "授業02", video: 40, quiz: null },
+        ],
+      },
+      {
+        name: "デジタル化",
         lessons: [
           { title: "授業01", video: 100, quiz: 80 },
           { title: "授業02", video: 40, quiz: null },
@@ -37,9 +46,12 @@ export default function StudentSubjectUsagePage() {
     <Box className="bg-white">
       <Section className="border-b border-slate-100 bg-slate-50">
         <Flex direction="column" gap="2" className="mx-auto max-w-5xl">
-          <Text color="gray">自分の学習状況</Text>
+          <Link href="/student" className="text-sm text-sky-600 hover:underline">&lt; ダッシュボードに戻る</Link>
           <Heading size="7">科目別利用状況</Heading>
-          <Text color="gray">期間: 2024/04/01 - 2024/04/30（UIモックのため固定表示）</Text>
+          <Flex gap="4">
+            <Text color="gray">自分の学習状況</Text>
+            <Text color="gray">期間: 2024/04/01 - 2024/04/30（UIモックのため固定表示）</Text>
+          </Flex>
         </Flex>
       </Section>
 
@@ -56,41 +68,46 @@ export default function StudentSubjectUsagePage() {
                       {unit.lessons.map((lesson) => (
                         <Card key={lesson.title} variant="surface">
                           <Text weight="medium">{lesson.title}</Text>
-                          <Flex
-                            direction={{ initial: "column", md: "row" }}
-                            gap="4"
-                            mt="2"
-                          >
-                            <div>
-                              <Text size="1" color="gray">
-                                動画視聴率
-                              </Text>
-                              <Box className="mt-2 h-2 rounded-full bg-slate-100">
-                                <Box className="h-2 rounded-full bg-sky-500" style={{ width: `${lesson.video}%` }} />
-                              </Box>
-                              <Text size="1" color="gray">
-                                {lesson.video}%
-                              </Text>
-                            </div>
-                            <div>
-                              <Text size="1" color="gray">
-                                小テスト正答率
-                              </Text>
-                              {lesson.quiz === null ? (
-                                <Badge variant="soft" mt="2">
-                                  未受験
-                                </Badge>
-                              ) : (
-                                <>
-                                  <Box className="mt-2 h-2 rounded-full bg-slate-100">
-                                    <Box className="h-2 rounded-full bg-emerald-500" style={{ width: `${lesson.quiz}%` }} />
-                                  </Box>
-                                  <Text size="1" color="gray">
-                                    {lesson.quiz}%
-                                  </Text>
-                                </>
-                              )}
-                            </div>
+                          <Flex justify="between" align="end">
+                            <Flex
+                              direction={{ initial: "column", md: "row" }}
+                              gap="4"
+                              mt="2"
+                            >
+                              <div>
+                                <Text size="1" color="gray">
+                                  動画視聴率
+                                </Text>
+                                <Box className="mt-2 h-2 rounded-full bg-slate-100">
+                                  <Box className="h-2 rounded-full bg-sky-500" style={{ width: `${lesson.video}%` }} />
+                                </Box>
+                                <Text size="1" color="gray">
+                                  {lesson.video}%
+                                </Text>
+                              </div>
+                              <div>
+                                <Text size="1" color="gray">
+                                  小テスト正答率
+                                </Text>
+                                {lesson.quiz === null ? (
+                                  <Badge variant="soft" mt="2">
+                                    未受験
+                                  </Badge>
+                                ) : (
+                                  <>
+                                    <Box className="mt-2 h-2 rounded-full bg-slate-100">
+                                      <Box className="h-2 rounded-full bg-emerald-500" style={{ width: `${lesson.quiz}%` }} />
+                                    </Box>
+                                    <Text size="1" color="gray">
+                                      {lesson.quiz}%
+                                    </Text>
+                                  </>
+                                )}
+                              </div>
+                            </Flex>
+                            <Button>
+                              <Link href="/lessons/subject-sample/lesson-sample">授業ページへ</Link>
+                            </Button>
                           </Flex>
                         </Card>
                       ))}
