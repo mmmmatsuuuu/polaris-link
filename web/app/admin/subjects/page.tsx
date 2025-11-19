@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Card,
+  Flex,
   Heading,
   Section,
   Table,
@@ -43,6 +44,7 @@ export default function SubjectAdminPage() {
                 <Table.ColumnHeaderCell>公開状態</Table.ColumnHeaderCell>
                 <Table.ColumnHeaderCell>紐付け単元</Table.ColumnHeaderCell>
                 <Table.ColumnHeaderCell>更新日</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>操作</Table.ColumnHeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -56,10 +58,31 @@ export default function SubjectAdminPage() {
                   </Table.Cell>
                   <Table.Cell>{subject.units} 単元</Table.Cell>
                   <Table.Cell>{subject.updated}</Table.Cell>
+                  <Table.Cell>
+                    <div className="flex gap-2">
+                      <Button variant="soft" size="2">
+                        編集
+                      </Button>
+                      <Button variant="outline" color="red" size="2">
+                        削除
+                      </Button>
+                    </div>
+                  </Table.Cell>
                 </Table.Row>
               ))}
             </Table.Body>
           </Table.Root>
+          <Flex justify="between" align="center" mt="4">
+            <Text size="2" color="gray">
+              ページ 1 / 5
+            </Text>
+            <Flex gap="2">
+              <Button variant="soft" radius="full" disabled>
+                前へ
+              </Button>
+              <Button radius="full">次へ</Button>
+            </Flex>
+          </Flex>
         </Card>
       </Section>
     </Box>

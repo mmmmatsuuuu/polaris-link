@@ -4,13 +4,12 @@ import {
   Box,
   Button,
   Card,
-  Flex,
   Heading,
   Section,
+  Table,
   Text,
 } from "@radix-ui/themes";
 
-const tabs = ["動画", "小テスト", "その他教材"];
 const contents = [
   { title: "SNS動画01", type: "動画", lesson: "SNSと個人情報", status: "公開" },
   { title: "小テストA", type: "小テスト", lesson: "SNSと個人情報", status: "公開" },
@@ -24,7 +23,7 @@ export default function ContentAdminPage() {
           <div>
             <Text color="gray">管理</Text>
             <Heading size="7">コンテンツ管理</Heading>
-            <Text color="gray">動画・小テスト・教材をタブで切り替えて確認するUI例です。</Text>
+            <Text color="gray">動画・小テスト・教材を管理するUI例です。</Text>
           </div>
           <Button asChild radius="full" variant="soft">
             <Link href="/admin/contents/bulk">CSV一括登録</Link>
@@ -33,32 +32,54 @@ export default function ContentAdminPage() {
       </Section>
 
       <Section>
-        <div className="mx-auto max-w-6xl">
-          <Flex gap="2" wrap="wrap">
-            {tabs.map((tab, index) => (
-              <Button key={tab} variant={index === 0 ? "solid" : "soft"}>
-                {tab}
+        <Card variant="classic" className="mx-auto max-w-6xl">
+          <Table.Root>
+            <Table.Header>
+              <Table.Row>
+                <Table.ColumnHeaderCell>コンテンツ名</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>種別</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>授業</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>公開状態</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>操作</Table.ColumnHeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {contents.map((content) => (
+                <Table.Row key={content.title}>
+                  <Table.RowHeaderCell>{content.title}</Table.RowHeaderCell>
+                  <Table.Cell>{content.type}</Table.Cell>
+                  <Table.Cell>{content.lesson}</Table.Cell>
+                  <Table.Cell>
+                    <Badge color={content.status === "公開" ? "green" : "gray"} variant="soft">
+                      {content.status}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <div className="flex gap-2">
+                      <Button variant="soft" size="2">
+                        編集
+                      </Button>
+                      <Button variant="outline" color="red" size="2">
+                        削除
+                      </Button>
+                    </div>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+          <div className="mt-6 flex flex-col items-center gap-2 md:flex-row md:justify-between">
+            <Text size="2" color="gray">
+              ページ 1 / 5
+            </Text>
+            <div className="flex gap-2">
+              <Button variant="soft" radius="full" disabled>
+                前へ
               </Button>
-            ))}
-          </Flex>
-          <Flex direction="column" gap="3" mt="4">
-            {contents.map((content) => (
-              <Card key={content.title} variant="classic">
-                <Flex justify="between" align={{ initial: "start", md: "center" }} direction={{ initial: "column", md: "row" }}>
-                  <div>
-                    <Text size="2" color="gray">
-                      {content.type} / 授業: {content.lesson}
-                    </Text>
-                    <Heading size="4">{content.title}</Heading>
-                  </div>
-                  <Badge variant="soft" color="green">
-                    {content.status}
-                  </Badge>
-                </Flex>
-              </Card>
-            ))}
-          </Flex>
-        </div>
+              <Button radius="full">次へ</Button>
+            </div>
+          </div>
+        </Card>
       </Section>
     </Box>
   );

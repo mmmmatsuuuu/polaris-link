@@ -43,6 +43,7 @@ export default function StudentAdminPage() {
                 <Table.ColumnHeaderCell>メール</Table.ColumnHeaderCell>
                 <Table.ColumnHeaderCell>最終ログイン</Table.ColumnHeaderCell>
                 <Table.ColumnHeaderCell>ステータス</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>操作</Table.ColumnHeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -59,10 +60,23 @@ export default function StudentAdminPage() {
                       {student.status}
                     </Badge>
                   </Table.Cell>
+                  <Table.Cell>
+                    <div className="flex gap-2">
+                      <Button variant="soft" size="2">編集</Button>
+                      <Button variant="outline" color="red" size="2">削除</Button>
+                    </div>
+                  </Table.Cell>
                 </Table.Row>
               ))}
             </Table.Body>
           </Table.Root>
+          <div className="mt-6 flex flex-col items-center gap-2 md:flex-row md:justify-between">
+            <Text size="2" color="gray">ページ 1 / 5</Text>
+            <div className="flex gap-2">
+              <Button variant="soft" radius="full" disabled>前へ</Button>
+              <Button radius="full">次へ</Button>
+            </div>
+          </div>
         </Card>
       </Section>
     </Box>
