@@ -15,6 +15,16 @@ const subjects = [
     quizAccuracy: 68,
     units: [
       { name: "デジタル基礎", completion: 80, quizAccuracy: 70 },
+      { name: "デジタル基礎1", completion: 80, quizAccuracy: 70 },
+      { name: "デジタル基礎2", completion: 80, quizAccuracy: 70 },
+      { name: "デジタル基礎3", completion: 80, quizAccuracy: 70 },
+      { name: "デジタル基礎4", completion: 80, quizAccuracy: 70 },
+      { name: "デジタル基礎5", completion: 80, quizAccuracy: 70 },
+      { name: "デジタル基礎6", completion: 80, quizAccuracy: 70 },
+      { name: "デジタル基礎7", completion: 80, quizAccuracy: 70 },
+      { name: "デジタル基礎8", completion: 80, quizAccuracy: 70 },
+      { name: "デジタル基礎9", completion: 80, quizAccuracy: 70 },
+      { name: "デジタル基礎10", completion: 80, quizAccuracy: 70 },
       { name: "情報モラル", completion: 60, quizAccuracy: 65 },
     ],
   },
@@ -53,13 +63,22 @@ export default function TeacherSubjectUsagePage() {
                   <Badge variant="soft">閲覧 230 件</Badge>
                 </Flex>
               </Flex>
-              <Flex direction="column" gap="2" mt="4">
+              <Flex direction="row" gap="2" mt="4" className="overflow-x-auto">
                 {subject.units.map((unit) => (
-                  <Card key={unit.name} variant="surface">
+                  <Card key={unit.name} variant="surface" className="min-w-[220px]">
                     <Text weight="medium">{unit.name}</Text>
-                    <Text size="2" color="gray">
-                      完了率 {unit.completion}% / 正答率 {unit.quizAccuracy}%
-                    </Text>
+                    <Flex gap="3" mt="3" wrap="wrap">
+                      <CircularProgress
+                        value={unit.completion}
+                        label="完了率"
+                        color="#0ea5e9"
+                      />
+                      <CircularProgress
+                        value={unit.quizAccuracy}
+                        label="正答率"
+                        color="#10b981"
+                      />
+                    </Flex>
                   </Card>
                 ))}
               </Flex>
@@ -68,5 +87,34 @@ export default function TeacherSubjectUsagePage() {
         </Flex>
       </Section>
     </Box>
+  );
+}
+
+type CircularProgressProps = {
+  value: number;
+  label: string;
+  color: string;
+};
+
+function CircularProgress({ value, label, color }: CircularProgressProps) {
+  const normalized = Math.max(0, Math.min(100, value));
+  return (
+    <Flex direction="column" align="center" gap="1">
+      <div className="relative h-16 w-16">
+        <div className="absolute inset-0 rounded-full bg-slate-100" />
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: `conic-gradient(${color} ${normalized}%, #e2e8f0 ${normalized}% 100%)`,
+          }}
+        />
+        <div className="absolute inset-2 flex items-center justify-center rounded-full bg-white text-sm font-semibold text-slate-700">
+          {normalized}%
+        </div>
+      </div>
+      <Text size="1" color="gray">
+        {label}
+      </Text>
+    </Flex>
   );
 }
