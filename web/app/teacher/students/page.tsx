@@ -1,11 +1,15 @@
 import { Box, Card, Flex, Grid, Heading, Section, Text } from "@radix-ui/themes";
 
-const students = Array.from({ length: 40 }).map((_, index) => ({
-  name: `学生 ${index + 1}`,
-  lastActive: index % 2 === 0 ? "今日" : "昨日",
-  progress: `${Math.floor(Math.random() * 100)}%`,
-  quizzes: `${Math.floor(Math.random() * 100)}%`,
-}));
+const students = Array.from({ length: 40 }).map((_, index) => {
+  const progressValue = (index * 7) % 100;
+  const quizValue = (index * 11) % 100;
+  return {
+    name: `学生 ${index + 1}`,
+    lastActive: index % 2 === 0 ? "今日" : "昨日",
+    progress: `${progressValue}%`,
+    quizzes: `${quizValue}%`,
+  };
+});
 
 const focusStudent = {
   name: "山田 花子",

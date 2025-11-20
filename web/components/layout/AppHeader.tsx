@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import {
   Box,
@@ -6,10 +7,12 @@ import {
   Heading,
   IconButton,
 } from "@radix-ui/themes";
-import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { HamburgerMenuIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { Menu } from "./DropdownMenu";
+import { useThemeAppearance } from "@/components/providers/RadixThemeProvider";
 
 export function AppHeader() {
+  const { appearance, toggleAppearance } = useThemeAppearance();
   return (
     <Box className="sticky top-0 z-50 border-b border-slate-200 bg-white px-4 py-3 shadow-sm">
       <Flex align="center" justify="between" className="mx-auto max-w-6xl">
@@ -21,6 +24,14 @@ export function AppHeader() {
           </Link>
         </Flex>
         <Flex gap="3" align="center">
+          <IconButton
+            radius="full"
+            variant="soft"
+            aria-label="テーマを切り替える"
+            onClick={toggleAppearance}
+          >
+            {appearance === "light" ? <MoonIcon /> : <SunIcon />}
+          </IconButton>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <IconButton

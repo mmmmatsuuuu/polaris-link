@@ -24,15 +24,15 @@ const heroLinks = [
 
 export default function Home() {
   return (
-    <Box className="bg-gradient-to-b from-slate-50 to-white">
+    <Box>
       <Section size="3" className="text-center">
         <Flex direction="column" align="center" gap="5" className="mx-auto max-w-5xl">
-          <Badge size="2" color="blue" radius="full" className="tracking-[0.4em]" variant="soft">
+          <Badge size="2" radius="full" className="tracking-[0.4em]" variant="soft">
             Polaris Link
           </Badge>
           <Heading size="9" className="leading-tight text-slate-900">
             学習コンテンツを公開し、ダッシュボードで進捗を共有するための
-            <Text as="span" color="blue" weight="bold" className="block">
+            <Text as="span" weight="bold" className="block">
               シンプルな教室ポータル
             </Text>
           </Heading>
