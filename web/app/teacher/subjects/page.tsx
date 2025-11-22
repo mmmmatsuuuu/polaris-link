@@ -8,6 +8,7 @@ import {
   Text,
 } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
+import { CircularProgress } from "@/components/ui/CircularProgress";
 
 const subjects = [
   {
@@ -88,34 +89,5 @@ export default function TeacherSubjectUsagePage() {
         </Flex>
       </Section>
     </Box>
-  );
-}
-
-type CircularProgressProps = {
-  value: number;
-  label: string;
-  color: string;
-};
-
-function CircularProgress({ value, label, color }: CircularProgressProps) {
-  const normalized = Math.max(0, Math.min(100, value));
-  return (
-    <Flex direction="column" align="center" gap="1">
-      <div className="relative h-16 w-16">
-        <div className="absolute inset-0 rounded-full bg-slate-100" />
-        <div
-          className="absolute inset-0 rounded-full"
-          style={{
-            background: `conic-gradient(${color} ${normalized}%, #e2e8f0 ${normalized}% 100%)`,
-          }}
-        />
-        <div className="absolute inset-2 flex items-center justify-center rounded-full bg-white text-sm font-semibold text-slate-700">
-          {normalized}%
-        </div>
-      </div>
-      <Text size="1" color="gray">
-        {label}
-      </Text>
-    </Flex>
   );
 }

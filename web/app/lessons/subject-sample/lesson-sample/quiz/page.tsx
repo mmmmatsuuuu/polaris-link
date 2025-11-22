@@ -9,7 +9,7 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
-import { Breadcrumb } from "@/components/common/Breadcrumb";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HeroSection } from "@/components/ui/HeroSection";
 
 const questions = [

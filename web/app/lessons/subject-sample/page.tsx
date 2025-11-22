@@ -11,7 +11,7 @@ import {
   Text,
 } from "@radix-ui/themes";
 import { StarIcon, StarFilledIcon } from "@radix-ui/react-icons";
-import { Breadcrumb } from "@/components/common/Breadcrumb";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HeroSection } from "@/components/ui/HeroSection";
 
 const units = [
