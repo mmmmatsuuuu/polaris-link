@@ -1,14 +1,5 @@
 import Link from "next/link";
-import {
-  Badge,
-  Box,
-  Button,
-  Card,
-  Heading,
-  Section,
-  Table,
-  Text,
-} from "@radix-ui/themes";
+import { Badge, Box, Button, Card, Section, Table, Text } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
 
 const questions = [

@@ -9,7 +9,6 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
-import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HeroSection } from "@/components/ui/HeroSection";
 
 const summary = {
@@ -41,14 +40,6 @@ const questions = [
 ];
 
 export default function QuizResultPage() {
-  const breadcrumbs = [
-    { label: "トップ", href: "/" },
-    { label: "授業一覧", href: "/lessons" },
-    { label: "情報リテラシー", href: "/lessons/subject-sample" },
-    { label: "SNSと個人情報の守り方", href: "/lessons/subject-sample/lesson-sample" },
-    { label: "小テスト", href: "/lessons/subject-sample/lesson-sample/quiz" },
-    { label: "結果" },
-  ];
   return (
     <Box className="bg-slate-50">
       <Section className="border-b border-slate-200 bg-white">

@@ -31,6 +31,7 @@ export async function POST(request: Request) {
         );
       }
 
+      // @ts-expect-error Firestore SDK 型の汎用引数を省略しているため
       const collectionRef = collection(db, ...pathSegments);
       for (const { id, data } of documents) {
         if (!id) continue;

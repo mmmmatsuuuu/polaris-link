@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Box, Card, Flex, Grid, Heading, Section, Text } from "@radix-ui/themes";
+import { Box, Card, Flex, Heading, Section, Text } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { CircularProgress } from "@/components/ui/CircularProgress";
 import { MasterDetail } from "@/components/ui/MasterDetail";

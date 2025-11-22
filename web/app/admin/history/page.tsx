@@ -1,14 +1,4 @@
-import {
-  Badge,
-  Box,
-  Button,
-  Card,
-  Flex,
-  Heading,
-  Section,
-  Table,
-  Text,
-} from "@radix-ui/themes";
+import { Badge, Box, Button, Card, Flex, Section, Table, Text } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
 
 const logs = [

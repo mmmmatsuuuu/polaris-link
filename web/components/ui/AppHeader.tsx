@@ -33,7 +33,7 @@ export function AppHeader() {
             {appearance === "light" ? <MoonIcon /> : <SunIcon />}
           </IconButton>
           <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
+            <DropdownMenu.Trigger>
               <IconButton
                 className="md:hidden"
                 radius="full"

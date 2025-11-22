@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Card,
-  Heading,
   Section,
   Table,
   Text,

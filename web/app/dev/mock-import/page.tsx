@@ -1,10 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { notFound } from "next/navigation";
 
 const SAMPLE_PAYLOAD = {};
 
 export default function MockImportPage() {
+  if (process.env.NODE_ENV === "production") {
+    notFound();
+  }
+
   const sampleJson = useMemo(
     () => JSON.stringify(SAMPLE_PAYLOAD, null, 2),
     [],
