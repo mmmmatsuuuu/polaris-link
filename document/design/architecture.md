@@ -8,7 +8,7 @@
 - **認証**: Firebase Authentication (Google OAuth)。ホワイトリスト登録済みメールアドレスのみ教師/生徒として利用可。
 - **データストア**: Cloud Firestore をメインDBとし、Storage はCSVや教材ファイル置き場として利用。
 - **バックエンド処理**: Firebase Cloud Functions を使用してCSVインポート、進捗集計、手動トリガーAPIなどを実装する。
-- **ログ/解析**: `video_progress`, `test_attempts` はFirestoreに蓄積し、年度ごとにBigQueryへエクスポートして削除（手動）。
+- **ログ/解析**: `video_progress`, `test_attempts` はFirestoreに蓄積し、一定期間ごと（例: 年度末）にBigQueryへエクスポートして削除（手動）。
 - **外部サービス**: YouTube（動画埋め込み・APIによる視聴時間取得）。
 
 ```
@@ -23,7 +23,7 @@ Firebase Auth   Firestore   Storage   Cloud Functions
 
 | 層 | 技術 | 役割 |
 | --- | --- | --- |
-| フロントエンド | Next.js 14+, TypeScript, Tailwind CSS | 教師・生徒向けUI、公開ページ。 |
+| フロントエンド | Next.js 14+, TypeScript, Tailwind CSS, Radix UI | 教師・生徒向けUI、公開ページ。 |
 | 認証 | Firebase Authentication (Google) | OAuthログイン、セッション管理。 |
 | データ | Cloud Firestore | コンテンツ、ユーザー、ログ、CSVジョブ。 |
 | ストレージ | Firebase Storage | CSVアップロード、テンプレート、将来的な教材。 |
@@ -101,7 +101,7 @@ Firebase Auth   Firestore   Storage   Cloud Functions
 
 - **ログ**: Vercel/Next.jsのアクセスログ、Firebase Functions のログをCloud Loggingで確認。
 - **アラート**: Functions失敗やStorageアップロード失敗時にメール通知（必要ならOpsgenie等）。
-- **バックアップ**: 年度末に Firestore から BigQuery/Cloud Storageへエクスポートし、`lastWatchedAt`/`finishedAt` を用いた期間指定でログを削除する（`document/design/log_export_and_cleanup.md` 参照）。
+- **バックアップ**: 学習期間終了後に Firestore から BigQuery/Cloud Storageへエクスポートし、`lastWatchedAt`/`finishedAt` を用いた期間指定でログを削除する（`document/design/log_export_and_cleanup.md` 参照）。
 - **手動作業**: CSVインポートやログ削除の手順をドキュメント化し、作業履歴を残す。
 
 ## 9. 今後の拡張余地

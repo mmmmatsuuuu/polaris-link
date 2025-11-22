@@ -13,8 +13,12 @@ services:
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_FIREBASE_PROJECT_ID=polaris-link
-      - NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=host.docker.internal:9099
-      - NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=host.docker.internal:8080
+      - NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
+      - NEXT_PUBLIC_FIRESTORE_EMULATOR_HOST=localhost:8080
+      - NEXT_PUBLIC_FIREBASE_STORAGE_EMULATOR_HOST=localhost:9199
+      - FIREBASE_AUTH_EMULATOR_HOST=firebase:9099
+      - FIRESTORE_EMULATOR_HOST=firebase:8080
+      - FIREBASE_STORAGE_EMULATOR_HOST=firebase:9199
     depends_on:
       - firebase
 
@@ -30,8 +34,8 @@ services:
       - "9199:9199"   # Storage emulator (例)
       - "9099:9099"   # Auth emulator
       - "5001:5001"   # Functions emulator (例)
-      - "4500:4500"   # Functions emulator (例)
-      - "9150:9150"   # Functions emulator (例)
+      - "4500:4500"   
+      - "9150:9150"   
     # command: >
     #   sh -c "firebase emulators:start
     #          --import=/data

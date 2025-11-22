@@ -1,70 +1,80 @@
-"use client";
-
 import Link from "next/link";
-import { Button, Flex, Heading, Text } from "@radix-ui/themes";
-import { useAuth } from "@/context/AuthProvider";
-import { useRouter } from "next/navigation";
+import {
+  Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Heading,
+  Section,
+  Text,
+} from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
+
+const highlights = [
+  { title: "公開授業", description: "科目ごとに整理された動画と小テストを自由に閲覧できます。" },
+  { title: "学習ログ", description: "登録済みの生徒は視聴状況と小テスト結果を自分のダッシュボードで確認。" },
+  { title: "教師管理", description: "教師専用の管理画面から科目・授業・生徒をまとめて更新。" },
+];
+
+const heroLinks = [
+  { href: "/lessons", label: "授業一覧へ", accent: true },
+  { href: "/login", label: "ログイン" },
+];
 
 export default function Home() {
-  const { user, signInWithGoogle, loading } = useAuth();
-  const router = useRouter();
-
-  const handleLogin = async () => {
-    try {
-      await signInWithGoogle();
-      router.push("/");
-    } catch (error) {
-      console.error("Login failed", error);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
-
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <Flex
-        direction="column"
-        align="center"
-        gap="5"
-        className="mx-auto max-w-4xl px-6 py-24 text-center"
-      >
-        <Text size="2" weight="medium" color="blue" className="tracking-[0.4em] uppercase">
-          Polaris Link
-        </Text>
-        <Heading size="9">
-          教師と生徒が同じ画面で進捗を共有できる学習プラットフォーム
-        </Heading>
-        <Text size="4" color="gray">
-          Googleログインで授業の視聴状況や小テスト結果を保存。ログイン前でも公開授業を確認できます。
-        </Text>
-        <Flex
-          direction={{ initial: "column", sm: "row" }}
-          gap="4"
+    <Box>
+      <Section size="3" className="text-center px-4">
+        <HeroSection
+          kicker={<Text className="tracking-[0.4em]">Polaris Link</Text>}
+          title={
+            <>
+              学習コンテンツを公開し、ダッシュボードで進捗を共有するための
+              <Text as="span" weight="bold" className="block">
+                シンプルな教室ポータル
+              </Text>
+            </>
+          }
+          subtitle={
+            <>トップページから公開授業を閲覧し、登録済みの生徒はログイン後に進捗記録や小テストを利用できます。
+            教師は同じプラットフォームから科目・授業・生徒の管理を行います。</>
+          }
+          actions={
+            heroLinks.map((link) => (
+              <Button
+                key={link.href}
+                asChild
+                radius="full"
+                variant={link.accent ? "solid" : "soft"}
+                color={link.accent ? "blue" : "gray"}
+              >
+                <Link href={link.href}>{link.label}</Link>
+              </Button>
+            ))
+          }
           align="center"
-          justify="center"
-          className="w-full"
+        />
+      </Section>
+
+      <Section size="2" className="bg-white">
+        <Grid
+          columns={{ initial: "1", sm: "3" }}
+          gap="4"
+          className="mx-auto max-w-6xl"
         >
-          {!user && (
-            <Button size="4" onClick={handleLogin} className="w-full sm:w-auto">
-              Googleでログイン
-            </Button>
-          )}
-          <Button
-            asChild
-            variant="soft"
-            size="4"
-            className="w-full sm:w-auto"
-          >
-            <Link href="/lessons">公開中の授業を見る</Link>
-          </Button>
-        </Flex>
-      </Flex>
-    </main>
+          {highlights.map((item) => (
+            <Card key={item.title} variant="surface" className="text-left">
+              <Flex direction="column" gap="2">
+                <Heading size="4">{item.title}</Heading>
+                <Text size="3" color="gray">
+                  {item.description}
+                </Text>
+              </Flex>
+            </Card>
+          ))}
+        </Grid>
+      </Section>
+    </Box>
   );
 }
