@@ -9,6 +9,7 @@ import {
   Table,
   Text,
 } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const contents = [
   { title: "SNS動画01", type: "動画", lesson: "SNSと個人情報", status: "公開" },
@@ -18,17 +19,17 @@ const contents = [
 export default function ContentAdminPage() {
   return (
     <Box className="bg-white">
-      <Section className="border-b border-slate-100 bg-slate-50">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <Text color="gray">管理</Text>
-            <Heading size="7">コンテンツ管理</Heading>
-            <Text color="gray">動画・小テスト・教材を管理するUI例です。</Text>
-          </div>
-          <Button asChild radius="full" variant="soft">
-            <Link href="/admin/contents/bulk">CSV一括登録</Link>
-          </Button>
-        </div>
+      <Section className="border-b border-slate-100 bg-slate-50 px-4">
+        <HeroSection
+          kicker="管理"
+          title="コンテンツ管理"
+          subtitle="動画・小テスト・教材を管理するUI例です。"
+          actions={
+            <Button asChild radius="full" variant="soft">
+              <Link href="/admin/contents/bulk">CSV一括登録</Link>
+            </Button>
+          }
+        />
       </Section>
 
       <Section>

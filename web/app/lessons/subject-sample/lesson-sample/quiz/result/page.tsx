@@ -10,6 +10,7 @@ import {
   Text,
 } from "@radix-ui/themes";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const summary = {
   score: 4,
@@ -51,28 +52,28 @@ export default function QuizResultPage() {
   return (
     <Box className="bg-slate-50">
       <Section className="border-b border-slate-200 bg-white">
-        <Flex direction="column" gap="3" className="mx-auto max-w-4xl">
-          <Breadcrumb items={breadcrumbs} />
-        </Flex>
-        <Flex className="mx-auto max-w-4xl" direction={{ initial: "column", md: "row" }} justify="between" align={{ initial: "start", md: "center" }} gap="4">
-          <div>
-            <Text color="gray">採点結果</Text>
-            <Heading size="7">SNSセキュリティチェック</Heading>
-            <Text color="gray">受験日時: 2024/04/12 10:00</Text>
-          </div>
-          <Flex direction="column" gap="2" align={{ initial: "start", md: "end" }}>
-            <Text color="gray">
-              正答率 {summary.accuracy}% ({summary.score}/{summary.total})
-            </Text>
-            <Text color="gray">所要時間 {summary.time}</Text>
-            <Button asChild variant="ghost">
-              <Link href="/lessons/subject-sample/lesson-sample/quiz">再受験する</Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link href="/lessons/subject-sample/lesson-sample">授業に戻る</Link>
-            </Button>
-          </Flex>
-        </Flex>
+        <HeroSection
+          kicker="採点結果"
+          title="SNSセキュリティチェック"
+          subtitle="受験日時: 2024/04/12 10:00"
+          actions={
+            <Flex direction="column" gap="2" align="start">
+              <Text color="gray">
+                正答率 {summary.accuracy}% ({summary.score}/{summary.total})
+              </Text>
+              <Text color="gray">所要時間 {summary.time}</Text>
+              <Flex gap="6" pt="4">
+                <Button asChild variant="ghost">
+                  <Link href="/lessons/subject-sample/lesson-sample/quiz">再受験する</Link>
+                </Button>
+                <Button asChild variant="ghost">
+                  <Link href="/lessons/subject-sample/lesson-sample">授業に戻る</Link>
+                </Button>
+              </Flex>
+            </Flex>
+          }
+          maxWidthClassName="max-w-4xl"
+        />
       </Section>
 
       <Section>

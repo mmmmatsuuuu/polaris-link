@@ -12,6 +12,7 @@ import {
   Text,
 } from "@radix-ui/themes";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const videos = [
   { title: "動画01: SNSの危険性", duration: "12:34", status: "視聴済み" },
@@ -31,18 +32,18 @@ export default function LessonSamplePage() {
   ];
   return (
     <Box className="bg-slate-50">
-      <Section className="border-b border-slate-200 bg-white">
-        <Flex direction="column" gap="3" className="mx-auto max-w-5xl">
-          <Breadcrumb items={breadcrumbs} />
-          <Heading size="8">SNSと個人情報の守り方</Heading>
-          <Text color="gray">
-            SNSで起こりがちな個人情報の拡散事故を事例ベースで学び、安全な投稿方法を考える授業です。
-          </Text>
-          <Flex gap="2">
-            <Badge variant="soft">タグ: 情報モラル</Badge>
-            <Badge variant="soft">公開中</Badge>
-          </Flex>
-        </Flex>
+      <Section className="border-b border-slate-200 bg-white px-4">
+        <HeroSection
+          kicker={ <Breadcrumb items={breadcrumbs} />}
+          title="SNSと個人情報の守り方"
+          subtitle="SNSで起こりがちな個人情報の拡散事故を事例ベースで学び、安全な投稿方法を考える授業です。"
+          actions={
+            <Flex gap="2">
+              <Badge variant="soft">タグ: 情報モラル</Badge>
+              <Badge variant="soft">公開中</Badge>
+            </Flex>
+          }
+        />
       </Section>
 
       <Section>

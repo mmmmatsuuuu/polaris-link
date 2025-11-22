@@ -9,6 +9,7 @@ import {
   Table,
   Text,
 } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const logs = [
   { subject: "情報リテラシー", lesson: "SNSと個人情報", user: "hanako@example.com", watch: "12分", quiz: "80%" },
@@ -18,12 +19,12 @@ const logs = [
 export default function HistoryAdminPage() {
   return (
     <Box className="bg-white">
-      <Section className="border-b border-slate-100 bg-slate-50">
-        <Flex direction="column" gap="2" className="mx-auto max-w-6xl">
-          <Text color="gray">ログ確認</Text>
-          <Heading size="7">利用履歴管理</Heading>
-          <Text color="gray">フィルター: 期間=2024/04/01-2024/04/30、科目=情報リテラシー（UIモック）</Text>
-        </Flex>
+      <Section className="border-b border-slate-100 bg-slate-50 px-4">
+        <HeroSection
+          kicker="ログ確認"
+          title="利用履歴管理"
+          subtitle="フィルター: 期間=2024/04/01-2024/04/30、科目=情報リテラシー（UIモック）"
+        />
       </Section>
 
       <Section>

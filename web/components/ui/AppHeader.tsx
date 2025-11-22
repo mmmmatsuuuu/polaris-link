@@ -8,7 +8,7 @@ import {
   IconButton,
 } from "@radix-ui/themes";
 import { HamburgerMenuIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
-import { Menu } from "./DropdownMenu";
+import { Menu } from "../ui/DropdownMenu";
 import { useThemeAppearance } from "@/components/providers/RadixThemeProvider";
 
 export function AppHeader() {

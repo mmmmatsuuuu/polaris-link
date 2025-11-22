@@ -9,6 +9,7 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const tree = [
   {
@@ -48,19 +49,16 @@ const tree = [
 export default function StudentSubjectUsagePage() {
   return (
     <Box className="bg-white">
-      <Section className="border-b border-slate-100 bg-slate-50">
-        <Flex direction="column" gap="2" className="mx-auto max-w-5xl">
-          <Link href="/student" className="text-sm text-sky-600 hover:underline">&lt; ダッシュボードに戻る</Link>
-          <Heading size="7">科目別利用状況</Heading>
-          <Flex gap="4">
-            <Text color="gray">自分の学習状況</Text>
-            <Text color="gray">期間: 2024/04/01 - 2024/04/30（UIモックのため固定表示）</Text>
-          </Flex>
-        </Flex>
+      <Section className="border-b border-slate-100 bg-slate-50 px-4">
+        <HeroSection
+          kicker={<Link href="/student" className="text-sm text-sky-600 hover:underline">&lt; ダッシュボードに戻る</Link>}
+          title="科目別利用状況"
+          subtitle="期間: 2024/04/01 - 2024/04/30（UIモックのため固定表示）"
+        />
       </Section>
 
       <Section>
-        <Flex direction="column" gap="4" className="mx-auto max-w-5xl">
+        <Flex direction="column" gap="4" className="mx-auto max-w-6xl">
           {tree.map((subject) => (
             <Card key={subject.subject} variant="classic">
               <Heading size="5">{subject.subject}</Heading>

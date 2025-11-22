@@ -5,11 +5,12 @@ import {
   Card,
   Flex,
   Grid,
-  Heading,
   Section,
   Text,
+  Heading,
 } from "@radix-ui/themes";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const subjects = [
   {
@@ -48,18 +49,12 @@ export default function LessonsPage() {
   ];
   return (
     <Box className="bg-slate-50">
-      <Section size="3">
-        <Card variant="surface" className="mx-auto max-w-6xl">
-          <Flex direction="column" gap="3">
-            <Breadcrumb items={breadcrumbItems} />
-            <Heading size="7" className="text-slate-900">
-              科目一覧
-            </Heading>
-            <Text color="gray">
-              科目カードをクリックするとサンプルの科目ページに遷移し、さらに授業ページや小テストページへ移動できます。
-            </Text>
-          </Flex>
-        </Card>
+      <Section size="3" className="border-b border-slate-100 bg-white px-4">
+        <HeroSection
+          kicker={<Breadcrumb items={breadcrumbItems} />}
+          title="科目一覧"
+          subtitle="科目カードをクリックするとサンプルの科目ページに遷移し、さらに授業ページや小テストページへ移動できます。"
+        />
       </Section>
 
       <Section size="2">

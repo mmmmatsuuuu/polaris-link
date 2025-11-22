@@ -10,6 +10,7 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const progressCards = [
   { subject: "情報リテラシー", completed: 6, total: 10 },
@@ -25,23 +26,17 @@ const timeline = [
 export default function StudentDashboardPage() {
   return (
     <Box className="bg-slate-50">
-      <Section className="border-b border-slate-100 bg-white">
-        <Flex
-          direction={{ initial: "column", md: "row" }}
-          justify="between"
-          align={{ initial: "start", md: "center" }}
-          className="mx-auto max-w-6xl"
-          gap="4"
-        >
-          <div>
-            <Text color="gray">こんにちは、山田さん</Text>
-            <Heading size="7">今期の学習時間 12h 30m</Heading>
-            <Text color="gray">最近の学習ログと未完了コンテンツを確認できます。</Text>
-          </div>
-          <Button asChild radius="full">
-            <Link href="/student/subjects">科目利用状況ページへ</Link>
-          </Button>
-        </Flex>
+      <Section className="border-b border-slate-100 bg-white px-4">
+        <HeroSection
+          title="今期の学習時間 12h 30m"
+          subtitle="最近の学習ログと未完了コンテンツを確認できます。"
+          kicker="こんにちは、山田さん"
+          actions={
+            <Button asChild radius="full">
+              <Link href="/student/subjects">科目利用状況ページへ</Link>
+            </Button>
+          }
+        />
       </Section>
 
       <Section>

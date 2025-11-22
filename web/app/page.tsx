@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  Badge,
   Box,
   Button,
   Card,
@@ -10,6 +9,7 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const highlights = [
   { title: "公開授業", description: "科目ごとに整理された動画と小テストを自由に閲覧できます。" },
@@ -25,23 +25,23 @@ const heroLinks = [
 export default function Home() {
   return (
     <Box>
-      <Section size="3" className="text-center">
-        <Flex direction="column" align="center" gap="5" className="mx-auto max-w-5xl">
-          <Badge size="2" radius="full" className="tracking-[0.4em]" variant="soft">
-            Polaris Link
-          </Badge>
-          <Heading size="9" className="leading-tight text-slate-900">
-            学習コンテンツを公開し、ダッシュボードで進捗を共有するための
-            <Text as="span" weight="bold" className="block">
-              シンプルな教室ポータル
-            </Text>
-          </Heading>
-          <Text size="4" color="gray" className="max-w-3xl">
-            トップページから公開授業を閲覧し、登録済みの生徒はログイン後に進捗記録や小テストを利用できます。
-            教師は同じプラットフォームから科目・授業・生徒の管理を行います。
-          </Text>
-          <Flex wrap="wrap" justify="center" gap="3">
-            {heroLinks.map((link) => (
+      <Section size="3" className="text-center px-4">
+        <HeroSection
+          kicker={<Text className="tracking-[0.4em]">Polaris Link</Text>}
+          title={
+            <>
+              学習コンテンツを公開し、ダッシュボードで進捗を共有するための
+              <Text as="span" weight="bold" className="block">
+                シンプルな教室ポータル
+              </Text>
+            </>
+          }
+          subtitle={
+            <>トップページから公開授業を閲覧し、登録済みの生徒はログイン後に進捗記録や小テストを利用できます。
+            教師は同じプラットフォームから科目・授業・生徒の管理を行います。</>
+          }
+          actions={
+            heroLinks.map((link) => (
               <Button
                 key={link.href}
                 asChild
@@ -51,9 +51,10 @@ export default function Home() {
               >
                 <Link href={link.href}>{link.label}</Link>
               </Button>
-            ))}
-          </Flex>
-        </Flex>
+            ))
+          }
+          align="center"
+        />
       </Section>
 
       <Section size="2" className="bg-white">

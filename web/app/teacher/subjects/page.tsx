@@ -7,6 +7,7 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const subjects = [
   {
@@ -39,12 +40,12 @@ const subjects = [
 export default function TeacherSubjectUsagePage() {
   return (
     <Box className="bg-white">
-      <Section className="border-b border-slate-100 bg-slate-50">
-        <Flex direction="column" gap="2" className="mx-auto max-w-6xl">
-          <Text color="gray">集計</Text>
-          <Heading size="7">科目別利用状況</Heading>
-          <Text color="gray">フィルター: 科目=すべて / 期間=今月（UIモック）</Text>
-        </Flex>
+      <Section className="border-b border-slate-100 bg-slate-50 px-4">
+        <HeroSection
+          kicker="集計"
+          title="科目別利用状況"
+          subtitle="フィルター: 科目=すべて / 期間=今月（UIモック）"
+        />
       </Section>
 
       <Section>

@@ -9,6 +9,7 @@ import {
   Table,
   Text,
 } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const questions = [
   { prompt: "SNS投稿前に確認する項目は?", type: "選択", difficulty: "★☆☆", status: "公開" },
@@ -18,20 +19,20 @@ const questions = [
 export default function QuestionAdminPage() {
   return (
     <Box className="bg-white">
-      <Section className="border-b border-slate-100 bg-slate-50">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <Text color="gray">管理</Text>
-            <Heading size="7">問題管理</Heading>
-            <Text color="gray">小テスト問題の編集やプレビューのUI例です。</Text>
-          </div>
-          <div className="flex gap-2">
-            <Button radius="full">問題を追加</Button>
-            <Button asChild radius="full" variant="soft">
-              <Link href="/admin/questions/bulk">一括登録</Link>
-            </Button>
-          </div>
-        </div>
+      <Section className="border-b border-slate-100 bg-slate-50 px-4">
+        <HeroSection
+          kicker="管理"
+          title="問題管理"
+          subtitle="小テスト問題の編集やプレビューのUI例です。"
+          actions={
+            <div className="flex gap-2">
+              <Button radius="full">問題を追加</Button>
+              <Button asChild radius="full" variant="soft">
+                <Link href="/admin/questions/bulk">一括登録</Link>
+              </Button>
+            </div>
+          }
+        />
       </Section>
 
       <Section>

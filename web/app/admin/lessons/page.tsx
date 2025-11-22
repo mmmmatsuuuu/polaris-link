@@ -9,6 +9,7 @@ import {
   Table,
   Text,
 } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const lessons = [
   { title: "SNSと個人情報", subject: "情報リテラシー", unit: "情報モラル", contents: 3, status: "公開" },
@@ -18,20 +19,20 @@ const lessons = [
 export default function LessonAdminPage() {
   return (
     <Box className="bg-white">
-      <Section className="border-b border-slate-100 bg-slate-50">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <Text color="gray">管理</Text>
-            <Heading size="7">授業管理</Heading>
-            <Text color="gray">授業とコンテンツの紐付けを編集するUI例です。</Text>
-          </div>
-          <div className="flex gap-2">
-            <Button radius="full">授業を追加</Button>
-            <Button asChild radius="full" variant="soft">
-              <Link href="/admin/lessons/bulk">一括登録</Link>
-            </Button>
-          </div>
-        </div>
+      <Section className="border-b border-slate-100 bg-slate-50 px-4">
+        <HeroSection
+          kicker="管理"
+          title="授業管理"
+          subtitle="授業とコンテンツの紐付けを編集するUI例です。"
+          actions={
+            <div className="flex gap-2">
+              <Button radius="full">授業を追加</Button>
+              <Button asChild radius="full" variant="soft">
+                <Link href="/admin/lessons/bulk">一括登録</Link>
+              </Button>
+            </div>
+          }
+        />
       </Section>
 
       <Section>

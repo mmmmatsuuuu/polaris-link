@@ -10,6 +10,7 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const stats = [
   { label: "公開授業", value: 24 },
@@ -25,32 +26,22 @@ const activities = [
 export default function TeacherDashboardPage() {
   return (
     <Box className="bg-slate-50">
-      <Section className="border-b border-slate-100 bg-white">
-        <Flex
-          className="mx-auto max-w-6xl"
-          direction={{ initial: "column", md: "row" }}
-          justify="between"
-          align={{ initial: "start", md: "center" }}
-          gap="4"
-        >
-          <div>
-            <Badge variant="soft">教師ダッシュボード</Badge>
-            <Heading size="7" mt="2">
-              生徒の状況を俯瞰
-            </Heading>
-            <Text color="gray">
-              概要カードから公開授業・ログ数を確認し、下部のリンクで詳細ページへ遷移します。
-            </Text>
-          </div>
-          <Flex gap="2" wrap="wrap">
-            <Button asChild>
-              <Link href="/teacher/subjects">科目利用状況</Link>
-            </Button>
-            <Button asChild variant="soft">
-              <Link href="/teacher/students">生徒別利用状況</Link>
-            </Button>
-          </Flex>
-        </Flex>
+      <Section className="border-b border-slate-100 bg-white px-4">
+        <HeroSection
+          kicker={<Badge variant="soft">教師ダッシュボード</Badge>}
+          title="生徒の状況を俯瞰"
+          subtitle="概要カードから公開授業・ログ数を確認し、下部のリンクで詳細ページへ遷移します。"
+          actions={
+            <Flex gap="2" wrap="wrap">
+              <Button asChild>
+                <Link href="/teacher/subjects">科目利用状況</Link>
+              </Button>
+              <Button asChild variant="soft">
+                <Link href="/teacher/students">生徒別利用状況</Link>
+              </Button>
+            </Flex>
+          }
+        />
       </Section>
 
       <Section>

@@ -12,6 +12,7 @@ import {
 } from "@radix-ui/themes";
 import { StarIcon, StarFilledIcon } from "@radix-ui/react-icons";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const units = [
   {
@@ -40,28 +41,19 @@ export default function SubjectSamplePage() {
   ];
   return (
     <Box className="bg-white">
-      <Section size="3" className="border-b border-slate-100 bg-slate-50">
-        <Flex direction="column" gap="3" className="mx-auto max-w-6xl">
-          <Breadcrumb items={breadcrumbs} />
-          <Flex
-            direction={{ initial: "column", md: "row" }}
-            justify="between"
-            align="start"
-            gap="4"
-          >
-            <Flex direction="column" gap="2">
-              <Heading size="8">情報リテラシー</Heading>
-              <Text color="gray">
-                ハードウェア・ソフトウェアの基礎、クラウドサービス、安全な情報の扱い方などを動画と小テストで段階的に学びます。
-              </Text>
-            </Flex>
-            <Flex direction="column" gap="1" align={{ initial: "start", md: "end" }}>
-              <Text color="gray">単元数: 2</Text>
+      <Section size="3" className="border-b border-slate-100 bg-slate-50 px-4">
+        <HeroSection
+          title="情報リテラシー"
+          subtitle="ハードウェア・ソフトウェアの基礎、クラウドサービス、安全な情報の扱い方などを動画と小テストで段階的に学びます。"
+          kicker={ <Breadcrumb items={breadcrumbs} /> }
+          actions={
+            <Flex direction="column" gap="1" align={{ initial: "start", md: "start" }}>
+              <Text color="gray">単元数　: 2</Text>
               <Text color="gray">公開授業: 4</Text>
               <Text color="gray">最終更新: 2024/04/01</Text>
             </Flex>
-          </Flex>
-        </Flex>
+          }
+        />
       </Section>
 
       <Section size="3">

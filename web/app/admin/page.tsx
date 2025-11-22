@@ -7,6 +7,7 @@ import {
   Section,
   Text,
 } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const links = [
   { label: "科目管理", href: "/admin/subjects", description: "科目の登録・公開切替" },
@@ -21,12 +22,12 @@ const links = [
 export default function AdminHubPage() {
   return (
     <Box className="bg-slate-50">
-      <Section className="border-b border-slate-100 bg-white">
-        <div className="mx-auto max-w-6xl">
-          <Text color="gray">管理メニュー</Text>
-          <Heading size="7">教師向け管理ページ</Heading>
-          <Text color="gray">各カードから個別の管理画面へ遷移します。UIモックのため実際の操作は行えません。</Text>
-        </div>
+      <Section className="border-b border-slate-100 bg-white px-4">
+        <HeroSection
+          kicker={<Text color="gray">管理メニュー</Text>}
+          title="教師向け管理ページ"
+          subtitle="各カードから個別の管理画面へ遷移します。UIモックのため実際の操作は行えません。"
+        />
       </Section>
 
       <Section>

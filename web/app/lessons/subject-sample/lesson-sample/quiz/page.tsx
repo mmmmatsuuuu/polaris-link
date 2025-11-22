@@ -10,6 +10,7 @@ import {
   Text,
 } from "@radix-ui/themes";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const questions = [
   {
@@ -32,18 +33,19 @@ export default function QuizPage() {
   ];
   return (
     <Box className="bg-white">
-      <Section className="border-b border-slate-200 bg-slate-50">
-        <Flex direction="column" gap="3" className="mx-auto max-w-4xl">
-          <Breadcrumb items={breadcrumbs} />
-          <Heading size="7">小テスト: SNSセキュリティチェック</Heading>
-          <Text color="gray">
-            全5問 / 制限時間 5 分 / 再受験可。下記の「テストを開始」ボタンを押すと、各問題が一覧表示されます。
-          </Text>
-          <Flex gap="2">
-            <Badge variant="soft">前回正答率 80%</Badge>
-            <Badge variant="soft">受験 2 回</Badge>
-          </Flex>
-        </Flex>
+      <Section className="border-b border-slate-200 bg-slate-50 px-4">
+        <HeroSection
+          title="小テスト: SNSセキュリティチェック"
+          kicker={ <Breadcrumb items={breadcrumbs} /> }
+          subtitle="全5問 / 制限時間 5 分 / 再受験可。下記の「テストを開始」ボタンを押すと、各問題が一覧表示されます。"
+          actions={
+            <Flex gap="2">
+              <Badge variant="soft">前回正答率 80%</Badge>
+              <Badge variant="soft">受験 2 回</Badge>
+            </Flex>
+          }
+          maxWidthClassName="max-w-4xl"
+        />
       </Section>
 
       <Section>

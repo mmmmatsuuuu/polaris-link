@@ -5,12 +5,12 @@ import {
   Card,
   Flex,
   Grid,
-  Heading,
   Section,
   Text,
 } from "@radix-ui/themes";
 import { StarIcon, StarFilledIcon } from "@radix-ui/react-icons";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const archivedUnits = [
   {
@@ -34,23 +34,16 @@ export default function ArchivePage() {
       <Section size="3" className="border-b border-slate-100 bg-slate-50">
         <Flex direction="column" gap="3" className="mx-auto max-w-6xl">
           <Breadcrumb items={breadcrumbs} />
-          <Flex
-            direction={{ initial: "column", md: "row" }}
-            justify="between"
-            align="start"
-            gap="4"
-          >
-            <Flex direction="column" gap="2">
-              <Heading size="8">アーカイブ授業</Heading>
-              <Text color="gray">
-                科目・単元に紐付いていない授業をまとめた一覧です。タグや更新日でソートして授業を探せます。
-              </Text>
-            </Flex>
-            <Flex gap="2" wrap="wrap">
-              <Badge variant="soft">フィルター: 動画</Badge>
-              <Badge variant="soft">ソート: 更新日</Badge>
-            </Flex>
-          </Flex>
+          <HeroSection
+            title="アーカイブ授業"
+            subtitle="科目・単元に紐付いていない授業をまとめた一覧です。タグや更新日でソートして授業を探せます。"
+            actions={
+              <Flex gap="2" wrap="wrap">
+                <Badge variant="soft">フィルター: 動画</Badge>
+                <Badge variant="soft">ソート: 更新日</Badge>
+              </Flex>
+            }
+          />
         </Flex>
       </Section>
 

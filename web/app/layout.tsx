@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthProvider";
 import RadixThemeProvider from "@/components/providers/RadixThemeProvider";
-import { AppHeader } from "@/components/layout/AppHeader";
+import { AppHeader } from "@/components/ui/AppHeader";
 
 export const metadata: Metadata = {
   title: "Polaris Link",

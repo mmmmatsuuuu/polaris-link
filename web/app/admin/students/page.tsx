@@ -9,6 +9,7 @@ import {
   Table,
   Text,
 } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const students = [
   { name: "山田 花子", email: "hanako@example.com", status: "有効", lastLogin: "今日" },
@@ -18,20 +19,20 @@ const students = [
 export default function StudentAdminPage() {
   return (
     <Box className="bg-white">
-      <Section className="border-b border-slate-100 bg-slate-50">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <Text color="gray">管理</Text>
-            <Heading size="7">生徒管理</Heading>
-            <Text color="gray">メールアドレスのホワイトリスト登録やステータス変更を行うUI例です。</Text>
-          </div>
-          <div className="flex gap-2">
-            <Button radius="full">生徒を追加</Button>
-            <Button asChild radius="full" variant="soft">
-              <Link href="/admin/students/bulk">CSV一括登録</Link>
-            </Button>
-          </div>
-        </div>
+      <Section className="border-b border-slate-100 bg-slate-50 px-4">
+        <HeroSection
+          kicker="管理"
+          title="生徒管理"
+          subtitle="メールアドレスのホワイトリスト登録やステータス変更を行うUI例です。"
+          actions={
+            <div className="flex gap-2">
+              <Button radius="full">生徒を追加</Button>
+              <Button asChild radius="full" variant="soft">
+                <Link href="/admin/students/bulk">CSV一括登録</Link>
+              </Button>
+            </div>
+          }
+        />
       </Section>
 
       <Section>

@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Box, Card, Flex, Grid, Heading, Section, Text } from "@radix-ui/themes";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 const students = Array.from({ length: 40 }).map((_, index) => {
   const progressValue = (index * 7) % 100;
@@ -36,12 +38,13 @@ const focusStudent = {
 export default function TeacherStudentUsagePage() {
   return (
     <Box className="bg-slate-50">
-      <Section className="border-b border-slate-100 bg-white">
-        <Flex direction="column" gap="2" className="mx-auto max-w-6xl">
-          <Text color="gray">生徒別</Text>
-          <Heading size="7">個別利用状況</Heading>
-          <Text color="gray">検索・並び替え（UIモック）: 氏名/最終ログイン/学習時間</Text>
-        </Flex>
+      <Section className="border-b border-slate-100 bg-white px-4">
+        <HeroSection
+          kicker="生徒別"
+          title="個別利用状況"
+          subtitle="検索・並び替え（UIモック）: 氏名/最終ログイン/学習時間"
+          actions={<Link href="/teacher">教師ダッシュボードに戻る</Link>}
+        />
       </Section>
 
       <Section className="px-0">
