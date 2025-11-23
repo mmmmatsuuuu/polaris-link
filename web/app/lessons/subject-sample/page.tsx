@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   Flex,
-  Grid,
   Heading,
   Section,
   Text,
@@ -13,6 +12,7 @@ import {
 import { StarIcon, StarFilledIcon } from "@radix-ui/react-icons";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HeroSection } from "@/components/ui/HeroSection";
+import { CardList } from "@/components/ui/CardList";
 
 const units = [
   {
@@ -57,50 +57,53 @@ export default function SubjectSamplePage() {
       </Section>
 
       <Section size="3">
-        <Grid className="mx-auto max-w-6xl" gap="4">
-          {units.map((unit) => (
-            <Card key={unit.name} variant="classic">
-              <Flex justify="between" align="start">
-                <div>
-                  <Heading size="5">{unit.name}</Heading>
-                  <Text color="gray">{unit.summary}</Text>
-                </div>
-                <Badge variant="soft">授業 {unit.lessons.length}</Badge>
-              </Flex>
-              <Flex direction="column" gap="3" mt="4">
-                {unit.lessons.map((lesson) => (
-                  <Card key={lesson.title} variant="surface">
-                    <Flex
-                      direction={{ initial: "column", md: "row" }}
-                      justify="between"
-                      align={{ initial: "start", md: "center" }}
-                      gap="3"
-                    >
-                      <div>
-                        <Flex gap="2" align="center">
-                          {lesson.status === "完了" ? <StarFilledIcon /> : <StarIcon />}
-                          <Text weight="medium">{lesson.title}</Text>
+        <div className="mx-auto max-w-6xl">
+          <CardList
+            columns={
+              { initial: "1", md: "1"}
+            }
+            items={units.map((unit) => ({
+              title: <Heading size="5">{unit.name}</Heading>,
+              description: (
+                <Text color="gray">{unit.summary}</Text>
+              ),
+              badge: <Badge variant="soft">授業 {unit.lessons.length}</Badge>,
+              meta: (
+                <Flex direction="column" gap="3" mt="2">
+                  {unit.lessons.map((lesson) => (
+                    <Card key={lesson.title} variant="surface">
+                      <Flex
+                        direction={{ initial: "column", md: "row" }}
+                        justify="between"
+                        align={{ initial: "start", md: "center" }}
+                        gap="3"
+                      >
+                        <div>
+                          <Flex gap="2" align="center">
+                            {lesson.status === "完了" ? <StarFilledIcon /> : <StarIcon />}
+                            <Text weight="medium">{lesson.title}</Text>
+                          </Flex>
+                          <Flex gap="2" mt="2" wrap="wrap">
+                            {lesson.tags.map((tag) => (
+                              <Badge key={tag} variant="soft">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </Flex>
+                        </div>
+                        <Flex direction="column" align={{ initial: "start", md: "end" }} gap="2">
+                          <Button asChild radius="full" size="2">
+                            <Link href="/lessons/subject-sample/lesson-sample">授業ページへ</Link>
+                          </Button>
                         </Flex>
-                        <Flex gap="2" mt="2" wrap="wrap">
-                          {lesson.tags.map((tag) => (
-                            <Badge key={tag} variant="soft">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </Flex>
-                      </div>
-                      <Flex direction="column" align={{ initial: "start", md: "end" }} gap="2">
-                        <Button asChild radius="full" size="2">
-                          <Link href="/lessons/subject-sample/lesson-sample">授業ページへ</Link>
-                        </Button>
                       </Flex>
-                    </Flex>
-                  </Card>
-                ))}
-              </Flex>
-            </Card>
-          ))}
-        </Grid>
+                    </Card>
+                  ))}
+                </Flex>
+              ),
+            }))}
+          />
+        </div>
       </Section>
     </Box>
   );

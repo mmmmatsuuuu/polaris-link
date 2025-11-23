@@ -1,16 +1,8 @@
 import Link from "next/link";
-import {
-  Box,
-  Button,
-  Card,
-  Flex,
-  Grid,
-  Section,
-  Text,
-  Heading,
-} from "@radix-ui/themes";
+import { Box, Button, Flex, Section, Text, Card, Heading } from "@radix-ui/themes";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HeroSection } from "@/components/ui/HeroSection";
+import { CardList } from "@/components/ui/CardList";
 
 const subjects = [
   {
@@ -58,37 +50,32 @@ export default function LessonsPage() {
       </Section>
 
       <Section size="2">
-        <Grid
-          columns={{ initial: "1", md: "2" }}
-          gap="4"
-          className="mx-auto max-w-6xl"
-        >
-          {subjects.map((subject) => (
-            <Card key={subject.id} variant="classic">
-              <Flex justify="between" align="center" mb="3">
-                <div>
-                  <Heading size="5">{subject.name}</Heading>
-                  <Text size="2" color="gray">
-                    {subject.description}
-                  </Text>
-                </div>
+        <div className="mx-auto max-w-6xl">
+          <CardList
+            columns={{ initial: "1", md: "2" }}
+            items={subjects.map((subject) => ({
+              title: <Text size="5" weight="bold">{subject.name}</Text>,
+              description: (
+                <Flex direction="column" gap="2">
+                  <Text size="2" color="gray">{subject.description}</Text>
+                  <Flex direction="column" gap="2">
+                    {subject.units.map((unit) => (
+                      <Flex key={unit.name} justify="between">
+                        <Text>{unit.name}</Text>
+                        <Text color="gray">授業 {unit.lessons}</Text>
+                      </Flex>
+                    ))}
+                  </Flex>
+                </Flex>
+              ),
+              actions: (
                 <Button asChild variant="solid" radius="full">
                   <Link href="/lessons/subject-sample">開く</Link>
                 </Button>
-              </Flex>
-              <Flex direction="column" gap="2">
-                {subject.units.map((unit) => (
-                  <Card key={unit.name} variant="surface">
-                    <Flex justify="between">
-                      <Text>{unit.name}</Text>
-                      <Text color="gray">授業 {unit.lessons}</Text>
-                    </Flex>
-                  </Card>
-                ))}
-              </Flex>
-            </Card>
-          ))}
-        </Grid>
+              ),
+            }))}
+          />
+        </div>
       </Section>
 
       <Section size="2">
