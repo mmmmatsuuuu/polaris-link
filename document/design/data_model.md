@@ -170,6 +170,11 @@
     - `requestedBy`: userId
     - `requestedAt`/`completedAt`
 
+## データのCRUDについて
+
+- サーバコンポーネントでのREAD: firestoreに直接アクセスして取得
+- クライアントコンポーネントでのCREATE, UPDATE, DELETE: `web/app/api/`からコールする。
+
 ## その他ストレージ/サービス
 
 - **Firebase Storage**
