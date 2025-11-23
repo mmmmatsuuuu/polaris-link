@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Box, Button, Flex, Section, Text } from "@radix-ui/themes";
+import { Box, Button, Section, Text } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { CardList } from "@/components/ui/CardList";
 

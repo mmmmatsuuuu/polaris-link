@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Badge, Button } from "@radix-ui/themes";
 import { ContentsTable } from "@/components/ui/ContentsTable";
+import { AdminContentsModal } from "./AdminContentsModal";
 
 type ContentRow = {
   title: string;
@@ -21,9 +22,12 @@ export function AdminContentsTableClient({ rows }: Props) {
       title="コンテンツ一覧"
       description="動画・小テスト・教材をまとめて管理します。"
       actions={
-        <Button asChild radius="full" variant="soft">
-          <Link href="/admin/contents/bulk">CSV一括登録</Link>
-        </Button>
+        <>
+          <Button asChild radius="full" variant="soft">
+            <Link href="/admin/contents/bulk">CSV一括登録</Link>
+          </Button>
+          <AdminContentsModal apiEndpoint="/api/admin/contents" triggerLabel="新規作成" />
+        </>
       }
       columns={[
         { header: "コンテンツ名", cell: (row) => row.title, sortValue: (row) => row.title },
@@ -42,9 +46,7 @@ export function AdminContentsTableClient({ rows }: Props) {
           header: "操作",
           cell: () => (
             <div className="flex gap-2">
-              <Button variant="soft" size="2">
-                編集
-              </Button>
+              <AdminContentsModal apiEndpoint="/api/admin/contents" triggerLabel="編集" />
               <Button variant="outline" color="red" size="2">
                 削除
               </Button>

@@ -2,6 +2,7 @@
 
 import { Badge, Box, Button, Flex, Text } from "@radix-ui/themes";
 import { ContentsTable } from "@/components/ui/ContentsTable";
+import { AdminHistoryModal } from "./AdminHistoryModal";
 
 type HistoryRow = {
   subject: string;
@@ -31,6 +32,7 @@ export function AdminHistoryTableClient({ rows }: Props) {
             <Button color="red" variant="soft">
               古いログを削除
             </Button>
+            <AdminHistoryModal apiEndpoint="/api/admin/history" triggerLabel="フィルター" />
           </Flex>
         </Flex>
       }

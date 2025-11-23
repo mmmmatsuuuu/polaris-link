@@ -2,6 +2,7 @@
 
 import { Badge, Button } from "@radix-ui/themes";
 import { ContentsTable } from "@/components/ui/ContentsTable";
+import { AdminQuestionsModal } from "./AdminQuestionsModal";
 
 type QuestionRow = {
   prompt: string;
@@ -18,6 +19,7 @@ export function AdminQuestionsTableClient({ rows }: Props) {
   return (
     <ContentsTable
       title="問題一覧"
+      actions={<AdminQuestionsModal apiEndpoint="/api/admin/questions" triggerLabel="新規作成" />}
       columns={[
         { header: "問題文", cell: (row) => row.prompt, sortValue: (row) => row.prompt },
         { header: "種別", cell: (row) => row.type, sortValue: (row) => row.type },
@@ -35,9 +37,7 @@ export function AdminQuestionsTableClient({ rows }: Props) {
           header: "操作",
           cell: () => (
             <div className="flex gap-2">
-              <Button variant="soft" size="2">
-                編集
-              </Button>
+              <AdminQuestionsModal apiEndpoint="/api/admin/questions" triggerLabel="編集" />
               <Button variant="outline" color="red" size="2">
                 削除
               </Button>

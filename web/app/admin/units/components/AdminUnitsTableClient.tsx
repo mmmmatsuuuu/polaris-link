@@ -2,6 +2,7 @@
 
 import { Badge, Button } from "@radix-ui/themes";
 import { ContentsTable } from "@/components/ui/ContentsTable";
+import { AdminUnitsModal } from "./AdminUnitsModal";
 
 type UnitRow = {
   name: string;
@@ -18,6 +19,7 @@ export function AdminUnitsTableClient({ rows }: Props) {
   return (
     <ContentsTable
       title="単元一覧"
+      actions={<AdminUnitsModal apiEndpoint="/api/admin/units" triggerLabel="新規作成" />}
       columns={[
         { header: "単元名", cell: (row) => row.name, sortValue: (row) => row.name },
         { header: "科目", cell: (row) => row.subject, sortValue: (row) => row.subject },
@@ -35,9 +37,7 @@ export function AdminUnitsTableClient({ rows }: Props) {
           header: "操作",
           cell: () => (
             <div className="flex gap-2">
-              <Button variant="soft" size="2">
-                編集
-              </Button>
+              <AdminUnitsModal apiEndpoint="/api/admin/units" triggerLabel="編集" />
               <Button variant="outline" color="red" size="2">
                 削除
               </Button>
