@@ -15,13 +15,16 @@ export default function MockImportPage() {
     [],
   );
   const [jsonText, setJsonText] = useState(sampleJson);
+  const [collectionPath, setCollectionPath] = useState("lessons");
   const [status, setStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
     setStatus(null);
+    const trimmedPath = collectionPath.trim() || "lessons";
+    let parsed: unknown;
     try {
-      JSON.parse(jsonText);
+      parsed = JSON.parse(jsonText);
       console.log("JSON parsed successfully");
     } catch (error) {
       setStatus(`JSONのパースに失敗しました: ${(error as Error).message}`);
@@ -33,7 +36,11 @@ export default function MockImportPage() {
       const response = await fetch("/api/dev/mock-lessons", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: jsonText,
+        body: JSON.stringify(
+          Array.isArray(parsed)
+            ? { collectionPath: trimmedPath, documents: parsed }
+            : parsed,
+        ),
       });
       console.log("Response received:", response);
       if (!response.ok) {
@@ -80,6 +87,17 @@ export default function MockImportPage() {
         >
           {isSubmitting ? "インポート中..." : "Firestoreへ書き込む"}
         </button>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-2">
+        <label className="text-sm font-medium text-gray-700">
+          コレクションパス（例: subjects / units / lessons / lessons/lessonA/contents）
+        </label>
+        <input
+          className="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+          value={collectionPath}
+          onChange={(event) => setCollectionPath(event.target.value)}
+        />
       </div>
 
       <textarea

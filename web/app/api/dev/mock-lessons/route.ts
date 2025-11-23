@@ -60,6 +60,14 @@ type NormalizedCollection = {
 function normalizePayload(body: unknown): NormalizedCollection[] {
   let payload: RawPayload | unknown = body;
 
+  if (
+    isPlainObject(body) &&
+    typeof body.collectionPath === "string" &&
+    Array.isArray(body.documents)
+  ) {
+    payload = { [body.collectionPath]: body.documents };
+  }
+
   if (Array.isArray(body)) {
     payload = { lessons: body };
   }
