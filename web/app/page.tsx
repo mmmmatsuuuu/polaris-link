@@ -1,15 +1,7 @@
 import Link from "next/link";
-import {
-  Box,
-  Button,
-  Card,
-  Flex,
-  Grid,
-  Heading,
-  Section,
-  Text,
-} from "@radix-ui/themes";
+import { Box, Button, Flex, Section, Text } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
+import { CardList } from "@/components/ui/CardList";
 
 const highlights = [
   { title: "公開授業", description: "科目ごとに整理された動画と小テストを自由に閲覧できます。" },
@@ -58,22 +50,15 @@ export default function Home() {
       </Section>
 
       <Section size="2" className="bg-white">
-        <Grid
-          columns={{ initial: "1", sm: "3" }}
-          gap="4"
-          className="mx-auto max-w-6xl"
-        >
-          {highlights.map((item) => (
-            <Card key={item.title} variant="surface" className="text-left">
-              <Flex direction="column" gap="2">
-                <Heading size="4">{item.title}</Heading>
-                <Text size="3" color="gray">
-                  {item.description}
-                </Text>
-              </Flex>
-            </Card>
-          ))}
-        </Grid>
+        <div className="mx-auto max-w-6xl">
+          <CardList
+            columns={{ initial: "1", sm: "3" }}
+            items={highlights.map((item) => ({
+              title: <Text size="4" weight="bold">{item.title}</Text>,
+              description: <Text size="3" color="gray">{item.description}</Text>,
+            }))}
+          />
+        </div>
       </Section>
     </Box>
   );

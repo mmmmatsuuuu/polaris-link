@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   Flex,
-  Grid,
   Heading,
   Section,
   Tabs,
@@ -13,6 +12,7 @@ import {
 } from "@radix-ui/themes";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HeroSection } from "@/components/ui/HeroSection";
+import { CardList } from "@/components/ui/CardList";
 
 const videos = [
   { title: "動画01: SNSの危険性", duration: "12:34", status: "視聴済み" },
@@ -92,54 +92,50 @@ export default function LessonSamplePage() {
               <Heading size="5">小テスト</Heading>
               <Text color="gray">{quizzes.length} 件</Text>
             </Flex>
-            <Flex direction="column" gap="3" mt="3">
-              {quizzes.map((quiz) => (
-                <Card key={quiz.title} variant="surface">
-                  <Flex
-                    justify="between"
-                    direction={{ initial: "column", md: "row" }}
-                    align={{ initial: "start", md: "center" }}
-                    gap="3"
-                  >
-                    <div>
-                      <Text weight="medium">{quiz.title}</Text>
-                      <Text size="2" color="gray">
-                        正答率 {quiz.progress}%
-                      </Text>
-                    </div>
-                    <Flex direction="column" align={{ initial: "start", md: "end" }} gap="2">
-                      <Text size="2" color="gray">
-                        受験 {quiz.attempts} 回
-                      </Text>
-                      <Button asChild radius="full">
-                        <Link href="/lessons/subject-sample/lesson-sample/quiz">小テストへ</Link>
-                      </Button>
-                    </Flex>
-                  </Flex>
-                </Card>
-              ))}
-            </Flex>
+            <Box mt="3">
+              <CardList
+                items={quizzes.map((quiz) => ({
+                  title: <Text weight="medium">{quiz.title}</Text>,
+                  description: (
+                    <Text size="2" color="gray">
+                      正答率 {quiz.progress}%
+                    </Text>
+                  ),
+                  meta: (
+                    <Text size="2" color="gray">
+                      受験 {quiz.attempts} 回
+                    </Text>
+                  ),
+                  actions: (
+                    <Button asChild radius="full">
+                      <Link href="/lessons/subject-sample/lesson-sample/quiz">小テストへ</Link>
+                    </Button>
+                  ),
+                }))}
+              />
+            </Box>
           </Card>
 
           <Card variant="classic">
             <Heading size="5">その他教材</Heading>
-            <Grid gap="3" mt="3">
-              {extras.map((extra) => (
-                <Card key={extra.title} variant="surface">
-                  <Flex gap="4" justify="between" align="center">
-                    <Flex gap="4" align="center">
-                      <Text weight="medium">{extra.title}</Text>
-                      <Text size="2" color="gray">
-                        {extra.type} / {extra.note}
-                      </Text>
-                    </Flex>
+            <Box mt="3">
+              <CardList
+                columns={{ initial: "1", sm: "2" }}
+                items={extras.map((extra) => ({
+                  title: <Text weight="medium">{extra.title}</Text>,
+                  description: (
+                    <Text size="2" color="gray">
+                      {extra.type} / {extra.note}
+                    </Text>
+                  ),
+                  actions: (
                     <Button asChild radius="full">
                       <Link href="/lessons/subject-sample/lesson-sample/quiz">開く</Link>
                     </Button>
-                  </Flex>
-                </Card>
-              ))}
-            </Grid>
+                  ),
+                }))}
+              />
+            </Box>
           </Card>
         </Flex>
       </Section>

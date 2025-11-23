@@ -3,14 +3,13 @@ import {
   Badge,
   Box,
   Button,
-  Card,
   Flex,
-  Grid,
   Heading,
   Section,
   Text,
 } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
+import { CardList } from "@/components/ui/CardList";
 
 const stats = [
   { label: "公開授業", value: 24 },
@@ -45,35 +44,32 @@ export default function TeacherDashboardPage() {
       </Section>
 
       <Section>
-        <Grid className="mx-auto max-w-6xl" columns={{ initial: "1", md: "3" }} gap="4">
-          {stats.map((stat) => (
-            <Card key={stat.label} variant="classic" className="text-center">
-              <Text color="gray">{stat.label}</Text>
-              <Heading size="6">{stat.value}</Heading>
-            </Card>
-          ))}
-        </Grid>
+        <div className="mx-auto max-w-6xl">
+          <CardList
+            columns={{ initial: "1", md: "3" }}
+            items={stats.map((stat) => ({
+              title: <Text color="gray">{stat.label}</Text>,
+              description: <Heading size="6">{stat.value}</Heading>,
+            }))}
+          />
+        </div>
       </Section>
 
       <Section>
-        <Card variant="classic" className="mx-auto max-w-6xl">
-          <Heading size="5">最近の活動</Heading>
-          <Flex direction="column" gap="3" mt="4">
-            {activities.map((activity) => (
-              <Card key={activity.label} variant="surface">
-                <Flex justify="between" align="center">
-                  <div>
-                    <Text weight="medium">{activity.label}</Text>
-                    <Text color="gray">{activity.detail}</Text>
-                  </div>
-                  <Text size="2" color="gray">
-                    {activity.time}
-                  </Text>
-                </Flex>
-              </Card>
-            ))}
-          </Flex>
-        </Card>
+        <div className="mx-auto max-w-6xl">
+          <Heading size="5" mb="3">最近の活動</Heading>
+          <CardList
+            items={activities.map((activity) => ({
+              title: <Text weight="medium">{activity.label}</Text>,
+              description: <Text color="gray">{activity.detail}</Text>,
+              meta: (
+                <Text size="2" color="gray">
+                  {activity.time}
+                </Text>
+              ),
+            }))}
+          />
+        </div>
       </Section>
     </Box>
   );

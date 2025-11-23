@@ -1,13 +1,11 @@
 import Link from "next/link";
 import {
   Box,
-  Card,
-  Grid,
-  Heading,
   Section,
   Text,
 } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
+import { CardList } from "@/components/ui/CardList";
 
 const links = [
   { label: "科目管理", href: "/admin/subjects", description: "科目の登録・公開切替" },
@@ -31,23 +29,33 @@ export default function AdminHubPage() {
       </Section>
 
       <Section>
-        <Grid columns={{ initial: "1", md: "2" }} gap="4" className="mx-auto max-w-6xl">
-          {links.map((link) => (
-            <Card key={link.href} variant="classic" asChild>
-              <Link href={link.href} className="block">
+        <div className="mx-auto max-w-6xl">
+          <CardList
+            columns={{ initial: "1", md: "2" }}
+            items={links.map((link) => ({
+              title: (
                 <Text size="1" color="gray" className="uppercase tracking-wide">
                   {link.label}
                 </Text>
-                <Heading size="4" mt="2">
+              ),
+              description: (
+                <Text as="div" size="4" weight="bold">
                   {link.description}
-                </Heading>
-                <Text size="2" color="gray" mt="2">
+                </Text>
+              ),
+              meta: (
+                <Text size="2" color="gray">
                   一括登録ページも各画面から参照できます。
                 </Text>
-              </Link>
-            </Card>
-          ))}
-        </Grid>
+              ),
+              actions: (
+                <Link href={link.href} className="text-blue-600 underline">
+                  開く
+                </Link>
+              ),
+            }))}
+          />
+        </div>
       </Section>
     </Box>
   );
