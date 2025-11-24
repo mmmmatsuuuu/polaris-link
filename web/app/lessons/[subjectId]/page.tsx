@@ -206,7 +206,7 @@ export default async function SubjectPage({
                             </div>
                             <Flex direction="column" align={{ initial: "start", md: "end" }} gap="2">
                               <Button asChild radius="full" size="2">
-                                <Link href={`/lessons/${params.subjectId}/${lesson.id}`}>
+                                <Link href={`/lessons/${subjectId}/${lesson.id}`}>
                                   授業ページへ
                                 </Link>
                               </Button>

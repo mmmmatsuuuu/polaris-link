@@ -45,9 +45,9 @@ export function Modal({
       </Dialog.Trigger>
 
       <Dialog.Content
-        maxWidth="640px"
+        maxWidth="720px"
         style={{
-          width: "min(90vw, 640px)",
+          width: "min(90vw, 720px)",
           maxHeight: "80vh",
           overflow: "auto",
         }}

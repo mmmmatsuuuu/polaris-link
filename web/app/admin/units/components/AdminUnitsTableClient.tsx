@@ -98,7 +98,7 @@ export function AdminUnitsTableClient({ rows, subjects }: Props) {
         ]}
         rows={rows}
         getRowKey={(row) => row.id}
-        rowsPerPage={5}
+        rowsPerPage={10}
       />
 
       <AdminUnitsModal

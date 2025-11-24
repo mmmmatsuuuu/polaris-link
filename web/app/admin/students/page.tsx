@@ -13,7 +13,11 @@ export default function StudentAdminPage() {
     <Box>
       <Section className="border-b border-slate-100 bg-slate-50 px-4">
         <HeroSection
-          kicker="管理"
+          kicker={
+            <Link href="/admin" className="text-sm text-slate-500 hover:underline">
+              管理メニューに戻る
+            </Link>
+          }
           title="生徒管理"
           subtitle="メールアドレスのホワイトリスト登録やステータス変更を行うUI例です。"
           actions={

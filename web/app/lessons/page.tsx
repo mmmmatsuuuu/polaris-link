@@ -14,7 +14,6 @@ type SubjectCard = {
 
 async function fetchSubjectCards(): Promise<SubjectCard[]> {
   const subjectsSnap = await getDocs(collection(db, "subjects"));
-  console.log("Fetched subjects:", subjectsSnap.docs);
 
   return subjectsSnap.docs
     .map((doc) => {

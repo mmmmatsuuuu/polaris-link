@@ -23,12 +23,13 @@ const questions = [
   },
 ];
 
-export default function QuizPage() {
+export default async function QuizPage({ params }: { params: { subjectId: string; lessonId: string } }) {
+  const { subjectId, lessonId } = await params;
   const breadcrumbs = [
     { label: "トップ", href: "/" },
     { label: "授業一覧", href: "/lessons" },
-    { label: "情報リテラシー", href: "/lessons/subject-sample" },
-    { label: "SNSと個人情報の守り方", href: "/lessons/subject-sample/lesson-sample" },
+    { label: "科目ページへ戻る", href: `/lessons/${subjectId}` },
+    { label: "授業へ戻る", href: `/lessons/${subjectId}/${lessonId}` },
     { label: "小テスト" },
   ];
   return (
@@ -95,7 +96,7 @@ export default function QuizPage() {
                 解答に問題がなければ、下記のボタンを押してテストを提出してください。
               </Text>
               <Button asChild radius="full">
-                <Link href="/lessons/subject-sample/lesson-sample/quiz/result">
+                <Link href={`/lessons/${subjectId}/${lessonId}/quiz/result`}>
                   解答
                 </Link>
               </Button>

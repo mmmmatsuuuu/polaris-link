@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Box, Section } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { AdminHistoryTableClient } from "./components/AdminHistoryTableClient";
@@ -12,7 +13,11 @@ export default function HistoryAdminPage() {
     <Box>
       <Section className="border-b border-slate-100 bg-slate-50 px-4">
         <HeroSection
-          kicker="ログ確認"
+          kicker={
+            <Link href="/admin" className="text-sm text-slate-500 hover:underline">
+              管理メニューに戻る
+            </Link>
+          }
           title="利用履歴管理"
           subtitle="フィルター: 期間=2024/04/01-2024/04/30、科目=情報リテラシー（UIモック）"
         />

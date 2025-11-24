@@ -88,6 +88,7 @@
     - `type`: `'video' | 'quiz' | 'link'`
     - `title`: string
     - `description`: string
+    - `tags`: string[]
     - `publishStatus`: `'public' | 'private'`
     - `order`: number
     - `metadata`: object — 種別ごとの詳細を格納。
