@@ -148,17 +148,19 @@ export function AdminSubjectsModal({
             />
           </div>
           <Flex gap="3">
-            <div className="flex-1">
-              <Text size="2" color="gray">
-                表示順
-              </Text>
-              <TextField.Root
-                type="number"
-                disabled={isLoading}
-                value={form.order}
-                onChange={(e) => setForm((prev) => ({ ...prev, order: Number(e.target.value) || 0 }))}
-              />
-            </div>
+            {mode === "edit" && (
+              <div className="flex-1">
+                <Text size="2" color="gray">
+                  表示順
+                </Text>
+                <TextField.Root
+                  type="number"
+                  disabled={isLoading}
+                  value={form.order}
+                  onChange={(e) => setForm((prev) => ({ ...prev, order: Number(e.target.value) || 0 }))}
+                />
+              </div>
+            )}
             <div className="flex-1">
               <Text size="2" color="gray">
                 公開状態

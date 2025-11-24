@@ -8,10 +8,10 @@ import { AdminSubjectsModal } from "./AdminSubjectsModal";
 
 type SubjectRow = {
   id: string;
+  order: number;
   name: string;
-  status: string;
-  units: number;
-  updated: string;
+  publishStatus: "public" | "private";
+  updatedAt: string;
 };
 
 type Props = {
@@ -60,18 +60,26 @@ export function AdminSubjectsTableClient({ rows }: Props) {
           </Button>
         }
         columns={[
+          {
+            header: "番号",
+            cell: (row) => row.order ?? 0,
+            sortValue: (row) => row.order,
+          },
           { header: "科目名", cell: (row) => row.name, sortValue: (row) => row.name },
           {
             header: "公開状態",
             cell: (row) => (
-              <Badge color={row.status === "公開" ? "green" : "gray"} variant="soft">
-                {row.status}
+              <Badge color={row.publishStatus === "public" ? "green" : "gray"} variant="soft">
+                {row.publishStatus === "public" ? "公開" : "非公開"}
               </Badge>
             ),
-            sortValue: (row) => row.status,
+            sortValue: (row) => row.publishStatus,
           },
-          { header: "紐付け単元", cell: (row) => `${row.units} 単元`, sortValue: (row) => row.units },
-          { header: "更新日", cell: (row) => row.updated, sortValue: (row) => Date.parse(row.updated) },
+          {
+            header: "更新日",
+            cell: (row) => row.updatedAt,
+            sortValue: (row) => Date.parse(row.updatedAt),
+          },
           {
             header: "操作",
             cell: (row) => (

@@ -1,36 +1,107 @@
 "use client";
 
-import { useState } from "react";
-import { Button, Dialog, Flex, Select, Text, TextArea, TextField } from "@radix-ui/themes";
+import { useEffect, useMemo, useState } from "react";
+import { Button, Dialog, Flex, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
 import { Modal } from "@/components/ui/Modal";
 
 type UnitForm = {
   name: string;
   description: string;
   order: number;
-  subject: string;
+  subjectId: string;
   publishStatus: "public" | "private";
 };
 
 type AdminUnitsModalProps = {
-  apiEndpoint: string;
-  triggerLabel?: string;
+  mode: "create" | "edit";
+  unitId?: string;
+  subjects: Array<{ id: string; name: string }>;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCompleted?: () => void;
 };
 
-const subjectOptions = ["情報リテラシー", "理科探究"];
+const emptyForm: UnitForm = {
+  name: "",
+  description: "",
+  order: 0,
+  subjectId: "",
+  publishStatus: "private",
+};
 
-export function AdminUnitsModal({ apiEndpoint, triggerLabel = "編集" }: AdminUnitsModalProps) {
-  const [form, setForm] = useState<UnitForm>({
-    name: "デジタル基礎",
-    description: "基本操作とオンラインの基礎を学ぶ単元。",
-    order: 1,
-    subject: "情報リテラシー",
-    publishStatus: "public",
-  });
+export function AdminUnitsModal({
+  mode,
+  unitId,
+  subjects,
+  open,
+  onOpenChange,
+  onCompleted,
+}: AdminUnitsModalProps) {
+  const [form, setForm] = useState<UnitForm>(emptyForm);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const subjectOptions = useMemo(() => subjects ?? [], [subjects]);
+
+  useEffect(() => {
+    if (mode === "edit" && unitId && open) {
+      setIsLoading(true);
+      fetch(`/api/units/${unitId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setForm({
+            name: data.name ?? "",
+            description: data.description ?? "",
+            order: typeof data.order === "number" ? data.order : 0,
+            subjectId: data.subjectId ?? "",
+            publishStatus: (data.publishStatus as UnitForm["publishStatus"]) ?? "private",
+          });
+        })
+        .catch((error) => {
+          console.error(error);
+          setStatus("単元の取得に失敗しました");
+        })
+        .finally(() => setIsLoading(false));
+    }
+
+    if (mode === "create" && open) {
+      setForm(emptyForm);
+      setStatus(null);
+    }
+  }, [mode, unitId, open]);
+
+  const handleSave = async () => {
+    setStatus(null);
+    setIsSubmitting(true);
+    try {
+      const endpoint =
+        mode === "edit" && unitId ? `/api/units/${unitId}` : "/api/units";
+      const method = mode === "edit" ? "PATCH" : "POST";
+      const res = await fetch(endpoint, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        throw new Error(payload?.error ?? res.statusText);
+      }
+      onCompleted?.();
+    } catch (error) {
+      console.error(error);
+      setStatus("保存に失敗しました");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Modal
-      triggerLabel={triggerLabel}
+      trigger={<span />}
+      open={open}
+      onOpenChange={onOpenChange}
+      title={mode === "create" ? "単元を追加" : "単元を編集"}
       actions={
         <>
           <Dialog.Close>
@@ -38,53 +109,104 @@ export function AdminUnitsModal({ apiEndpoint, triggerLabel = "編集" }: AdminU
               キャンセル
             </Button>
           </Dialog.Close>
-          <Button>保存</Button>
+          <Button onClick={handleSave} disabled={isSubmitting || isLoading}>
+            {isSubmitting ? "保存中..." : "保存"}
+          </Button>
         </>
       }
     >
-      <Flex direction="column" gap="3">
-        <Text size="2" color="gray">単元名</Text>
-        <TextField.Root value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+      {isLoading ? (
+        <Flex direction="column" align="center" justify="center" gap="3" style={{ minHeight: 200 }}>
+          <Spinner size="3" />
+          <Text color="gray">読み込み中...</Text>
+        </Flex>
+      ) : (
+        <Flex direction="column" gap="3">
+          {status && (
+            <Text size="2" color="red">
+              {status}
+            </Text>
+          )}
 
-        <Text size="2" color="gray">説明</Text>
-        <TextArea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-
-        <Flex gap="3">
-          <div className="flex-1">
-            <Text size="2" color="gray">表示順</Text>
+          <div>
+            <Text size="2" color="gray">
+              単元名
+            </Text>
             <TextField.Root
-              type="number"
-              value={form.order}
-              onChange={(e) => setForm({ ...form, order: Number(e.target.value) || 0 })}
+              disabled={isLoading}
+              value={form.name}
+              onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
             />
           </div>
-          <div className="flex-1">
-            <Text size="2" color="gray">公開状態</Text>
+
+          <div>
+            <Text size="2" color="gray">
+              説明
+            </Text>
+            <TextArea
+              disabled={isLoading}
+              value={form.description}
+              onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+            />
+          </div>
+
+          <Flex gap="3">
+            {mode === "edit" && (
+              <div className="flex-1">
+                <Text size="2" color="gray">
+                  表示順
+                </Text>
+                <TextField.Root
+                  type="number"
+                  disabled={isLoading}
+                  value={form.order}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, order: Number(e.target.value) || 0 }))
+                  }
+                />
+              </div>
+            )}
+            <div className="flex-1">
+              <Text size="2" color="gray">
+                公開状態
+              </Text>
+              <Select.Root
+                disabled={isLoading}
+                value={form.publishStatus}
+                onValueChange={(value) =>
+                  setForm((prev) => ({ ...prev, publishStatus: value as UnitForm["publishStatus"] }))
+                }
+              >
+                <Select.Trigger />
+                <Select.Content>
+                  <Select.Item value="public">公開</Select.Item>
+                  <Select.Item value="private">非公開</Select.Item>
+                </Select.Content>
+              </Select.Root>
+            </div>
+          </Flex>
+
+          <div>
+            <Text size="2" color="gray">
+              科目
+            </Text>
             <Select.Root
-              value={form.publishStatus}
-              onValueChange={(v) => setForm({ ...form, publishStatus: v as UnitForm["publishStatus"] })}
+              disabled={isLoading}
+              value={form.subjectId}
+              onValueChange={(value) => setForm((prev) => ({ ...prev, subjectId: value }))}
             >
               <Select.Trigger />
               <Select.Content>
-                <Select.Item value="public">公開</Select.Item>
-                <Select.Item value="private">非公開</Select.Item>
+                {subjectOptions.map((s) => (
+                  <Select.Item key={s.id} value={s.id}>
+                    {s.name}
+                  </Select.Item>
+                ))}
               </Select.Content>
             </Select.Root>
           </div>
         </Flex>
-
-        <Text size="2" color="gray">科目</Text>
-        <Select.Root value={form.subject} onValueChange={(v) => setForm({ ...form, subject: v })}>
-          <Select.Trigger />
-          <Select.Content>
-            {subjectOptions.map((s) => (
-              <Select.Item key={s} value={s}>{s}</Select.Item>
-            ))}
-          </Select.Content>
-        </Select.Root>
-
-        <Text size="2" color="gray" mt="2">API: {apiEndpoint}</Text>
-      </Flex>
+      )}
     </Modal>
   );
 }

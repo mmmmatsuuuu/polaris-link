@@ -60,7 +60,7 @@ export default async function LessonsPage() {
               ),
               actions: (
                 <Button asChild variant="solid" radius="full">
-                  <Link href="/lessons/subject-sample">開く</Link>
+                  <Link href={`/lessons/${ subject.id }`}>開く</Link>
                 </Button>
               ),
             }))}

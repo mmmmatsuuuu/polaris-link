@@ -7,10 +7,10 @@ import { AdminSubjectsTableClient } from "./components/AdminSubjectsTableClient"
 
 type SubjectRow = {
   id: string;
+  order: number;
   name: string;
-  status: string;
-  units: number;
-  updated: string;
+  publishStatus: "public" | "private";
+  updatedAt: string;
 };
 
 function formatDate(value: unknown): string {
@@ -47,15 +47,14 @@ async function fetchSubjects(): Promise<SubjectRow[]> {
       return {
         id: doc.id,
         name: (data.name as string) ?? "",
-        status: data.publishStatus === "public" ? "公開" : "非公開",
-        units: unitCountBySubject.get(doc.id) ?? 0,
-        updated: formatDate(data.updatedAt),
+        publishStatus: (data.publishStatus as "public" | "private") ?? "private",
+        updatedAt: formatDate(data.updatedAt),
         order: typeof data.order === "number" ? data.order : Number.MAX_SAFE_INTEGER,
       };
     })
     .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
 
-  return rowsWithOrder.map(({ order: _order, ...row }) => row);
+  return rowsWithOrder.map((row) => row);
 }
 
 export default async function SubjectAdminPage() {
@@ -70,7 +69,6 @@ export default async function SubjectAdminPage() {
           subtitle="科目の登録・公開切替・単元紐付けを行うUI例です。"
           actions={
             <div className="flex gap-2">
-              <Button radius="full">科目を追加</Button>
               <Button asChild radius="full" variant="soft">
                 <Link href="/admin/subjects/bulk">CSV一括登録</Link>
               </Button>
