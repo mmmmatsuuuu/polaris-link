@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Box, Button, Flex, Section, Text, Card, Heading } from "@radix-ui/themes";
+import { Box, Button, Section, Text, Card, Heading } from "@radix-ui/themes";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/server";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";

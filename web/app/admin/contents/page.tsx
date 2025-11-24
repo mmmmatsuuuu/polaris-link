@@ -15,8 +15,6 @@ type ContentRow = {
   updatedAt: string;
 };
 
-type LessonOption = { id: string; title: string };
-
 function formatDate(value: unknown): string {
   if (value instanceof Timestamp) {
     const date = value.toDate();
@@ -39,7 +37,6 @@ async function fetchContents(): Promise<{ rows: ContentRow[] }> {
   const rows = contentsSnap.docs
     .map((doc) => {
       const data = doc.data();
-      const lessonId = (data.lessonId as string) ?? "";
       return {
         id: doc.id,
         title: (data.title as string) ?? "",

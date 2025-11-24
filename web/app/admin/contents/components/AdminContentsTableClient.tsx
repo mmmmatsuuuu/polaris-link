@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Badge, Button, Flex, Text } from "@radix-ui/themes";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

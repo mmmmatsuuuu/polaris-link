@@ -16,9 +16,11 @@ export function TagInput({ value, onChange, placeholder = "タグを入力して
   const [isComposing, setIsComposing] = useState(false);
 
   useEffect(() => {
-    // keep local input in sync when parent resets tags
-    setInput((prev) => (value.length === 0 ? "" : prev));
-  }, [value]);
+    // clear input when tags are cleared from outside
+    if (value.length === 0 && input !== "") {
+      setInput("");
+    }
+  }, [value, input]);
 
   const addTag = (raw: string) => {
     const next = raw.trim();

@@ -11,7 +11,7 @@ import {
   Tabs,
   Text,
 } from "@radix-ui/themes";
-import { collection, doc, getDoc, getDocs, orderBy, query, where } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { CardList } from "@/components/ui/CardList";
