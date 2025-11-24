@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { Box, Section } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
