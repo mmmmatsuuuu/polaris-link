@@ -57,22 +57,22 @@ UIデザインモックの作成TODO。必要に応じて、詳細なTODOの追�
 - [x] 依存関係が強い場合は親子コレクションの小セットをまとめて投入して動作確認。
 
 ### units
-- [ ] ダミーデータを`./web/dummy-data/<collection>.json`に保存。
-- [ ] `/web/app/dev/import`から該当コレクションをFirestoreへ投入。
-- [ ] UIと接続して表示・操作を確認し、スキーマや文言の差異を即修正。
-- [ ] 依存関係が強い場合は親子コレクションの小セットをまとめて投入して動作確認。
+- [x] ダミーデータを`./web/dummy-data/<collection>.json`に保存。
+- [x] `/web/app/dev/import`から該当コレクションをFirestoreへ投入。
+- [x] UIと接続して表示・操作を確認し、スキーマや文言の差異を即修正。
+- [x] 依存関係が強い場合は親子コレクションの小セットをまとめて投入して動作確認。
 
 ### lessons
-- [ ] ダミーデータを`./web/dummy-data/<collection>.json`に保存。
-- [ ] `/web/app/dev/import`から該当コレクションをFirestoreへ投入。
-- [ ] UIと接続して表示・操作を確認し、スキーマや文言の差異を即修正。
-- [ ] 依存関係が強い場合は親子コレクションの小セットをまとめて投入して動作確認。
+- [x] ダミーデータを`./web/dummy-data/<collection>.json`に保存。
+- [x] `/web/app/dev/import`から該当コレクションをFirestoreへ投入。
+- [x] UIと接続して表示・操作を確認し、スキーマや文言の差異を即修正。
+- [x] 依存関係が強い場合は親子コレクションの小セットをまとめて投入して動作確認。
 
 ### contents
-- [ ] ダミーデータを`./web/dummy-data/<collection>.json`に保存。
-- [ ] `/web/app/dev/import`から該当コレクションをFirestoreへ投入。
-- [ ] UIと接続して表示・操作を確認し、スキーマや文言の差異を即修正。
-- [ ] 依存関係が強い場合は親子コレクションの小セットをまとめて投入して動作確認。
+- [x] ダミーデータを`./web/dummy-data/<collection>.json`に保存。
+- [x] `/web/app/dev/import`から該当コレクションをFirestoreへ投入。
+- [x] UIと接続して表示・操作を確認し、スキーマや文言の差異を即修正。
+- [x] 依存関係が強い場合は親子コレクションの小セットをまとめて投入して動作確認。
 
 ### questions
 - [ ] ダミーデータを`./web/dummy-data/<collection>.json`に保存。
