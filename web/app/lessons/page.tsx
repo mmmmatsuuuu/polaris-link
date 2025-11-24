@@ -1,40 +1,39 @@
 import Link from "next/link";
-import { Box, Button, Flex, Section, Text, Card, Heading } from "@radix-ui/themes";
+import { Box, Button, Section, Text, Card, Heading } from "@radix-ui/themes";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase/server";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { CardList } from "@/components/ui/CardList";
 
-const subjects = [
-  {
-    id: "literacy",
-    name: "情報リテラシー",
-    description: "基本操作から情報モラルまでを網羅した入門コース。",
-    units: [
-      { name: "デジタル基礎", lessons: 3 },
-      { name: "情報モラル", lessons: 2 },
-    ],
-  },
-  {
-    id: "science",
-    name: "理科探究",
-    description: "動画・演習を通じて観察力と考察力を鍛える科目。",
-    units: [
-      { name: "化学反応", lessons: 4 },
-      { name: "生物の仕組み", lessons: 3 },
-    ],
-  },
-  {
-    id: "history",
-    name: "世界史",
-    description: "時代別のストーリーを映像と年表で学ぶ。",
-    units: [
-      { name: "古代文明", lessons: 2 },
-      { name: "近代革命", lessons: 3 },
-    ],
-  },
-];
+type SubjectCard = {
+  id: string;
+  name: string;
+  description: string;
+};
 
-export default function LessonsPage() {
+async function fetchSubjectCards(): Promise<SubjectCard[]> {
+  const subjectsSnap = await getDocs(collection(db, "subjects"));
+
+  return subjectsSnap.docs
+    .map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: (data.name as string) ?? "",
+        description: (data.description as string) ?? "",
+        publishStatus: data.publishStatus as string | undefined,
+        order: typeof data.order === "number" ? data.order : Number.MAX_SAFE_INTEGER,
+      };
+    })
+    .filter((subject) => subject.publishStatus === "public")
+    .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name))
+    .map(({ id, name, description }) => ({ id, name, description }));
+}
+
+export default async function LessonsPage() {
+  const subjects = await fetchSubjectCards();
+
   const breadcrumbItems = [
     { label: "トップ", href: "/" },
     { label: "授業一覧" },
@@ -56,21 +55,11 @@ export default function LessonsPage() {
             items={subjects.map((subject) => ({
               title: <Text size="5" weight="bold">{subject.name}</Text>,
               description: (
-                <Flex direction="column" gap="2">
-                  <Text size="2" color="gray">{subject.description}</Text>
-                  <Flex direction="column" gap="2">
-                    {subject.units.map((unit) => (
-                      <Flex key={unit.name} justify="between">
-                        <Text>{unit.name}</Text>
-                        <Text color="gray">授業 {unit.lessons}</Text>
-                      </Flex>
-                    ))}
-                  </Flex>
-                </Flex>
+                <Text size="2" color="gray">{subject.description}</Text>
               ),
               actions: (
                 <Button asChild variant="solid" radius="full">
-                  <Link href="/lessons/subject-sample">開く</Link>
+                  <Link href={`/lessons/${ subject.id }`}>開く</Link>
                 </Button>
               ),
             }))}

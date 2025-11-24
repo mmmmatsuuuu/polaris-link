@@ -50,15 +50,12 @@ service cloud.firestore {
 
     match /lessons/{lessonId} {
       allow read, write: if true;
+    }
 
-      match /contents/{contentId} {
-        allow read, write: if true;
-
-        match /questions/{questionId} {
-          allow read: if isTeacher() || isStudent();
-          allow create, update, delete: if isTeacher();
-        }
-      }
+    match /contents/{contentId} {
+      // allow read: if isTeacher() || isPublicResource();
+      // allow create, update, delete: if isTeacher();
+      allow read, write: if true;
     }
 
     match /video_progress/{docId} {

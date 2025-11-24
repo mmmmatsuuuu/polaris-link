@@ -13,7 +13,11 @@ export default function QuestionAdminPage() {
     <Box>
       <Section className="border-b border-slate-100 bg-slate-50 px-4">
         <HeroSection
-          kicker="管理"
+          kicker={
+            <Link href="/admin" className="text-sm text-slate-500 hover:underline">
+              管理メニューに戻る
+            </Link>
+          }
           title="問題管理"
           subtitle="小テスト問題の編集やプレビューのUI例です。"
           actions={

@@ -16,9 +16,9 @@
 | `users` | 教師/生徒ユーザーの属性、権限、在籍情報を管理。 |
 | `subjects` | 科目。名称、表示順、公開状態を管理。 |
 | `units` | 単元。`subjectId`と紐付け、公開状態を保持。 |
-| `lessons` | 授業。`subjectId`/`unitId`参照、コンテンツメタ情報、公開/非公開。 |
-| `lessons/{lessonId}/contents` | 各授業内の学習コンテンツ（動画/小テスト/リンク）。 |
-| `lessons/{lessonId}/contents/{contentId}/questions` | 小テスト用の問題定義。 |
+| `lessons` | 授業。`unitId`参照、コンテンツメタ情報、公開/非公開。 |
+| `contents` | 各授業内の学習コンテンツ（動画/小テスト/リンク）。 |
+| `questions` | 小テスト用の問題定義。 |
 | `video_progress` | 各ユーザーの動画視聴ログ（2分以上視聴などの判定結果）。 |
 | `test_attempts` | 小テストの受験履歴。問題ごとの正誤や回答内容を保持。 |
 | `progress_snapshots` | 教師/生徒画面で表示する進捗サマリをキャッシュ。 |
@@ -58,9 +58,9 @@
 
 ### `units`
 - Fields:
-    - `subjectId`: string — `subjects`の参照ID。
     - `name`: string
     - `description`: string
+    - `subjectId`: string
     - `order`: number
     - `publishStatus`: `'public' | 'private'`
     - `createdBy`, `updatedAt`
@@ -70,33 +70,34 @@
 
 ### `lessons`
 - Fields:
-    - `subjectId`: string
-    - `unitId`: string | null — 未紐付け授業の場合はnull。
     - `title`: string
     - `description`: string
+    - `unitId`: string
+    - `contentIds`: string[] - 所属する`contents`の参照ID。
     - `publishStatus`: `'public' | 'private'`
     - `tags`: string[]（任意）
     - `order`: number — 単元内での並び順。
     - `createdBy`, `updatedAt`
 - Index例:
     - `unitId asc, order asc`
-    - `publishStatus asc, subjectId asc, unitId asc`
+    - `publishStatus asc, unitId asc`
     - `unitId == null`（単元未紐付け授業一覧取得用）
 
-### `lessons/{lessonId}/contents`
+### `contents`
 - Fields（共通）:
     - `type`: `'video' | 'quiz' | 'link'`
     - `title`: string
     - `description`: string
+    - `tags`: string[]
     - `publishStatus`: `'public' | 'private'`
     - `order`: number
     - `metadata`: object — 種別ごとの詳細を格納。
         - 動画: `{ youtubeVideoId, durationSec }`
-        - 小テスト: `{ questionPoolSize, questionsPerAttempt: 5, timeLimitSec?, allowRetry: boolean }`
+        - 小テスト: `{ questionPoolSize, questionsPerAttempt: 5, timeLimitSec?, allowRetry: boolean, questionIds: string[] }`
         - その他教材: `{ url }`
     - `createdBy`, `updatedAt`
 
-### `lessons/{lessonId}/contents/{contentId}/questions`
+### `questions`
 - 小テスト用の問題コレクション。
 - Fields:
     - `questionType`: `'multipleChoice' | 'ordering' | 'shortAnswer'`
@@ -169,6 +170,11 @@
     - `errors`: array of { `rowNumber`, `message` }
     - `requestedBy`: userId
     - `requestedAt`/`completedAt`
+
+## データのCRUDについて
+
+- サーバコンポーネントでのREAD: firestoreに直接アクセスして取得
+- クライアントコンポーネントでのCREATE, UPDATE, DELETE: `web/app/api/`からコールする。
 
 ## その他ストレージ/サービス
 
