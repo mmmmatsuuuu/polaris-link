@@ -1,18 +1,66 @@
 import Link from "next/link";
-import {
-  Box,
-  Button,
-  Section,
-} from "@radix-ui/themes";
+import { Box, Button, Section } from "@radix-ui/themes";
+import { collection, getDocs, Timestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase/server";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { AdminSubjectsTableClient } from "./components/AdminSubjectsTableClient";
 
-const subjects = [
-  { name: "情報リテラシー", status: "公開", units: 2, updated: "2024/04/01" },
-  { name: "理科探究", status: "非公開", units: 3, updated: "2024/03/28" },
-];
+type SubjectRow = {
+  id: string;
+  name: string;
+  status: string;
+  units: number;
+  updated: string;
+};
 
-export default function SubjectAdminPage() {
+function formatDate(value: unknown): string {
+  if (value instanceof Timestamp) {
+    const date = value.toDate();
+    return date.toISOString().slice(0, 10).replace(/-/g, "/");
+  }
+  if (typeof value === "string") {
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) {
+      return date.toISOString().slice(0, 10).replace(/-/g, "/");
+    }
+  }
+  return "-";
+}
+
+async function fetchSubjects(): Promise<SubjectRow[]> {
+  const [subjectsSnap, unitsSnap] = await Promise.all([
+    getDocs(collection(db, "subjects")),
+    getDocs(collection(db, "units")),
+  ]);
+
+  const unitCountBySubject = new Map<string, number>();
+  unitsSnap.forEach((doc) => {
+    const data = doc.data();
+    const subjectId = data.subjectId as string | undefined;
+    if (!subjectId) return;
+    unitCountBySubject.set(subjectId, (unitCountBySubject.get(subjectId) ?? 0) + 1);
+  });
+
+  const rowsWithOrder = subjectsSnap.docs
+    .map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: (data.name as string) ?? "",
+        status: data.publishStatus === "public" ? "公開" : "非公開",
+        units: unitCountBySubject.get(doc.id) ?? 0,
+        updated: formatDate(data.updatedAt),
+        order: typeof data.order === "number" ? data.order : Number.MAX_SAFE_INTEGER,
+      };
+    })
+    .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+
+  return rowsWithOrder.map(({ order: _order, ...row }) => row);
+}
+
+export default async function SubjectAdminPage() {
+  const subjects = await fetchSubjects();
+
   return (
     <Box>
       <Section className="border-b border-slate-100 bg-slate-50 px-4">
