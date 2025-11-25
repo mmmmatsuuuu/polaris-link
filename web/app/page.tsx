@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Box, Button, Section, Text } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
@@ -21,12 +22,15 @@ export default function Home() {
         <HeroSection
           kicker={<Text className="tracking-[0.4em]">Polaris Link</Text>}
           title={
-            <>
-              学習コンテンツを公開し、ダッシュボードで進捗を共有するための
-              <Text as="span" weight="bold" className="block">
-                シンプルな教室ポータル
-              </Text>
-            </>
+            <span className="flex flex-col items-center gap-4">
+              <Image src="/icon.svg" alt="Polaris Linkのアイコン" width={96} height={96} priority className="my-12" />
+              <span>
+                学習コンテンツを公開し、ダッシュボードで進捗を共有するための
+                <Text as="span" weight="bold" className="block">
+                  シンプルな教室ポータル
+                </Text>
+              </span>
+            </span>
           }
           subtitle={
             <>トップページから公開授業を閲覧し、登録済みの生徒はログイン後に進捗記録や小テストを利用できます。

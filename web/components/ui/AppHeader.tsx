@@ -1,10 +1,12 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Box,
   DropdownMenu,
   Flex,
   Heading,
+  Text,
   IconButton,
 } from "@radix-ui/themes";
 import { HamburgerMenuIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
@@ -16,13 +18,14 @@ export function AppHeader() {
   return (
     <Box className="sticky top-0 z-50 border-b border-slate-200 bg-white px-4 py-3 shadow-sm">
       <Flex align="center" justify="between" className="mx-auto max-w-6xl">
-        <Flex align="center" gap="3">
           <Link href="/">
-            <Heading size="6" className="text-slate-900">
-              Polaris Link
-            </Heading>
+            <Flex align="center" gap="3">
+              <Image src="/icon.svg" alt="Polaris Linkのアイコン" width={32} height={32} />
+              <Heading size="4" className="text-slate-900 uppercase tracking-wide">
+                Polaris Link
+              </Heading>
+            </Flex>
           </Link>
-        </Flex>
         <Flex gap="3" align="center">
           <IconButton
             radius="full"
