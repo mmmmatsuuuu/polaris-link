@@ -107,8 +107,6 @@
     - `explanation`: string
     - `order`: number — 管理画面での表示位置（出題時はランダム抽選）。
     - `difficulty`: `'easy' | 'medium' | 'hard'`（難易度バランス調整用）
-    - `isActive`: boolean — 出題対象とするかのフラグ。
-    - `tags`: string[]（つまずき分析用）
 
 ### `video_progress`
 - Document ID案: `${userId}_${contentId}` もしくは自動ID＋フィールド複合インデックス。
@@ -145,7 +143,7 @@
     - `lessonId asc, contentId asc, finishedAt desc`
 
 #### 小テスト出題フロー
-1. 学習者が授業内の小テストコンテンツを開始すると、`questions` コレクションから `isActive == true` のドキュメントを取得。
+1. 学習者が授業内の小テストコンテンツを開始すると、`questions` コレクションから `metadata.questionIds` で指定されたドキュメントを取得。
 2. `metadata.questionsPerAttempt`（デフォルト5）で指定された数だけランダム抽選し、そのIDを `selectedQuestionIds` に格納する。
 3. 抽選結果と問題文をクライアントに返し、回答と正誤判定を行った上で `answers` 配列に保存する。
 4. 1受験あたりの正答率は `summary` で算出し、`progress_snapshots` などの集計に反映（`users.role == 'student'` のデータのみ対象）。

@@ -42,7 +42,7 @@ const questions = [
 export default function QuizResultPage({
   params,
 }: {
-  params: { subjectId: string; lessonId: string };
+  params: { subjectId: string; lessonId: string; quizId: string };
 }) {
   return (
     <Box className="bg-slate-50">
@@ -59,7 +59,9 @@ export default function QuizResultPage({
               <Text color="gray">所要時間 {summary.time}</Text>
               <Flex gap="6" pt="4">
                 <Button asChild variant="ghost">
-                  <Link href={`/lessons/${params.subjectId}/${params.lessonId}/quiz`}>再受験する</Link>
+                  <Link href={`/lessons/${params.subjectId}/${params.lessonId}/${params.quizId}`}>
+                    再受験する
+                  </Link>
                 </Button>
                 <Button asChild variant="ghost">
                   <Link href={`/lessons/${params.subjectId}/${params.lessonId}`}>授業に戻る</Link>

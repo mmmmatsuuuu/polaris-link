@@ -58,6 +58,12 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    match /questions/{questionId} {
+      // allow read: if isTeacher() || isPublicResource();
+      // allow create, update, delete: if isTeacher();
+      allow read, write: if true;
+    }
+
     match /video_progress/{docId} {
       allow read: if isTeacher() ||
         (isSignedIn() && resource.data.userId == request.auth.uid);
