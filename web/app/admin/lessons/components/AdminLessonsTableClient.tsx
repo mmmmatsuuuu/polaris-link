@@ -101,7 +101,7 @@ export function AdminLessonsTableClient({ rows, units, contents }: Props) {
         ]}
         rows={rows}
         getRowKey={(row) => row.id}
-        rowsPerPage={5}
+        rowsPerPage={20}
       />
 
       <AdminLessonsModal

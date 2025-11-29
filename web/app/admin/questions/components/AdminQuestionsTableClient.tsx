@@ -120,7 +120,7 @@ export function AdminQuestionsTableClient({ rows }: Props) {
         ]}
         rows={rows}
         getRowKey={(row) => row.id}
-        rowsPerPage={5}
+        rowsPerPage={20}
       />
 
       <AdminQuestionsModal
