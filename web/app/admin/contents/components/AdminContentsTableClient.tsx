@@ -113,7 +113,7 @@ export function AdminContentsTableClient({ rows }: Props) {
           },
         ]}
         rows={rows}
-        rowsPerPage={5}
+        rowsPerPage={20}
       />
 
       <AdminContentsModal

@@ -41,7 +41,8 @@
     - `studentNumber`: number — 学籍番号
     - `displayName`: string
     - `notes`: string — CSVインポートメモ等（任意）。
-    - `createdAt`/`updatedAt`: Timestamp
+    - `createdAt`: Timestamp
+    - `lastLogin`: Timestamp
 - Index例:
     - `role asc, createdAt desc`（最新登録の生徒一覧）。
     - `email` にユニーク制約（アプリ側で検証）。

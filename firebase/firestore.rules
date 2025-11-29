@@ -23,8 +23,9 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if isTeacher() || isOwner(userId);
-      allow create, update, delete: if isTeacher();
+      // allow read: if isTeacher() || isOwner(userId);
+      // allow create, update, delete: if isTeacher();
+      allow read, write: if true;
     }
 
     match /app_configs/{configId} {

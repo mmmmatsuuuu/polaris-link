@@ -1,15 +1,16 @@
-export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { Box, Button, Section } from "@radix-ui/themes";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/lib/firebase/server";
+import type { StudentUser } from "@/types/users";
 import { HeroSection } from "@/components/ui/HeroSection";
-import { AdminStudentsTableClient } from "./components/AdminStudentsTableClient";
+import { AdminStudentsTableClient, type StudentRow } from "./components/AdminStudentsTableClient";
 
-const students = [
-  { name: "山田 花子", email: "hanako@example.com", status: "有効", lastLogin: "今日" },
-  { name: "佐藤 太郎", email: "taro@example.com", status: "無効", lastLogin: "30日前" },
-];
+export const dynamic = "force-dynamic";
 
-export default function StudentAdminPage() {
+export default async function StudentAdminPage() {
+  const students = await fetchStudents();
+
   return (
     <Box>
       <Section className="border-b border-slate-100 bg-slate-50 px-4">
@@ -37,4 +38,54 @@ export default function StudentAdminPage() {
       </Section>
     </Box>
   );
+}
+
+async function fetchStudents(): Promise<StudentRow[]> {
+  try {
+    const snapshot = await getDocs(
+      query(collection(db, "users"), where("role", "==", "student")),
+    );
+
+    return snapshot.docs.map((doc) => {
+      const data = doc.data() as Partial<StudentUser> & { status?: string };
+
+      return {
+        id: doc.id,
+        studentNumber: formatStudentNumber(data.studentNumber),
+        displayName: data.displayName ?? "(名前未設定)",
+        email: data.email ?? "(メール未設定)",
+        lastLogin: formatTimestamp(data.lastLogin),
+      };
+    });
+  } catch (error) {
+    console.error("Failed to fetch students", error);
+    return [];
+  }
+}
+
+function formatStudentNumber(value: unknown): string {
+  if (typeof value === "number") return String(value);
+  if (typeof value === "string" && value.trim()) return value.trim();
+  return "-";
+}
+
+function formatTimestamp(value: unknown): string {
+  if (!value) return "-";
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return toJst(parsed);
+    }
+  }
+  if (typeof value === "object" && value !== null) {
+    const maybeDate = (value as { toDate?: () => Date }).toDate?.();
+    if (maybeDate instanceof Date && !Number.isNaN(maybeDate.getTime())) {
+      return toJst(maybeDate);
+    }
+  }
+  return "-";
+}
+
+function toJst(date: Date): string {
+  return date.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
 }

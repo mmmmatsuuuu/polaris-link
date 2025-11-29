@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/server";
 
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
