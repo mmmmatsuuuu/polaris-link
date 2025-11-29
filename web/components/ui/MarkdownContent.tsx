@@ -49,7 +49,7 @@ export function MarkdownContent({ content, className, ...rest }: MarkdownContent
           ),
           img: (props) => (
             // eslint-disable-next-line @next/next/no-img-element
-            <img {...props} loading={props.loading ?? "lazy"} />
+            <img {...props} loading={props.loading ?? "lazy"} alt="問題の画像"/>
           ),
         }}
       >

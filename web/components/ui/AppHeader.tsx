@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   Flex,
   Heading,
-  Text,
   IconButton,
 } from "@radix-ui/themes";
 import { HamburgerMenuIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
