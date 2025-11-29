@@ -70,12 +70,17 @@ export type QuizQuestionType =
   | "ordering"
   | "shortAnswer";
 
+export type QuizQuestionChoice = {
+  key: string;
+  label: string;
+};
+
 export type QuizQuestion = {
   id: string;
   contentId: string;
   questionType: QuizQuestionType;
   prompt: string;
-  choices?: string[];
+  choices?: QuizQuestionChoice[];
   correctAnswer: string | string[];
   explanation?: string;
   order: number;

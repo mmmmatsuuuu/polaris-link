@@ -1,15 +1,56 @@
 export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { Box, Button, Section } from "@radix-ui/themes";
+import { collection, getDocs, Timestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase/server";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { AdminQuestionsTableClient } from "./components/AdminQuestionsTableClient";
 
-const questions = [
-  { prompt: "SNS投稿前に確認する項目は?", type: "選択", difficulty: "★☆☆", status: "公開" },
-  { prompt: "危険な投稿例を挙げよ", type: "記述", difficulty: "★★☆", status: "公開" },
-];
+type QuestionRow = {
+  id: string;
+  prompt: string;
+  questionType: "multipleChoice" | "ordering" | "shortAnswer" | "";
+  difficulty: "easy" | "medium" | "hard" | "";
+  publishStatus: "public" | "private";
+  order: number;
+  updatedAt: string;
+};
 
-export default function QuestionAdminPage() {
+function formatDate(value: unknown): string {
+  if (value instanceof Timestamp) {
+    const date = value.toDate();
+    return date.toISOString().slice(0, 10).replace(/-/g, "/");
+  }
+  if (typeof value === "string") {
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) {
+      return date.toISOString().slice(0, 10).replace(/-/g, "/");
+    }
+  }
+  return "-";
+}
+
+async function fetchQuestions(): Promise<QuestionRow[]> {
+  const snapshot = await getDocs(collection(db, "questions"));
+  return snapshot.docs
+    .map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        prompt: (data.prompt as string) ?? "",
+        questionType: (data.questionType as QuestionRow["questionType"]) ?? "",
+        difficulty: (data.difficulty as QuestionRow["difficulty"]) ?? "",
+        publishStatus: (data.publishStatus as QuestionRow["publishStatus"]) ?? "private",
+        order: typeof data.order === "number" ? data.order : Number.MAX_SAFE_INTEGER,
+        updatedAt: formatDate(data.updatedAt),
+      };
+    })
+    .sort((a, b) => a.order - b.order || a.prompt.localeCompare(b.prompt));
+}
+
+export default async function QuestionAdminPage() {
+  const questions = await fetchQuestions();
+
   return (
     <Box>
       <Section className="border-b border-slate-100 bg-slate-50 px-4">
@@ -22,12 +63,9 @@ export default function QuestionAdminPage() {
           title="問題管理"
           subtitle="小テスト問題の編集やプレビューのUI例です。"
           actions={
-            <div className="flex gap-2">
-              <Button radius="full">問題を追加</Button>
-              <Button asChild radius="full" variant="soft">
-                <Link href="/admin/questions/bulk">一括登録</Link>
-              </Button>
-            </div>
+            <Button asChild radius="full" variant="soft">
+              <Link href="/admin/questions/bulk">一括登録</Link>
+            </Button>
           }
         />
       </Section>

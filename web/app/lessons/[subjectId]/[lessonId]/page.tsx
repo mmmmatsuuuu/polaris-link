@@ -226,7 +226,7 @@ export default async function LessonPage({
                     ),
                     actions: (
                       <Button asChild radius="full">
-                        <Link href={`/lessons/${subjectId}/${lessonId}/quiz`}>
+                        <Link href={`/lessons/${subjectId}/${lessonId}/${quiz.id}`}>
                           小テストへ
                         </Link>
                       </Button>
