@@ -102,8 +102,8 @@
 - Fields:
     - `questionType`: `'multipleChoice' | 'ordering' | 'shortAnswer'`
     - `prompt`: string
-    - `choices`: string[]（選択問題のみ）
-    - `correctAnswer`: string | string[] — questionTypeに応じて可変。
+    - `choices`: { `key`: string, `label`: string }[] — 選択肢IDと表示文（選択/並び替えのみ）。`key`は採点用の安定IDとして扱う。
+    - `correctAnswer`: string | string[] — 選択/並び替えは `choices.key` を参照する。記述式は解答テキスト。
     - `explanation`: string
     - `order`: number — 管理画面での表示位置（出題時はランダム抽選）。
     - `difficulty`: `'easy' | 'medium' | 'hard'`（難易度バランス調整用）

@@ -23,44 +23,46 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { MarkdownContent } from "@/components/ui/MarkdownContent";
 
+type Choice = { key: string; label: string };
+
 type MultipleChoiceProps = {
-  choices: string[];
-  selected: string[];
+  choices: Choice[];
+  selectedKeys: string[];
   multiple: boolean;
   onChange: (next: string[]) => void;
 };
 
-function MultipleChoiceAnswer({ choices, selected, multiple, onChange }: MultipleChoiceProps) {
-  const toggle = (choice: string) => {
+function MultipleChoiceAnswer({ choices, selectedKeys, multiple, onChange }: MultipleChoiceProps) {
+  const toggle = (choiceKey: string) => {
     if (multiple) {
       onChange(
-        selected.includes(choice)
-          ? selected.filter((c) => c !== choice)
-          : [...selected, choice],
+        selectedKeys.includes(choiceKey)
+          ? selectedKeys.filter((c) => c !== choiceKey)
+          : [...selectedKeys, choiceKey],
       );
     } else {
-      onChange([choice]);
+      onChange([choiceKey]);
     }
   };
 
   return (
     <Flex direction="column" gap="2">
-      {choices.map((choice, idx) => (
+      {choices.map((choice) => (
         <Card
-          key={idx}
+          key={choice.key}
           variant="surface"
           className={`cursor-pointer border transition ${
-            selected.includes(choice) ? "border-blue-500 bg-blue-50" : "border-slate-200"
+            selectedKeys.includes(choice.key) ? "border-blue-500 bg-blue-50" : "border-slate-200"
           }`}
-          onClick={() => toggle(choice)}
+          onClick={() => toggle(choice.key)}
         >
           <Flex align="center" gap="2">
-            {selected.includes(choice) ? (
+            {selectedKeys.includes(choice.key) ? (
               <CheckCircledIcon className="text-blue-600" />
             ) : (
               <CircleIcon className="text-slate-400" />
             )}
-            <MarkdownContent className="prose prose-slate max-w-none text-sm" content={choice} />
+            <MarkdownContent className="prose prose-slate max-w-none text-sm" content={choice.label} />
           </Flex>
         </Card>
       ))}
@@ -70,10 +72,10 @@ function MultipleChoiceAnswer({ choices, selected, multiple, onChange }: Multipl
 
 type SortableItemProps = {
   id: string;
-  content: string;
+  label: string;
 };
 
-function SortableItem({ id, content }: SortableItemProps) {
+function SortableItem({ id, label }: SortableItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -90,20 +92,24 @@ function SortableItem({ id, content }: SortableItemProps) {
     >
       <Flex align="center" gap="2">
         <DragHandleDots2Icon className="text-slate-500" />
-        <MarkdownContent className="prose prose-slate max-w-none text-sm" content={content} />
+        <MarkdownContent className="prose prose-slate max-w-none text-sm" content={label} />
       </Flex>
     </Card>
   );
 }
 
 type OrderingProps = {
-  choices: string[];
+  choices: Choice[];
   onChange?: (next: string[]) => void;
 };
 
 function OrderingAnswer({ choices, onChange }: OrderingProps) {
   const sensors = useSensors(useSensor(PointerSensor));
-  const [items, setItems] = useState<string[]>(choices);
+  const [items, setItems] = useState<string[]>(choices.map((choice) => choice.key));
+
+  useEffect(() => {
+    setItems(choices.map((choice) => choice.key));
+  }, [choices]);
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -119,9 +125,16 @@ function OrderingAnswer({ choices, onChange }: OrderingProps) {
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
         <Flex direction="column" gap="2">
-          {items.map((choice) => (
-            <SortableItem key={choice} id={choice} content={choice} />
-          ))}
+          {items.map((choiceKey) => {
+            const choice = choices.find((c) => c.key === choiceKey);
+            return (
+              <SortableItem
+                key={choiceKey}
+                id={choiceKey}
+                label={choice?.label ?? choiceKey}
+              />
+            );
+          })}
         </Flex>
       </SortableContext>
     </DndContext>
@@ -151,12 +164,12 @@ function ShortAnswer({ value, onChange }: ShortAnswerProps) {
 
 type AnswerAreaProps = {
   questionType: "multipleChoice" | "ordering" | "shortAnswer";
-  choices?: string[];
+  choices?: Choice[];
   allowMultiple?: boolean;
   onOrderingChange?: (next: string[]) => void;
   onShortAnswerChange?: (value: string) => void;
   onMultipleChoiceChange?: (next: string[]) => void;
-  selectedChoices?: string[];
+  selectedChoiceKeys?: string[];
   shortAnswerValue?: string;
 };
 
@@ -170,12 +183,12 @@ export function AnswerArea({
   onOrderingChange,
   onShortAnswerChange,
   onMultipleChoiceChange,
-  selectedChoices = undefined,
+  selectedChoiceKeys = undefined,
   shortAnswerValue = "",
 }: AnswerAreaProps) {
   const normalizedSelectedChoices = useMemo(
-    () => selectedChoices ?? [],
-    [selectedChoices],
+    () => selectedChoiceKeys ?? [],
+    [selectedChoiceKeys],
   );
 
   const [selected, setSelected] = useState<string[]>(normalizedSelectedChoices);
@@ -194,7 +207,11 @@ export function AnswerArea({
   const isShort = questionType === "shortAnswer";
 
   const normalizedChoices = useMemo(
-    () => choices.filter((c): c is string => typeof c === "string"),
+    () =>
+      choices?.filter(
+        (choice): choice is Choice =>
+          typeof choice?.key === "string" && typeof choice?.label === "string",
+      ) ?? [],
     [choices],
   );
 
@@ -207,7 +224,7 @@ export function AnswerArea({
         </Flex>
         <MultipleChoiceAnswer
           choices={normalizedChoices}
-          selected={selected}
+          selectedKeys={selected}
           multiple={allowMultiple}
           onChange={(next) => {
             setSelected(next);

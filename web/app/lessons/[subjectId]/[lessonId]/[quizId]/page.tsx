@@ -31,7 +31,7 @@ type QuizQuestion = {
   id: string;
   questionType?: string;
   prompt?: string;
-  choices?: unknown;
+  choices?: { key: string; label: string }[];
   correctAnswer?: unknown;
 };
 
@@ -49,6 +49,62 @@ function shuffleArray<T>(list: T[]): T[] {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
+}
+
+function normalizeChoices(value: unknown): { key: string; label: string }[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((choice, index) => {
+      if (typeof choice === "object" && choice !== null && "key" in choice && "label" in choice) {
+        const key = typeof (choice as any).key === "string" ? (choice as any).key.trim() : "";
+        const label = typeof (choice as any).label === "string" ? (choice as any).label.trim() : "";
+        if (!key || !label) return null;
+        return { key, label };
+      }
+      if (typeof choice === "string") {
+        const label = choice.trim();
+        if (!label) return null;
+        return { key: `choice-${index + 1}`, label };
+      }
+      return null;
+    })
+    .filter((c): c is { key: string; label: string } => Boolean(c));
+}
+
+function normalizeCorrectAnswer(value: unknown): string | string[] {
+  if (Array.isArray(value)) {
+    return value
+      .filter((v): v is string => typeof v === "string")
+      .map((v) => v.trim())
+      .filter(Boolean);
+  }
+  if (typeof value === "string") return value.trim();
+  return "";
+}
+
+function mapAnswersToChoiceKeys(
+  value: string | string[],
+  choices: { key: string; label: string }[],
+): string | string[] {
+  const toKey = (raw: string, index: number) => {
+    const trimmed = raw.trim();
+    if (!trimmed) return "";
+    const byKey = choices.find((choice) => choice.key === trimmed);
+    if (byKey) return byKey.key;
+    const byLabel = choices.find((choice) => choice.label === trimmed);
+    if (byLabel) return byLabel.key;
+    return trimmed || `answer-${index + 1}`;
+  };
+
+  if (Array.isArray(value)) {
+    return value
+      .map((raw, index) => (typeof raw === "string" ? toKey(raw, index) : ""))
+      .filter((v): v is string => Boolean(v));
+  }
+  if (typeof value === "string") {
+    return toKey(value, 0);
+  }
+  return "";
 }
 
 async function fetchQuizData(lessonId: string, quizId: string) {
@@ -103,24 +159,23 @@ async function fetchQuizData(lessonId: string, quizId: string) {
 
   const questions: QuizQuestion[] = Array.isArray(payload.questions)
     ? payload.questions.map((doc: any) => {
-        const rawChoices = doc.choices;
-        const choicesArray = Array.isArray(rawChoices)
-          ? rawChoices.filter((item: unknown): item is string => typeof item === "string")
-          : null;
         const questionType = (doc.questionType as string) ?? "";
+        const normalizedChoices = normalizeChoices(doc.choices);
         const shuffledChoices =
           questionType === "multipleChoice" || questionType === "ordering"
-            ? choicesArray
-              ? shuffleArray(choicesArray)
-              : null
-            : choicesArray;
+            ? shuffleArray(normalizedChoices)
+            : normalizedChoices;
+        const normalizedCorrectAnswer =
+          questionType === "shortAnswer"
+            ? normalizeCorrectAnswer(doc.correctAnswer)
+            : mapAnswersToChoiceKeys(normalizeCorrectAnswer(doc.correctAnswer), normalizedChoices);
 
         return {
           id: doc.id as string,
           questionType,
           prompt: (doc.prompt as string) ?? "",
-          choices: shuffledChoices ?? rawChoices,
-          correctAnswer: doc.correctAnswer,
+          choices: shuffledChoices,
+          correctAnswer: normalizedCorrectAnswer,
         };
       })
     : [];
@@ -244,9 +299,10 @@ export default function QuizPage({
     [content?.title, lessonId, subjectId],
   );
 
-  const handleMultipleChoiceChange = (questionId: string, values: string[]) => {
+  const handleMultipleChoiceChange = (questionId: string, values: string[], allowMultiple: boolean) => {
     setAnswers((prev) => {
-      const next = { ...prev, [questionId]: values };
+      const nextValue: string | string[] = allowMultiple ? values : values[0] ?? "";
+      const next = { ...prev, [questionId]: nextValue };
       saveAttempt(quizId, {
         answers: next,
         selectedQuestionIds,
@@ -362,30 +418,35 @@ export default function QuizPage({
                       />
                     </div>
                     <div className="mt-3">
-                      <AnswerArea
-                        questionType={(question.questionType as any) ?? "multipleChoice"}
-                        choices={
-                          Array.isArray(question.choices)
-                            ? question.choices.map((c) => String(c))
-                            : question.choices
-                              ? [String(question.choices)]
-                              : []
-                        }
-                        allowMultiple={Array.isArray(question.correctAnswer)}
-                        selectedChoices={
-                          Array.isArray(answers[question.id])
-                            ? (answers[question.id] as string[])
-                            : undefined
-                        }
-                        shortAnswerValue={
-                          typeof answers[question.id] === "string"
-                            ? (answers[question.id] as string)
-                            : ""
-                        }
-                        onMultipleChoiceChange={(next) => handleMultipleChoiceChange(question.id, next)}
-                        onOrderingChange={(next) => handleOrderingChange(question.id, next)}
-                        onShortAnswerChange={(value) => handleShortAnswerChange(question.id, value)}
-                      />
+                      {(() => {
+                        const allowMultiple = Array.isArray(question.correctAnswer);
+                        const answerForQuestion = answers[question.id];
+                        const selectedChoiceKeys = Array.isArray(answerForQuestion)
+                          ? (answerForQuestion as string[])
+                          : typeof answerForQuestion === "string" && answerForQuestion
+                            ? [answerForQuestion]
+                            : [];
+                        const shortAnswerValue =
+                          typeof answerForQuestion === "string" &&
+                          question.questionType === "shortAnswer"
+                            ? answerForQuestion
+                            : "";
+
+                        return (
+                          <AnswerArea
+                            questionType={(question.questionType as any) ?? "multipleChoice"}
+                            choices={question.choices ?? []}
+                            allowMultiple={allowMultiple}
+                            selectedChoiceKeys={selectedChoiceKeys}
+                            shortAnswerValue={shortAnswerValue}
+                            onMultipleChoiceChange={(next) =>
+                              handleMultipleChoiceChange(question.id, next, allowMultiple)
+                            }
+                            onOrderingChange={(next) => handleOrderingChange(question.id, next)}
+                            onShortAnswerChange={(value) => handleShortAnswerChange(question.id, value)}
+                          />
+                        );
+                      })()}
                     </div>
                   </Card>
                 ))}

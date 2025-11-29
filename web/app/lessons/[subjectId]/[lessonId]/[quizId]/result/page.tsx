@@ -27,7 +27,7 @@ type QuizQuestion = {
   id: string;
   questionType?: string;
   prompt?: string;
-  choices?: unknown;
+  choices?: { key: string; label: string }[];
   correctAnswer?: unknown;
   explanation?: string;
 };
@@ -44,7 +44,7 @@ type EvaluatedQuestion = {
   questionType: string;
   prompt: string;
   explanation?: string;
-  choices?: string[];
+  choices?: { key: string; label: string }[];
   correctAnswer?: string | string[];
   userAnswer?: string | string[];
   isCorrect: boolean;
@@ -73,12 +73,62 @@ function normalizeString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function normalizeArray(value: unknown): string[] {
-  return Array.isArray(value)
-    ? value
-        .filter((v): v is string => typeof v === "string")
-        .map((v) => v.trim())
-    : [];
+function normalizeChoices(value: unknown): { key: string; label: string }[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((choice, index) => {
+      if (typeof choice === "object" && choice !== null && "key" in choice && "label" in choice) {
+        const key = typeof (choice as any).key === "string" ? (choice as any).key.trim() : "";
+        const label = typeof (choice as any).label === "string" ? (choice as any).label.trim() : "";
+        if (!key || !label) return null;
+        return { key, label };
+      }
+      if (typeof choice === "string") {
+        const label = choice.trim();
+        if (!label) return null;
+        return { key: `choice-${index + 1}`, label };
+      }
+      return null;
+    })
+    .filter((c): c is { key: string; label: string } => Boolean(c));
+}
+
+function normalizeAnswerArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .filter((v): v is string => typeof v === "string")
+      .map((v) => v.trim())
+      .filter(Boolean);
+  }
+  const single = normalizeString(value);
+  return single ? [single] : [];
+}
+
+function mapAnswersToChoiceKeys(
+  value: string | string[] | undefined,
+  choices: { key: string; label: string }[],
+): string | string[] {
+  const toKey = (raw: string, index: number) => {
+    const trimmed = raw.trim();
+    if (!trimmed) return "";
+    const byKey = choices.find((choice) => choice.key === trimmed);
+    if (byKey) return byKey.key;
+    const byLabel = choices.find((choice) => choice.label === trimmed);
+    if (byLabel) return byLabel.key;
+    return trimmed || `answer-${index + 1}`;
+  };
+
+  if (Array.isArray(value)) {
+    return value
+      .map((raw, index) => (typeof raw === "string" ? toKey(raw, index) : ""))
+      .filter((v): v is string => Boolean(v));
+  }
+
+  if (typeof value === "string") {
+    return toKey(value, 0);
+  }
+
+  return "";
 }
 
 function isSetEqual(a: string[], b: string[]): boolean {
@@ -94,36 +144,45 @@ function isArrayEqual(a: string[], b: string[]): boolean {
   return a.every((item, index) => item === b[index]);
 }
 
+function mapKeysToLabels(keys: string[], choices: { key: string; label: string }[]): string[] {
+  return keys.map((key) => choices.find((c) => c.key === key)?.label ?? key);
+}
+
 function evaluateQuestion(question: QuizQuestion, answer: unknown): EvaluatedQuestion {
   const questionType = question.questionType ?? "";
-  const userAnswerRaw =
-    typeof answer === "string" || Array.isArray(answer) ? answer : undefined;
-
-  const correctAnswer =
+  const choices = normalizeChoices(question.choices);
+  const userAnswerRaw = typeof answer === "string" || Array.isArray(answer) ? answer : undefined;
+  const correctAnswerRaw =
     typeof question.correctAnswer === "string" || Array.isArray(question.correctAnswer)
       ? question.correctAnswer
       : undefined;
 
   let isCorrect = false;
+  let userAnswerDisplay: string | string[] | undefined;
+  let correctAnswerDisplay: string | string[] | undefined;
 
   if (questionType === "multipleChoice") {
-    const expected = normalizeArray(correctAnswer);
-    const user = normalizeArray(userAnswerRaw);
-    if (expected.length > 1) {
-      isCorrect = isSetEqual(expected, user);
+    const expectedKeys = normalizeAnswerArray(correctAnswerRaw);
+    const userKeys = normalizeAnswerArray(userAnswerRaw);
+    if (expectedKeys.length > 1) {
+      isCorrect = isSetEqual(expectedKeys, userKeys);
     } else {
-      isCorrect = expected[0] === normalizeString(userAnswerRaw);
+      isCorrect = expectedKeys[0] ? userKeys[0] === expectedKeys[0] : false;
     }
+    correctAnswerDisplay = expectedKeys.length ? mapKeysToLabels(expectedKeys, choices) : undefined;
+    userAnswerDisplay = userKeys.length ? mapKeysToLabels(userKeys, choices) : undefined;
   } else if (questionType === "ordering") {
-    const expected = normalizeArray(correctAnswer);
-    const user = normalizeArray(userAnswerRaw);
-    isCorrect = isArrayEqual(expected, user);
+    const expectedKeys = normalizeAnswerArray(correctAnswerRaw);
+    const userKeys = normalizeAnswerArray(userAnswerRaw);
+    isCorrect = isArrayEqual(expectedKeys, userKeys);
+    correctAnswerDisplay = expectedKeys.length ? mapKeysToLabels(expectedKeys, choices) : undefined;
+    userAnswerDisplay = userKeys.length ? mapKeysToLabels(userKeys, choices) : undefined;
   } else if (questionType === "shortAnswer") {
-    const expected =
-      typeof correctAnswer === "string" ? normalizeString(correctAnswer).toLowerCase() : "";
-    const user =
-      typeof userAnswerRaw === "string" ? normalizeString(userAnswerRaw).toLowerCase() : "";
-    isCorrect = expected.length > 0 && expected === user;
+    const expected = typeof correctAnswerRaw === "string" ? normalizeString(correctAnswerRaw) : "";
+    const user = typeof userAnswerRaw === "string" ? normalizeString(userAnswerRaw) : "";
+    isCorrect = expected.length > 0 && expected.toLowerCase() === user.toLowerCase();
+    correctAnswerDisplay = expected || undefined;
+    userAnswerDisplay = user || undefined;
   }
 
   return {
@@ -131,9 +190,9 @@ function evaluateQuestion(question: QuizQuestion, answer: unknown): EvaluatedQue
     questionType,
     prompt: question.prompt ?? "",
     explanation: question.explanation,
-    choices: normalizeArray(question.choices),
-    correctAnswer,
-    userAnswer: userAnswerRaw as string | string[] | undefined,
+    choices,
+    correctAnswer: correctAnswerDisplay ?? correctAnswerRaw,
+    userAnswer: userAnswerDisplay ?? userAnswerRaw,
     isCorrect,
   };
 }
@@ -199,14 +258,23 @@ export default function QuizResultPage({
         }
         const payload = await questionsRes.json();
         questions = Array.isArray(payload.questions)
-          ? payload.questions.map((doc: any) => ({
-              id: doc.id as string,
-              questionType: (doc.questionType as string) ?? "",
-              prompt: (doc.prompt as string) ?? "",
-              choices: doc.choices,
-              correctAnswer: doc.correctAnswer,
-              explanation: (doc.explanation as string) ?? "",
-            }))
+          ? payload.questions.map((doc: any) => {
+              const questionType = (doc.questionType as string) ?? "";
+              const normalizedChoices = normalizeChoices(doc.choices);
+              const rawCorrectAnswer = doc.correctAnswer as string | string[] | undefined;
+              const normalizedCorrectAnswer =
+                questionType === "shortAnswer"
+                  ? normalizeString(rawCorrectAnswer)
+                  : mapAnswersToChoiceKeys(rawCorrectAnswer, normalizedChoices);
+              return {
+                id: doc.id as string,
+                questionType,
+                prompt: (doc.prompt as string) ?? "",
+                choices: normalizedChoices,
+                correctAnswer: normalizedCorrectAnswer,
+                explanation: (doc.explanation as string) ?? "",
+              };
+            })
           : [];
       }
 

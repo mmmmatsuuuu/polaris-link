@@ -32,6 +32,70 @@ const emptyForm: QuestionForm = {
   order: 0,
 };
 
+type Choice = { key: string; label: string };
+
+function normalizeChoices(value: unknown): Choice[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((choice, index) => {
+      if (typeof choice === "object" && choice !== null && "key" in choice && "label" in choice) {
+        const key = typeof (choice as any).key === "string" ? (choice as any).key.trim() : "";
+        const label = typeof (choice as any).label === "string" ? (choice as any).label.trim() : "";
+        if (!key || !label) return null;
+        return { key, label };
+      }
+      if (typeof choice === "string") {
+        const label = choice.trim();
+        if (!label) return null;
+        return { key: `choice-${index + 1}`, label };
+      }
+      return null;
+    })
+    .filter((c): c is Choice => Boolean(c));
+}
+
+function formatChoicesText(choices: Choice[]): string {
+  return choices.map((choice) => `${choice.key}: ${choice.label}`).join("\n");
+}
+
+function parseChoicesText(text: string): Choice[] {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line, index) => {
+      const match = line.match(/^\s*([^:：|]+)\s*[:：|]\s*(.+)$/);
+      if (match) {
+        const key = match[1].trim();
+        const label = match[2].trim();
+        return key && label ? { key, label } : null;
+      }
+      return { key: `choice-${index + 1}`, label: line };
+    })
+    .filter((c): c is Choice => Boolean(c));
+}
+
+function normalizeCorrectAnswer(value: unknown): string | string[] {
+  if (Array.isArray(value)) {
+    return value
+      .filter((v): v is string => typeof v === "string")
+      .map((v) => v.trim())
+      .filter(Boolean);
+  }
+  if (typeof value === "string") return value.trim();
+  return "";
+}
+
+function resolveAnswerKey(raw: string, choices: Choice[], fallbackIndex: number): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const keyMatched = choices.find((c) => c.key === trimmed);
+  if (keyMatched) return keyMatched.key;
+  const labelMatched = choices.find((c) => c.label === trimmed);
+  if (labelMatched) return labelMatched.key;
+  return trimmed || `answer-${fallbackIndex + 1}`;
+}
+
 export function AdminQuestionsModal({
   mode,
   questionId,
@@ -55,20 +119,23 @@ export function AdminQuestionsModal({
       fetch(`/api/questions/${questionId}`)
         .then((res) => res.json())
         .then((data) => {
-          const choices = Array.isArray(data.choices)
-            ? (data.choices as string[])
-            : typeof data.choices === "string"
-              ? [data.choices]
-              : [];
-          const correctAnswerText = Array.isArray(data.correctAnswer)
-            ? (data.correctAnswer as string[]).join("\n")
-            : (data.correctAnswer as string) ?? "";
+          const choices = normalizeChoices(data.choices);
+          const normalizedAnswer = normalizeCorrectAnswer(data.correctAnswer);
+          const choicesText = choices.length > 0 ? formatChoicesText(choices) : "";
+          const correctAnswerText = Array.isArray(normalizedAnswer)
+            ? normalizedAnswer
+                .map((answer) => {
+                  const found = choices.find((c) => c.key === answer);
+                  return found ? `${answer}: ${found.label}` : answer;
+                })
+                .join("\n")
+            : (normalizedAnswer as string) ?? "";
           setForm({
             prompt: data.prompt ?? "",
             questionType: (data.questionType as QuestionForm["questionType"]) ?? "multipleChoice",
             difficulty: (data.difficulty as QuestionForm["difficulty"]) ?? "easy",
             explanation: data.explanation ?? "",
-            choicesText: choices.join("\n"),
+            choicesText,
             correctAnswerText,
             order: typeof data.order === "number" ? data.order : 0,
           });
@@ -91,12 +158,7 @@ export function AdminQuestionsModal({
     setIsSubmitting(true);
 
     try {
-      const choices = isChoiceQuestion
-        ? form.choicesText
-            .split("\n")
-            .map((line) => line.trim())
-            .filter(Boolean)
-        : [];
+      const choices = isChoiceQuestion ? parseChoicesText(form.choicesText) : [];
       if (isChoiceQuestion && choices.length === 0) {
         setStatus("選択肢を入力してください");
         setIsSubmitting(false);
@@ -107,12 +169,19 @@ export function AdminQuestionsModal({
         .split("\n")
         .map((line) => line.trim())
         .filter(Boolean);
-      const correctAnswer =
+      let correctAnswer: string | string[] =
         form.questionType === "ordering"
           ? answers
+              .map((answer, index) => resolveAnswerKey(answer, choices, index))
+              .filter((v): v is string => Boolean(v))
           : form.questionType === "multipleChoice"
-            ? answers[0] ?? ""
-            : form.correctAnswerText;
+            ? (() => {
+                const resolved = answers
+                  .map((answer, index) => resolveAnswerKey(answer, choices, index))
+                  .filter((v): v is string => Boolean(v));
+                return resolved.length > 1 ? resolved : resolved[0] ?? "";
+              })()
+            : form.correctAnswerText.trim();
 
       const endpoint = mode === "edit" && questionId ? `/api/questions/${questionId}` : "/api/questions";
       const method = mode === "edit" ? "PATCH" : "POST";
@@ -244,10 +313,10 @@ export function AdminQuestionsModal({
 
           <div className="col-span-full flex flex-col gap-2">
             <Text size="2" color="gray">
-              選択肢（1行1選択肢）※選択/並び替えのみ
+              選択肢（1行1選択肢。`キー: 表示文` 形式、キー省略時は自動採番）
             </Text>
             <TextArea
-              placeholder="例&#10;選択肢A&#10;選択肢B&#10;選択肢C"
+              placeholder={"例\nA: 選択肢A\nB: 選択肢B\nC: 選択肢C"}
               value={form.choicesText}
               onChange={(e) => setForm((prev) => ({ ...prev, choicesText: e.target.value }))}
               disabled={!isChoiceQuestion}
@@ -256,10 +325,10 @@ export function AdminQuestionsModal({
 
           <div className="col-span-full flex flex-col gap-2">
             <Text size="2" color="gray">
-              正解（1行1正解。並び替えは順に並べる）
+              正解（1行1正解。キーまたはラベルで指定。並び替えは順番に並べる）
             </Text>
             <TextArea
-              placeholder="例&#10;選択肢A&#10;選択肢B"
+              placeholder={"例\nA\nB"}
               value={form.correctAnswerText}
               onChange={(e) => setForm((prev) => ({ ...prev, correctAnswerText: e.target.value }))}
             />
