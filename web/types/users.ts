@@ -4,6 +4,7 @@ export type UserRole = "teacher" | "student";
 
 type BaseUser = {
   id: string;
+  authId?: string;
   role: UserRole;
   email: string;
   displayName: string;

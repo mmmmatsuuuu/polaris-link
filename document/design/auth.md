@@ -2,13 +2,13 @@
 
 ## ゴール
 - Googleアカウントでログインするが、**事前に承認されたユーザーだけ**が利用できる。
-- ログイン処理では新規ユーザードキュメントを自動作成しない。
-- Firestore `users/{uid}` と Firebase Auth ユーザーの **UID を一致**させて管理する。
+- ログイン処理では未承認ユーザーを残さない（許可されない場合は Auth から即削除しサインアウト）。
+- Firestore `users` と Firebase Auth ユーザーをメールで照合し、許可時に UID を紐付ける。
 
-## 基本方針
-- ログイン後、`auth.currentUser.uid` を使って Firestore `users/{uid}` を取得し、存在しなければ即 signOut して拒否する。
-- UIDは **サーバー（Admin SDK）側で生成・管理** し、クライアントから任意のUIDを渡させない。
-- 可能なら Firebase Blocking Functions (`beforeCreate`) で、未承認アカウントの新規Auth作成をブロックする。
+## 基本方針（無料枠で Blocking Functions を使わない想定）
+- Google サインイン成功後、Firestore `users` をメールで検索し、**未登録なら Admin SDK で Auth ユーザーを即削除して signOut**（Authに残さない）。
+- 登録済みなら、そのユーザーの `authId`/`uid` を Firestore に保存（紐付け）し、以降は UID 照合でアクセス制御する。
+- UIDは **サーバー（Admin SDK）側で管理** し、クライアントが任意のUIDを書き込まない。
 
 ## データ要件
 - Firestore `users`：Auth UID と一致する `id` で事前登録（`role/email/displayName/studentNumber/notes` 等）。
@@ -16,20 +16,22 @@
 
 ## 環境別運用
 - 開発環境
-  - ダミーデータを用意し、**Authエミュレータと Firestoreエミュレータに同じUIDで投入**する。
-  - シードスクリプトは Admin SDK で `createUser` → `setDoc(users/{uid})` の順に処理。
+  - ダミーデータを Firestore エミュレータに投入（メール必須）。Auth エミュレータで同メールの Google ユーザーをシードしておくと動作確認が容易。
+  - サインイン後の許可チェック（メール照合＋未登録は削除）を同じフローで検証。
 - 本番環境
-  - 管理UI/CSV取り込みのサーバー処理で **Admin SDK を用い、Authユーザー作成 → そのUIDで Firestore `users/{uid}` 作成** をセットで実行。
-  - 既存メール重複やロールの付与もこのフローで行う。
+  - 管理UI/CSVで生徒を登録（メールを Firestore に保存）。この時点では Auth UID 未定でも可。
+  - 生徒が初回 Google サインイン → メール照合 → 未登録なら Admin SDK で Auth ユーザー削除＋signOut → 登録済みなら `authId`/`uid` を Firestore に保存して紐付け。
   - 教師アカウント: まず管理画面で生徒として登録し、**Firebase Console で管理者が手動でロールを切り替える**（Auth/Firestore両方の`role`/`claims`を揃える運用を前提）。
 
 ## クライアント実装メモ
-- `AuthProvider` 内で `onAuthStateChanged` 監視後、`users/{uid}` を取得。存在しない場合は signOut とエラーメッセージ。
+- `AuthProvider` 内で `onAuthStateChanged` 監視後、サーバーAPIにメール照合を依頼。未登録なら API 側で Auth ユーザー削除＋ signOut → 「登録されていないアカウントです」を表示。
+- 登録済みなら API 側で Firestore に `authId` を保存（未設定の場合）し、クライアントは UID をコンテキストに保持。
 - UI（ヘッダー/メニュー）は `loading`/`user` 状態で出し分け。ログイン促しは未ログイン時のみ表示。
 
 ## API/サーバー実装メモ
-- 作成系APIは **メール等の情報だけ受け取り、UID生成は必ずサーバーで行う**。クライアントからの UID 指定は拒否。
-- 片手落ち（Authだけ・Firestoreだけ）を防ぐため、Auth作成と `users/{uid}` 作成を必ずセットで行う。
+- ログイン後の照合APIを用意し、メールで Firestore `users` を検索。未登録なら Admin SDK で `deleteUser(uid)` → 401/403 を返す。登録済みなら `authId` を保存し 200 を返す。
+- 作成系APIは **メール等の情報だけ受け取り、UID書き込みはサーバー側で行う**。クライアントからの UID 指定は拒否。
+- 片手落ち（Authだけ・Firestoreだけ）を防ぐため、Auth削除は必ずサーバー（Admin SDK）経由で行う。
 
 ## 失敗時の挙動
 - Firestore にユーザーが無い場合: その場で signOut し、「登録されていないアカウントです」と表示。
