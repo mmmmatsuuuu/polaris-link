@@ -7,6 +7,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/server";
+import { adminAuth } from "@/lib/firebase/admin";
 
 type IncomingStudentPayload = {
   displayName?: unknown;
@@ -69,8 +70,18 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    await deleteDoc(doc(db, "users", id));
-    return NextResponse.json({ id: id });
+    const userDocRef = doc(db, "users", id);
+    const snap = await getDoc(userDocRef);
+    const data = snap.data() as { authId?: string } | undefined;
+
+    await deleteDoc(userDocRef);
+    const targetAuthId = data?.authId || id;
+    await adminAuth.deleteUser(targetAuthId).catch((err) => {
+      // Auth側に存在しなくてもFirestore削除は済んでいるのでエラーは握りつぶす
+      console.warn("Auth delete skipped", err);
+    });
+
+    return NextResponse.json({ id });
   } catch (error) {
     console.error("Failed to delete student", error);
     return NextResponse.json(

@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthProvider";
 import RadixThemeProvider from "@/components/providers/RadixThemeProvider";
 import { AppHeader } from "@/components/ui/AppHeader";
+import { RouteGuard } from "@/components/RouteGuard";
 
 export const metadata: Metadata = {
   title: "Polaris Link",
@@ -20,7 +21,7 @@ export default function RootLayout({
         <RadixThemeProvider>
           <AuthProvider>
             <AppHeader />
-            {children}
+            <RouteGuard>{children}</RouteGuard>
           </AuthProvider>
         </RadixThemeProvider>
       </body>

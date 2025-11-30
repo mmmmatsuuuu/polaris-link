@@ -6,10 +6,14 @@ import { Button, Card, Flex, Text } from "@radix-ui/themes";
 import { useAuth } from "@/context/AuthProvider";
 
 type LoginPromptProps = {
-  variant?: "card" | "inline";
+  variant?: "card" | "inline" | "button";
+  redirectOnLogin?: boolean;
 };
 
-export default function LoginPrompt({ variant = "card" }: LoginPromptProps) {
+export default function LoginPrompt({
+  variant = "card",
+  redirectOnLogin = true,
+}: LoginPromptProps) {
   const { user, loading, signInWithGoogle } = useAuth();
   const router = useRouter();
 
@@ -20,11 +24,21 @@ export default function LoginPrompt({ variant = "card" }: LoginPromptProps) {
   const handleLogin = async () => {
     try {
       await signInWithGoogle();
-      router.push("/");
+      if (redirectOnLogin) {
+        router.push("/");
+      }
     } catch (error) {
       console.error("Login failed", error);
     }
   };
+
+  if (variant === "button") {
+    return (
+      <Button onClick={handleLogin} size="3">
+        Googleでログイン
+      </Button>
+    );
+  }
 
   const content = (
     <Flex

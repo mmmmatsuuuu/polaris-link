@@ -40,10 +40,17 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as IncomingStudentPayload;
     const data = normalizeStudentPayload(body);
+    if (!data.email) {
+      return NextResponse.json(
+        { error: "email is required" },
+        { status: 400 },
+      );
+    }
 
     const docRef = await addDoc(collection(db, "users"), {
       ...data,
       role: "student",
+      authId: "",
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       lastLogin: data.lastLogin ?? serverTimestamp(),
@@ -62,7 +69,8 @@ export async function POST(request: NextRequest) {
 function normalizeStudentPayload(body: IncomingStudentPayload) {
   const displayName =
     typeof body.displayName === "string" ? body.displayName.trim() : "";
-  const email = typeof body.email === "string" ? body.email.trim() : "";
+  const email =
+    typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const studentNumber = toStudentNumber(body.studentNumber);
   const notes = typeof body.notes === "string" ? body.notes : "";
   const lastLogin =

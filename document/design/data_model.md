@@ -40,6 +40,7 @@
     - `email`: string
     - `studentNumber`: number — 学籍番号
     - `displayName`: string
+    - `authId`: string — Firebase Auth UID（Googleサインイン後に紐付け）
     - `notes`: string — CSVインポートメモ等（任意）。
     - `createdAt`: Timestamp
     - `lastLogin`: Timestamp
