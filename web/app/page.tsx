@@ -12,7 +12,6 @@ const highlights = [
 
 const heroLinks = [
   { href: "/lessons", label: "授業一覧へ", accent: true },
-  { href: "/login", label: "ログイン" },
 ];
 
 export default function Home() {
@@ -43,7 +42,6 @@ export default function Home() {
                 asChild
                 radius="full"
                 variant={link.accent ? "solid" : "soft"}
-                color={link.accent ? "blue" : "gray"}
               >
                 <Link href={link.href}>{link.label}</Link>
               </Button>

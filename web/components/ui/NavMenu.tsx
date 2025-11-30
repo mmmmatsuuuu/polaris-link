@@ -1,7 +1,6 @@
 import Link from "next/link";
-import {
-  DropdownMenu,
-} from "@radix-ui/themes";
+import { DropdownMenu } from "@radix-ui/themes";
+import { useAuth } from "@/context/AuthProvider";
 
 const studentLinks = [
   { href: "/lessons", label: "授業一覧" },
@@ -16,14 +15,24 @@ const teacherLinks = [
 ];
 
 export function NavMenu() {
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
   return (
     <>
       <NavSection title="生徒" links={studentLinks} />
       <DropdownMenu.Separator />
       <NavSection title="教師" links={teacherLinks} />
       <DropdownMenu.Separator />
-      <DropdownMenu.Item asChild>
-        <Link href="/">ログアウト</Link>
+      <DropdownMenu.Item onSelect={handleLogout}>
+        ログアウト
       </DropdownMenu.Item>
     </>
   );
