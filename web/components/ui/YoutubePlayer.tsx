@@ -133,24 +133,44 @@ export function YoutubePlayer({
   );
 }
 
+let iframeApiPromise: Promise<void> | null = null;
+
 function loadIframeApi(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   if (window.YT?.Player) return Promise.resolve();
-  return new Promise((resolve) => {
-    const existingScript = document.querySelector<HTMLScriptElement>("script[src=\"https://www.youtube.com/iframe_api\"]");
-    if (existingScript) {
-      existingScript.addEventListener("load", () => resolve(), { once: true });
-      return;
-    }
-    const tag = document.createElement("script");
-    tag.src = "https://www.youtube.com/iframe_api";
-    tag.async = true;
-    tag.onload = () => resolve();
-    document.body.appendChild(tag);
-    const previousCallback = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => {
-      previousCallback?.();
-      resolve();
-    };
-  });
+
+  if (!iframeApiPromise) {
+    iframeApiPromise = new Promise<void>((resolve, reject) => {
+      const finish = () => {
+        if (window.YT?.Player) resolve();
+      };
+
+      const previousCallback = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        previousCallback?.();
+        finish();
+      };
+
+      const existingScript = document.querySelector<HTMLScriptElement>(
+        "script[src=\"https://www.youtube.com/iframe_api\"]",
+      );
+      if (existingScript) {
+        existingScript.addEventListener("error", () => reject(new Error("failed to load iframe api")), {
+          once: true,
+        });
+        return;
+      }
+
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      tag.async = true;
+      tag.onerror = () => reject(new Error("failed to load iframe api"));
+      document.body.appendChild(tag);
+    }).catch((error) => {
+      iframeApiPromise = null; // allow retry on failure
+      throw error;
+    });
+  }
+
+  return iframeApiPromise;
 }
