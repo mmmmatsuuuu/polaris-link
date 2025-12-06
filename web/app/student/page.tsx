@@ -204,12 +204,12 @@ async function fetchStudentProfile(
       studentNumber?: unknown;
       role?: string;
     };
-    if (data.role && data.role !== "student") return null;
+    if (data.role && data.role !== "student" && data.role !== "teacher") return null;
     return {
       id: doc.id,
       displayName: data.displayName ?? "(名前未設定)",
       email: data.email ?? "(メール未設定)",
-      studentNumber: formatStudentNumber(data.studentNumber),
+      studentNumber: data.role === "teacher" ? "教師として閲覧中" : formatStudentNumber(data.studentNumber),
       lastLogin: formatTimestamp(data.lastLogin),
       notes: data.notes,
     };
