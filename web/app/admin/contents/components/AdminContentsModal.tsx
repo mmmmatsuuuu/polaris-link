@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button, Dialog, Flex, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
 import { Modal } from "@/components/ui/Modal";
 import { TagInput } from "@/components/ui/TagInput";
+import { useAuth } from "@/context/AuthProvider";
 
 type ContentForm = {
   title: string;
@@ -40,6 +41,7 @@ export function AdminContentsModal({
   onOpenChange,
   onCompleted,
 }: AdminContentsModalProps) {
+  const { user } = useAuth();
   const [form, setForm] = useState<ContentForm>(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -47,10 +49,26 @@ export function AdminContentsModal({
   const [tagsInput, setTagsInput] = useState("");
 
   useEffect(() => {
-    if (mode === "edit" && contentId && open) {
+    if (!open) return;
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
+
+    if (mode === "edit" && contentId) {
       setIsLoading(true);
-      fetch(`/api/contents/${contentId}`)
-        .then((res) => res.json())
+      fetch(`/api/contents/${contentId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.uid }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const payload = await res.json().catch(() => null);
+            throw new Error(payload?.error ?? res.statusText);
+          }
+          return res.json();
+        })
         .then((data) => {
           const nextForm: ContentForm = {
             title: data.title ?? "",
@@ -76,9 +94,13 @@ export function AdminContentsModal({
       setStatus(null);
       setTagsInput("");
     }
-  }, [mode, contentId, open]);
+  }, [mode, contentId, open, user?.uid]);
 
   const handleSave = async () => {
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
     setStatus(null);
     setIsSubmitting(true);
     try {
@@ -88,7 +110,7 @@ export function AdminContentsModal({
       const res = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, userId: user.uid }),
       });
       if (!res.ok) {
         const payload = await res.json().catch(() => null);

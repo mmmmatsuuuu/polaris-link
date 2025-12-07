@@ -17,6 +17,7 @@ import { HeroSection } from "@/components/ui/HeroSection";
 import { MarkdownContent } from "@/components/ui/MarkdownContent";
 import { AnswerArea } from "./components/AnswerArea";
 import { Timer } from "./components/Timer";
+import { useAuth } from "@/context/AuthProvider";
 
 type QuizContent = {
   id: string;
@@ -107,8 +108,12 @@ function mapAnswersToChoiceKeys(
   return "";
 }
 
-async function fetchQuizData(lessonId: string, quizId: string) {
-  const contentRes = await fetch(`/api/contents/${quizId}`);
+async function fetchQuizData(lessonId: string, quizId: string, userId: string) {
+  const contentRes = await fetch(`/api/contents/${quizId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId }),
+  });
   if (!contentRes.ok) {
     throw new Error("failed to fetch content");
   }
@@ -149,16 +154,21 @@ async function fetchQuizData(lessonId: string, quizId: string) {
     return { content, questions: [], selectedQuestionIds: [] };
   }
 
-  const params = new URLSearchParams();
-  pickedIds.forEach((id) => params.append("ids", id));
-  const questionsRes = await fetch(`/api/questions?${params.toString()}`);
-  if (!questionsRes.ok) {
-    throw new Error("failed to fetch questions");
-  }
-  const payload = await questionsRes.json();
+  const snaps = await Promise.all(
+    pickedIds.map(async (id) => {
+      const res = await fetch(`/api/questions/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      if (!res.ok) throw new Error("failed to fetch questions");
+      return res.json();
+    }),
+  );
 
-  const questions: QuizQuestion[] = Array.isArray(payload.questions)
-    ? payload.questions.map((doc: any) => {
+  const questions: QuizQuestion[] = snaps
+    .filter(Boolean)
+    .map((doc: any) => {
         const questionType = (doc.questionType as string) ?? "";
         const normalizedChoices = normalizeChoices(doc.choices);
         const shuffledChoices =
@@ -177,8 +187,7 @@ async function fetchQuizData(lessonId: string, quizId: string) {
           choices: shuffledChoices,
           correctAnswer: normalizedCorrectAnswer,
         };
-      })
-    : [];
+      });
 
   const content: QuizContent = {
     id: contentData.id,
@@ -238,6 +247,7 @@ export default function QuizPage({
   params: { subjectId: string; lessonId: string; quizId: string };
 }) {
   const routeParams = useParams<{ subjectId: string; lessonId: string; quizId: string }>();
+  const { user, loading } = useAuth();
   const { subjectId, lessonId, quizId } = useMemo(
     () => ({
       subjectId: routeParams?.subjectId ?? "",
@@ -255,11 +265,16 @@ export default function QuizPage({
   const [startedAt, setStartedAt] = useState<number>(() => Date.now());
 
   useEffect(() => {
+    if (loading) return;
+    if (!user?.uid) {
+      setStatus("error");
+      return;
+    }
     let mounted = true;
     const load = async () => {
       setStatus("loading");
       const { content: fetchedContent, questions: fetchedQuestions, selectedQuestionIds } =
-        await fetchQuizData(lessonId, quizId);
+        await fetchQuizData(lessonId, quizId, user.uid);
 
       if (!mounted) return;
       setContent(fetchedContent);
@@ -286,7 +301,7 @@ export default function QuizPage({
     return () => {
       mounted = false;
     };
-  }, [lessonId, quizId]);
+  }, [lessonId, quizId, user?.uid, loading]);
 
   const breadcrumbs = useMemo(
     () => [

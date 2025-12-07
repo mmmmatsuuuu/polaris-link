@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button, Dialog, Flex, Grid, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
 import { Modal } from "@/components/ui/Modal";
+import { useAuth } from "@/context/AuthProvider";
 
 type QuestionForm = {
   prompt: string;
@@ -103,6 +104,7 @@ export function AdminQuestionsModal({
   onOpenChange,
   onCompleted,
 }: AdminQuestionsModalProps) {
+  const { user } = useAuth();
   const [form, setForm] = useState<QuestionForm>(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -114,10 +116,26 @@ export function AdminQuestionsModal({
   );
 
   useEffect(() => {
-    if (mode === "edit" && questionId && open) {
+    if (!open) return;
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
+
+    if (mode === "edit" && questionId) {
       setIsLoading(true);
-      fetch(`/api/questions/${questionId}`)
-        .then((res) => res.json())
+      fetch(`/api/questions/${questionId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.uid }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const payload = await res.json().catch(() => null);
+            throw new Error(payload?.error ?? res.statusText);
+          }
+          return res.json();
+        })
         .then((data) => {
           const choices = normalizeChoices(data.choices);
           const normalizedAnswer = normalizeCorrectAnswer(data.correctAnswer);
@@ -151,9 +169,13 @@ export function AdminQuestionsModal({
       setForm(emptyForm);
       setStatus(null);
     }
-  }, [mode, questionId, open]);
+  }, [mode, questionId, open, user?.uid]);
 
   const handleSave = async () => {
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
     setStatus(null);
     setIsSubmitting(true);
 
@@ -198,7 +220,7 @@ export function AdminQuestionsModal({
       const res = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, userId: user.uid }),
       });
 
       if (!res.ok) {

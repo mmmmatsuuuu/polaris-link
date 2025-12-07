@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Button, Dialog, Flex, Select, Spinner, Text, TextArea, TextField, Grid, Box } from "@radix-ui/themes";
 import { Modal } from "@/components/ui/Modal";
 import { ChipMultiSelect, type ChipOption } from "@/components/ui/ChipMultiSelect";
+import { useAuth } from "@/context/AuthProvider";
 
 type LessonForm = {
   title: string;
@@ -42,6 +43,7 @@ export function AdminLessonsModal({
   onOpenChange,
   onCompleted,
 }: AdminLessonsModalProps) {
+  const { user } = useAuth();
   const [form, setForm] = useState<LessonForm>(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -59,10 +61,26 @@ export function AdminLessonsModal({
   );
 
   useEffect(() => {
-    if (mode === "edit" && lessonId && open) {
+    if (!open) return;
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
+
+    if (mode === "edit" && lessonId) {
       setIsLoading(true);
-      fetch(`/api/lessons/${lessonId}`)
-        .then((res) => res.json())
+      fetch(`/api/lessons/${lessonId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.uid }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const payload = await res.json().catch(() => null);
+            throw new Error(payload?.error ?? res.statusText);
+          }
+          return res.json();
+        })
         .then((data) => {
           setForm({
             title: data.title ?? "",
@@ -84,9 +102,13 @@ export function AdminLessonsModal({
       setForm(emptyForm);
       setStatus(null);
     }
-  }, [mode, lessonId, open]);
+  }, [mode, lessonId, open, user?.uid]);
 
   const handleSave = async () => {
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
     setStatus(null);
     setIsSubmitting(true);
     try {
@@ -96,7 +118,7 @@ export function AdminLessonsModal({
       const res = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, userId: user.uid }),
       });
       if (!res.ok) {
         const payload = await res.json().catch(() => null);

@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import {
   Badge,
   Box,
@@ -14,6 +13,7 @@ import {
 } from "@radix-ui/themes";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { MarkdownContent } from "@/components/ui/MarkdownContent";
+import { useAuth } from "@/context/AuthProvider";
 
 type QuizContent = {
   id: string;
@@ -202,15 +202,8 @@ export default function QuizResultPage({
 }: {
   params: { subjectId: string; lessonId: string; quizId: string };
 }) {
-  const routeParams = useParams<{ subjectId: string; lessonId: string; quizId: string }>();
-  const { subjectId, lessonId, quizId } = useMemo(
-    () => ({
-      subjectId: routeParams?.subjectId ?? "",
-      lessonId: routeParams?.lessonId ?? "",
-      quizId: routeParams?.quizId ?? "",
-    }),
-    [routeParams?.subjectId, routeParams?.lessonId, routeParams?.quizId],
-  );
+  const { user, loading } = useAuth();
+  const { subjectId, lessonId, quizId } = params;
 
   const [content, setContent] = useState<QuizContent | null>(null);
   const [evaluated, setEvaluated] = useState<EvaluatedQuestion[]>([]);
@@ -218,12 +211,21 @@ export default function QuizResultPage({
   const [status, setStatus] = useState<string>("loading");
 
   useEffect(() => {
+    if (loading) return;
+    if (!user?.uid) {
+      setStatus("error");
+      return;
+    }
     let mounted = true;
     const load = async () => {
       setStatus("loading");
       const attempt = loadAttemptFromStorage(quizId) ?? {};
 
-      const contentRes = await fetch(`/api/contents/${quizId}`);
+      const contentRes = await fetch(`/api/contents/${quizId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.uid }),
+      });
       if (contentRes.status === 404) {
         setStatus("not-found");
         return;
@@ -250,32 +252,36 @@ export default function QuizResultPage({
 
       let questions: QuizQuestion[] = [];
       if (limitedIds.length > 0) {
-        const params = new URLSearchParams();
-        limitedIds.forEach((id) => params.append("ids", id));
-        const questionsRes = await fetch(`/api/questions?${params.toString()}`);
-        if (!questionsRes.ok) {
-          throw new Error("failed to fetch questions");
-        }
-        const payload = await questionsRes.json();
-        questions = Array.isArray(payload.questions)
-          ? payload.questions.map((doc: any) => {
-              const questionType = (doc.questionType as string) ?? "";
-              const normalizedChoices = normalizeChoices(doc.choices);
-              const rawCorrectAnswer = doc.correctAnswer as string | string[] | undefined;
-              const normalizedCorrectAnswer =
-                questionType === "shortAnswer"
-                  ? normalizeString(rawCorrectAnswer)
-                  : mapAnswersToChoiceKeys(rawCorrectAnswer, normalizedChoices);
-              return {
-                id: doc.id as string,
-                questionType,
-                prompt: (doc.prompt as string) ?? "",
-                choices: normalizedChoices,
-                correctAnswer: normalizedCorrectAnswer,
-                explanation: (doc.explanation as string) ?? "",
-              };
-            })
-          : [];
+        const payloads = await Promise.all(
+          limitedIds.map(async (id) => {
+            const res = await fetch(`/api/questions/${id}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId: user.uid }),
+            });
+            if (!res.ok) {
+              throw new Error("failed to fetch questions");
+            }
+            return res.json();
+          }),
+        );
+        questions = payloads.map((doc: any) => {
+          const questionType = (doc.questionType as string) ?? "";
+          const normalizedChoices = normalizeChoices(doc.choices);
+          const rawCorrectAnswer = doc.correctAnswer as string | string[] | undefined;
+          const normalizedCorrectAnswer =
+            questionType === "shortAnswer"
+              ? normalizeString(rawCorrectAnswer)
+              : mapAnswersToChoiceKeys(rawCorrectAnswer, normalizedChoices);
+          return {
+            id: doc.id as string,
+            questionType,
+            prompt: (doc.prompt as string) ?? "",
+            choices: normalizedChoices,
+            correctAnswer: normalizedCorrectAnswer,
+            explanation: (doc.explanation as string) ?? "",
+          };
+        });
       }
 
       const evaluatedQuestions = questions.map((q) =>
@@ -314,7 +320,7 @@ export default function QuizResultPage({
     return () => {
       mounted = false;
     };
-  }, [quizId]);
+  }, [quizId, user?.uid, loading]);
 
   const timeText = useMemo(() => {
     if (!summary?.timeMs) return "-";

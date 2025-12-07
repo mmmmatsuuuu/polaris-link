@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button, Dialog, Flex, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
 import { Modal } from "@/components/ui/Modal";
+import { useAuth } from "@/context/AuthProvider";
 
 type UnitForm = {
   name: string;
@@ -37,6 +38,7 @@ export function AdminUnitsModal({
   onOpenChange,
   onCompleted,
 }: AdminUnitsModalProps) {
+  const { user } = useAuth();
   const [form, setForm] = useState<UnitForm>(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -45,10 +47,26 @@ export function AdminUnitsModal({
   const subjectOptions = useMemo(() => subjects ?? [], [subjects]);
 
   useEffect(() => {
-    if (mode === "edit" && unitId && open) {
+    if (!open) return;
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
+
+    if (mode === "edit" && unitId) {
       setIsLoading(true);
-      fetch(`/api/units/${unitId}`)
-        .then((res) => res.json())
+      fetch(`/api/units/${unitId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.uid }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const payload = await res.json().catch(() => null);
+            throw new Error(payload?.error ?? res.statusText);
+          }
+          return res.json();
+        })
         .then((data) => {
           setForm({
             name: data.name ?? "",
@@ -69,9 +87,13 @@ export function AdminUnitsModal({
       setForm(emptyForm);
       setStatus(null);
     }
-  }, [mode, unitId, open]);
+  }, [mode, unitId, open, user?.uid]);
 
   const handleSave = async () => {
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
     setStatus(null);
     setIsSubmitting(true);
     try {
@@ -81,7 +103,7 @@ export function AdminUnitsModal({
       const res = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, userId: user.uid }),
       });
       if (!res.ok) {
         const payload = await res.json().catch(() => null);

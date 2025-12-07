@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  serverTimestamp,
-} from "firebase/firestore";
+import { addDoc, collection, getDocs, serverTimestamp } from "firebase/firestore";
+import { authorizeRequest } from "@/app/api/_utils/authorizeRequest";
 import { db } from "@/lib/firebase/server";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin", "student"] });
+  if ("error" in auth) return auth.error;
+
   try {
     const snapshot = await getDocs(collection(db, "units"));
     const units = snapshot.docs.map((doc) => ({
@@ -22,8 +21,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin"] });
+  if ("error" in auth) return auth.error;
+
   try {
-    const body = await request.json();
+    const body = auth.body as any;
     const existing = await getDocs(collection(db, "units"));
     const nextOrder = existing.size + 1;
 

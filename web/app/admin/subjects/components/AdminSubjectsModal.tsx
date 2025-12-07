@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button, Dialog, Flex, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
 import { Modal } from "@/components/ui/Modal";
+import { useAuth } from "@/context/AuthProvider";
 
 type SubjectForm = {
   name: string;
@@ -33,16 +34,33 @@ export function AdminSubjectsModal({
   onOpenChange,
   onCompleted,
 }: AdminSubjectsModalProps) {
+  const { user } = useAuth();
   const [form, setForm] = useState<SubjectForm>(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (mode === "edit" && subjectId && open) {
+    if (!open) return;
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
+
+    if (mode === "edit" && subjectId) {
       setIsLoading(true);
-      fetch(`/api/subjects/${subjectId}`)
-        .then((res) => res.json())
+      fetch(`/api/subjects/${subjectId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.uid }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const payload = await res.json().catch(() => null);
+            throw new Error(payload?.error ?? res.statusText);
+          }
+          return res.json();
+        })
         .then((data) => {
           setForm({
             name: data.name ?? "",
@@ -62,9 +80,13 @@ export function AdminSubjectsModal({
       setForm(emptyForm);
       setStatus(null);
     }
-  }, [mode, subjectId, open]);
+  }, [mode, subjectId, open, user?.uid]);
 
   const handleSave = async () => {
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
     setStatus(null);
     setIsSubmitting(true);
 
@@ -77,7 +99,7 @@ export function AdminSubjectsModal({
       const res = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, userId: user.uid }),
       });
 
       if (!res.ok) {
