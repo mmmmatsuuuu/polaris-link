@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button, Dialog, Flex, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
 import { Modal } from "@/components/ui/Modal";
+import { useAuth } from "@/context/AuthProvider";
 
 type StudentForm = {
   displayName: string;
@@ -33,17 +34,34 @@ export function AdminStudentsModal({
   onOpenChange,
   onCompleted,
 }: AdminStudentsModalProps) {
+  const { user } = useAuth();
   const [form, setForm] = useState<StudentForm>(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (mode === "edit" && studentId && open) {
+    if (!open) return;
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
+
+    if (mode === "edit" && studentId) {
       setIsLoading(true);
       setStatus(null);
-      fetch(`/api/students/${studentId}`)
-        .then((res) => res.json())
+      fetch(`/api/students/${studentId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.uid }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const payload = await res.json().catch(() => null);
+            throw new Error(payload?.error ?? res.statusText);
+          }
+          return res.json();
+        })
         .then((data) => {
           setForm({
             displayName: data.displayName ?? "",
@@ -65,9 +83,13 @@ export function AdminStudentsModal({
       setForm(emptyForm);
       setStatus(null);
     }
-  }, [mode, studentId, open]);
+  }, [mode, studentId, open, user?.uid]);
 
   const handleSave = async () => {
+    if (!user?.uid) {
+      setStatus("ユーザー情報を取得できませんでした");
+      return;
+    }
     setStatus(null);
     setIsSubmitting(true);
 
@@ -81,6 +103,7 @@ export function AdminStudentsModal({
         email: form.email,
         studentNumber: form.studentNumber ? Number(form.studentNumber) : undefined,
         notes: form.notes,
+        userId: user.uid,
       };
 
       const res = await fetch(endpoint, {

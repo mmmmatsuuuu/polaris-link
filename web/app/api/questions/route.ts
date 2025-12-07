@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { addDoc, collection, doc, getDoc, getDocs, serverTimestamp } from "firebase/firestore";
+import { authorizeRequest } from "@/app/api/_utils/authorizeRequest";
 import { db } from "@/lib/firebase/server";
 
 type RawChoice = { key?: string; label?: string } | string;
@@ -35,7 +36,10 @@ function normalizeCorrectAnswer(value: unknown): string | string[] {
   return "";
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin", "student"] });
+  if ("error" in auth) return auth.error;
+
   try {
     const searchParams = new URL(request.url).searchParams;
     const idsParam = searchParams.getAll("ids");
@@ -63,8 +67,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin"] });
+  if ("error" in auth) return auth.error;
+
   try {
-    const body = await request.json();
+    const body = auth.body as any;
     const existing = await getDocs(collection(db, "questions"));
     const nextOrder = existing.size + 1;
     const normalizedChoices = normalizeChoices(body.choices);

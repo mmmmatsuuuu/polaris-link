@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import {
   addDoc,
   collection,
@@ -7,6 +7,7 @@ import {
   serverTimestamp,
   where,
 } from "firebase/firestore";
+import { authorizeRequest } from "@/app/api/_utils/authorizeRequest";
 import { db } from "@/lib/firebase/server";
 
 type IncomingStudentPayload = {
@@ -17,7 +18,10 @@ type IncomingStudentPayload = {
   lastLogin?: unknown;
 };
 
-export async function GET() {
+export async function GET(request: Request) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin"] });
+  if ("error" in auth) return auth.error;
+
   try {
     const snapshot = await getDocs(
       query(collection(db, "users"), where("role", "==", "student")),
@@ -36,9 +40,12 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin"] });
+  if ("error" in auth) return auth.error;
+
   try {
-    const body = (await request.json()) as IncomingStudentPayload;
+    const body = auth.body as IncomingStudentPayload;
     const data = normalizeStudentPayload(body);
     if (!data.email) {
       return NextResponse.json(

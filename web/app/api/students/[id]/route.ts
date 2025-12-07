@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import {
   deleteDoc,
   doc,
@@ -6,6 +6,7 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
+import { authorizeRequest } from "@/app/api/_utils/authorizeRequest";
 import { db } from "@/lib/firebase/server";
 import { adminAuth } from "@/lib/firebase/admin";
 
@@ -17,7 +18,34 @@ type IncomingStudentPayload = {
   lastLogin?: unknown;
 };
 
-export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin", "student"] });
+  if ("error" in auth) return auth.error;
+
+  try {
+    const { id } = await params;
+    const snap = await getDoc(doc(db, "users", id));
+    if (!snap.exists()) {
+      return NextResponse.json(
+        { error: "Student not found" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json({ id: snap.id, ...snap.data() });
+  } catch (error) {
+    console.error("Failed to get student", error);
+    return NextResponse.json(
+      { error: "Failed to get student" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin"] });
+  if ("error" in auth) return auth.error;
+
   try {
     const { id } = await params;
     const snap = await getDoc(doc(db, "users", id));
@@ -39,6 +67,9 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin"] });
+  if ("error" in auth) return auth.error;
+
   try {
     const { id } = await params;
     const snap = await getDoc(doc(db, "users", id));
@@ -49,7 +80,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       );
     }
 
-    const body = (await request.json()) as IncomingStudentPayload;
+    const body = auth.body as IncomingStudentPayload;
     const data = normalizeStudentPayload(body);
 
     await updateDoc(doc(db, "users", id), {
@@ -67,7 +98,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin"] });
+  if ("error" in auth) return auth.error;
+
   try {
     const { id } = await params;
     const userDocRef = doc(db, "users", id);

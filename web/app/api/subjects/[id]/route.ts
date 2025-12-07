@@ -1,21 +1,37 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { deleteDoc, doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { authorizeRequest } from "@/app/api/_utils/authorizeRequest";
 import { db } from "@/lib/firebase/server";
 
 export async function GET(
-  _request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin", "student"] });
+  if ("error" in auth) return auth.error;
+
   try {
     const { id } = await params;
-    const docRef = doc(db, "subjects", id);
-    const snapshot = await getDoc(docRef);
+    return await respondSubjectDetail(id);
+  } catch (error) {
+    console.error("Failed to get subject", error);
+    return NextResponse.json(
+      { error: "Failed to get subject" },
+      { status: 500 },
+    );
+  }
+}
 
-    if (!snapshot.exists()) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-    }
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin"] });
+  if ("error" in auth) return auth.error;
 
-    return NextResponse.json({ id: snapshot.id, ...snapshot.data() });
+  try {
+    const { id } = await params;
+    return await respondSubjectDetail(id);
   } catch (error) {
     console.error("Failed to get subject", error);
     return NextResponse.json(
@@ -26,12 +42,15 @@ export async function GET(
 }
 
 export async function PATCH(
-  request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin"] });
+  if ("error" in auth) return auth.error;
+
   try {
     const { id } = await params;
-    const body = await request.json();
+    const body = auth.body as any;
     const docRef = doc(db, "subjects", id);
     await updateDoc(docRef, {
       name: body.name,
@@ -52,9 +71,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const auth = await authorizeRequest(request, { role: ["teacher", "admin"] });
+  if ("error" in auth) return auth.error;
+
   try {
     const { id } = await params;
     const docRef = doc(db, "subjects", id);
@@ -67,4 +89,15 @@ export async function DELETE(
       { status: 500 },
     );
   }
+}
+
+async function respondSubjectDetail(id: string) {
+  const docRef = doc(db, "subjects", id);
+  const snapshot = await getDoc(docRef);
+
+  if (!snapshot.exists()) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ id: snapshot.id, ...snapshot.data() });
 }

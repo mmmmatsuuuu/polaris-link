@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ContentsTable } from "@/components/ui/ContentsTable";
 import { AdminStudentsModal } from "./AdminStudentsModal";
+import { useAuth } from "@/context/AuthProvider";
 
 export type StudentRow = {
   id: string;
@@ -20,6 +21,7 @@ type Props = {
 
 export function AdminStudentsTableClient({ rows }: Props) {
   const router = useRouter();
+  const { user } = useAuth();
   const [modalState, setModalState] = useState<{
     mode: "create" | "edit";
     id?: string;
@@ -32,10 +34,18 @@ export function AdminStudentsTableClient({ rows }: Props) {
   const closeModal = () => setModalState((prev) => ({ ...prev, open: false, id: undefined }));
 
   const handleDelete = async (id: string) => {
+    if (!user?.uid) {
+      alert("ユーザー情報を取得できませんでした");
+      return;
+    }
     if (!window.confirm("この生徒を削除しますか？")) return;
     try {
       setDeletingId(id);
-      const res = await fetch(`/api/students/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/students/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.uid }),
+      });
       if (!res.ok) {
         const payload = await res.json().catch(() => null);
         throw new Error(payload?.error ?? res.statusText);

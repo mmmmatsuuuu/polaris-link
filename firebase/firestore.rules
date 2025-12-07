@@ -18,76 +18,48 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isPublicResource() {
-      return resource != null && resource.data.publishStatus == "public";
-    }
-
     match /users/{userId} {
-      allow read: if isTeacher() || isOwner(userId);
-      allow create, update, delete: if isTeacher();
+      allow read, create, update, delete: if true;
     }
 
     match /app_configs/{configId} {
-      allow read: if true;
-      allow write: if isTeacher();
+      allow read, create, update, delete: if true;
     }
 
     match /csv_import_jobs/{jobId} {
-      allow read, write: if isTeacher();
+      allow read, create, update, delete: if true;
     }
 
     match /subjects/{subjectId} {
-      allow read: if isPublicResource() || isTeacher();
-      allow create, update, delete: if isTeacher();
+      allow read, create, update, delete: if true;
     }
 
     match /units/{unitId} {
-      allow read: if isPublicResource() || isTeacher();
-      allow create, update, delete: if isTeacher();
+      allow read, create, update, delete: if true;
     }
 
     match /lessons/{lessonId} {
-      allow read: if isTeacher() || isPublicResource();
-      allow create, update, delete: if isTeacher();
+      allow read, create, update, delete: if true;
     }
 
     match /contents/{contentId} {
-      allow read: if isTeacher() || isPublicResource();
-      allow create, update, delete: if isTeacher();
+      allow read, create, update, delete: if true;
     }
 
     match /questions/{questionId} {
-      allow read: if isTeacher() || isPublicResource();
-      allow create, update, delete: if isTeacher();
+      allow read, create, update, delete: if true;
     }
 
     match /video_progress/{docId} {
-      allow read: if isTeacher() ||
-        (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow create: if isSignedIn() &&
-        request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isTeacher() ||
-        (isOwner(resource.data.userId) &&
-          request.resource.data.userId == request.auth.uid);
+      allow read, create, update, delete: if true;
     }
 
     match /test_attempts/{docId} {
-      allow read: if isTeacher() ||
-        (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow create: if isSignedIn() &&
-        request.resource.data.userId == request.auth.uid;
-      allow update, delete: if false;
+      allow read, create, update, delete: if true;
     }
 
     match /progress_snapshots/{snapshotId} {
-      allow read: if isTeacher() ||
-        (isSignedIn() && resource.data.targetType == "user" &&
-          resource.data.targetId == request.auth.uid);
-      allow write: if isTeacher();
-    }
-
-    match /{document=**} {
-      allow read, write: if false;
+      allow read, create, update, delete: if true;
     }
   }
 }
