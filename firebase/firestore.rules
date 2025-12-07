@@ -23,9 +23,8 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // allow read: if isTeacher() || isOwner(userId);
-      // allow create, update, delete: if isTeacher();
-      allow read, write: if true;
+      allow read: if isTeacher() || isOwner(userId);
+      allow create, update, delete: if isTeacher();
     }
 
     match /app_configs/{configId} {
@@ -38,31 +37,28 @@ service cloud.firestore {
     }
 
     match /subjects/{subjectId} {
-      // allow read: if isPublicResource() || isTeacher();
-      // allow create, update, delete: if isTeacher();
-      allow read, write: if true;
+      allow read: if isPublicResource() || isTeacher();
+      allow create, update, delete: if isTeacher();
     }
 
     match /units/{unitId} {
-      // allow read: if isPublicResource() || isTeacher();
-      // allow create, update, delete: if isTeacher();
-      allow read, write: if true;
+      allow read: if isPublicResource() || isTeacher();
+      allow create, update, delete: if isTeacher();
     }
 
     match /lessons/{lessonId} {
-      allow read, write: if true;
+      allow read: if isTeacher() || isPublicResource();
+      allow create, update, delete: if isTeacher();
     }
 
     match /contents/{contentId} {
-      // allow read: if isTeacher() || isPublicResource();
-      // allow create, update, delete: if isTeacher();
-      allow read, write: if true;
+      allow read: if isTeacher() || isPublicResource();
+      allow create, update, delete: if isTeacher();
     }
 
     match /questions/{questionId} {
-      // allow read: if isTeacher() || isPublicResource();
-      // allow create, update, delete: if isTeacher();
-      allow read, write: if true;
+      allow read: if isTeacher() || isPublicResource();
+      allow create, update, delete: if isTeacher();
     }
 
     match /video_progress/{docId} {
