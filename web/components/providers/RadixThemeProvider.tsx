@@ -24,19 +24,16 @@ export function useThemeAppearance() {
   return context;
 }
 
-function getInitialAppearance(): Appearance {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 export default function RadixThemeProvider({ children }: RadixThemeProviderProps) {
-  const [appearance, setAppearance] = useState<Appearance>(getInitialAppearance);
+  const [appearance, setAppearance] = useState<Appearance>("light");
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = (event: MediaQueryListEvent) => {
-      setAppearance(event.matches ? "dark" : "light");
-    };
+    const applyPreference = (matches: boolean) => setAppearance(matches ? "dark" : "light");
+
+    applyPreference(mediaQuery.matches);
+    const handler = (event: MediaQueryListEvent) => applyPreference(event.matches);
+
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);

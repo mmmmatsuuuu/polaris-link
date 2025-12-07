@@ -67,7 +67,8 @@ export default async function LessonsPage() {
         </div>
       </Section>
 
-      <Section size="2">
+      {/* 実装中 */}
+      {/* <Section size="2">
         <Card
           variant="surface"
           className="mx-auto max-w-6xl border border-dashed border-slate-300 text-center"
@@ -80,7 +81,7 @@ export default async function LessonsPage() {
             <Link href="/lessons/archive">アーカイブを見る</Link>
           </Button>
         </Card>
-      </Section>
+      </Section> */}
     </Box>
   );
 }

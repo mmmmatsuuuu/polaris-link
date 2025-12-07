@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { DropdownMenu, Text, Flex, Card, Avatar } from "@radix-ui/themes";
 import { collection, getDocs, query, where } from "firebase/firestore";
@@ -27,6 +28,7 @@ type UserMeta = {
 export function NavMenu() {
   const { user, loading, logout } = useAuth();
   const [meta, setMeta] = useState<UserMeta>({});
+  const router = useRouter();
 
   useEffect(() => {
     let cancelled = false;
@@ -65,6 +67,7 @@ export function NavMenu() {
   const handleLogout = async () => {
     try {
       await logout();
+      router.push("/");
     } catch (error) {
       console.error("Logout failed", error);
     }

@@ -15,6 +15,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { CardList } from "@/components/ui/CardList";
+import { YoutubePlayer } from "@/components/ui/YoutubePlayer";
 import { db } from "@/lib/firebase/server";
 import { getContentLabel } from "../../utils";
 
@@ -159,39 +160,47 @@ export default async function LessonPage({
                     </Tabs.Trigger>
                   ))}
                 </Tabs.List>
-                {videos.map((video) => (
-                  <Tabs.Content key={video.id} value={video.id} className="mt-4">
-                    <Card variant="ghost">
-                      <Flex
-                        direction={{ initial: "column", md: "row" }}
-                        justify="between"
-                        align={{ initial: "start", md: "center" }}
-                      >
-                        <div>
-                          <Text weight="medium">{video.title}</Text>
-                          <Text size="2" color="gray">
-                            {getContentLabel({
-                              id: video.id,
-                              lessonId: lessonId,
-                              type: "video",
-                              title: video.title,
-                              description: video.description,
-                              publishStatus: "public",
-                              order: video.order,
-                              metadata: video.metadata as any,
-                            })}
-                          </Text>
-                        </div>
-                        <Badge variant="soft">動画</Badge>
-                      </Flex>
-                      <Box className="mt-4 h-64 rounded-xl bg-slate-200">
-                        <Flex align="center" justify="center" className="h-full text-sm text-slate-600">
-                          YouTubeプレイヤー（仮）
+                {videos.map((video) => {
+                  const youtubeVideoId = (video.metadata as { youtubeVideoId?: string }).youtubeVideoId;
+                  return (
+                    <Tabs.Content key={video.id} value={video.id} className="mt-4">
+                      <Card variant="ghost">
+                        <Flex
+                          direction="column"
+                          justify="between"
+                          align="start"
+                        >
+                          <div>
+                            <Text weight="medium">{video.title}</Text>
+                            <Text size="2" color="gray">
+                              {getContentLabel({
+                                id: video.id,
+                                lessonId: lessonId,
+                                type: "video",
+                                title: video.title,
+                                description: video.description,
+                                publishStatus: "public",
+                                order: video.order,
+                                metadata: video.metadata as any,
+                              })}
+                            </Text>
+                          </div>
                         </Flex>
-                      </Box>
-                    </Card>
-                  </Tabs.Content>
-                ))}
+                        <Box className="mt-4">
+                          {youtubeVideoId ? (
+                            <YoutubePlayer videoId={youtubeVideoId} title={video.title} />
+                          ) : (
+                            <Card variant="surface" className="h-64">
+                              <Flex align="center" justify="center" className="h-full text-sm text-slate-600">
+                                動画IDが未設定です
+                              </Flex>
+                            </Card>
+                          )}
+                        </Box>
+                      </Card>
+                    </Tabs.Content>
+                  );
+                })}
               </Tabs.Root>
             ) : (
               <Text color="gray" size="2" className="mt-4">

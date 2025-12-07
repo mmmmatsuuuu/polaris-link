@@ -14,13 +14,15 @@ type TagInputProps = {
 export function TagInput({ value, onChange, placeholder = "タグを入力してEnterで追加", disabled }: TagInputProps) {
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
+  const [prevLength, setPrevLength] = useState(value.length);
 
   useEffect(() => {
-    // clear input when tags are cleared from outside
-    if (value.length === 0 && input !== "") {
+    // clear input when tags are cleared from outside (e.g. form reset)
+    if (prevLength > 0 && value.length === 0) {
       setInput("");
     }
-  }, [value, input]);
+    setPrevLength(value.length);
+  }, [value, prevLength]);
 
   const addTag = (raw: string) => {
     const next = raw.trim();
