@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import { Button, Dialog, Flex, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
 import { Modal } from "@/components/ui/Modal";
 import { useAuth } from "@/context/AuthProvider";
+import type { PublishStatus, Subject } from "@/types/catalog";
 
-type SubjectForm = {
-  name: string;
+type SubjectForm = Pick<Subject, "name" | "order"> & {
   description: string;
-  order: number;
-  publishStatus: "public" | "private";
+  publishStatus: PublishStatus;
 };
 
 type AdminSubjectsModalProps = {
