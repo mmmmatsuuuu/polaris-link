@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Dialog, Flex, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
+import { Button, Dialog, Flex, Select, Spinner, Text, TextField } from "@radix-ui/themes";
 import { Modal } from "@/components/ui/Modal";
 import { useAuth } from "@/context/AuthProvider";
-import type { PublishStatus, Subject } from "@/types/catalog";
+import { TipTapEditor } from "@/components/ui/tiptap";
+import type { PublishStatus, RichTextDoc, Subject } from "@/types/catalog";
 
 type SubjectForm = Pick<Subject, "name" | "order"> & {
-  description: string;
+  description: RichTextDoc;
   publishStatus: PublishStatus;
 };
 
@@ -21,10 +22,20 @@ type AdminSubjectsModalProps = {
 
 const emptyForm: SubjectForm = {
   name: "",
-  description: "",
+  description: { type: "doc", content: [{ type: "paragraph" }] },
   order: 0,
   publishStatus: "private",
 };
+
+function normalizeDoc(value: unknown, fallback: RichTextDoc): RichTextDoc {
+  if (value && typeof value === "object" && "type" in value) {
+    return value as RichTextDoc;
+  }
+  if (typeof value === "string") {
+    return { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: value }] }] };
+  }
+  return fallback;
+}
 
 export function AdminSubjectsModal({
   mode,
@@ -63,7 +74,7 @@ export function AdminSubjectsModal({
         .then((data) => {
           setForm({
             name: data.name ?? "",
-            description: data.description ?? "",
+            description: normalizeDoc(data.description, emptyForm.description),
             order: typeof data.order === "number" ? data.order : 0,
             publishStatus: (data.publishStatus as SubjectForm["publishStatus"]) ?? "private",
           });
@@ -161,12 +172,13 @@ export function AdminSubjectsModal({
             <Text size="2" color="gray">
               説明
             </Text>
-            <TextArea
-              disabled={isLoading}
-              value={form.description}
-              onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-              placeholder="説明を入力"
-            />
+            <div className="rounded border border-slate-200">
+              <TipTapEditor
+                value={form.description}
+                onChange={(next) => setForm((prev) => ({ ...prev, description: next }))}
+                placeholder="説明を入力"
+              />
+            </div>
           </div>
           <Flex gap="3">
             {mode === "edit" && (

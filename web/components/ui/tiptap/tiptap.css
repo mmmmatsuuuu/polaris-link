@@ -1,0 +1,142 @@
+.tiptap-container {
+  border-radius: 8px;
+  background: #fff;
+}
+
+.tiptap-editor,
+.tiptap-viewer {
+  min-height: 180px;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #0f172a;
+}
+
+.tiptap-editor:focus,
+.tiptap-viewer:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+.tiptap-editor .ProseMirror,
+.tiptap-viewer .ProseMirror {
+  outline: none;
+}
+
+.tiptap-editor h1,
+.tiptap-viewer h1 {
+  font-size: 1.5rem;
+  margin: 0.6em 0 0.4em;
+  font-weight: 700;
+}
+
+.tiptap-editor h2,
+.tiptap-viewer h2 {
+  font-size: 1.25rem;
+  margin: 0.5em 0 0.35em;
+  font-weight: 700;
+}
+
+.tiptap-editor h3,
+.tiptap-viewer h3 {
+  font-size: 1.1rem;
+  margin: 0.45em 0 0.3em;
+  font-weight: 600;
+}
+
+.tiptap-editor p,
+.tiptap-viewer p {
+  margin: 0.4em 0;
+}
+
+.tiptap-editor ul,
+.tiptap-viewer ul,
+.tiptap-editor ol,
+.tiptap-viewer ol {
+  padding-left: 1.2em;
+  margin: 0.4em 0 0.4em 0;
+}
+
+.tiptap-editor li,
+.tiptap-viewer li {
+  margin: 0.2em 0;
+}
+
+.tiptap-editor code,
+.tiptap-viewer code {
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.tiptap-editor pre,
+.tiptap-viewer pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.tiptap-editor blockquote,
+.tiptap-viewer blockquote {
+  border-left: 3px solid #cbd5e1;
+  padding-left: 10px;
+  color: #475569;
+  margin: 0.6em 0;
+}
+
+.tiptap-editor a,
+.tiptap-viewer a {
+  color: #2563eb;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.tiptap-editor img,
+.tiptap-viewer img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 8px 0;
+}
+
+.tiptap-editor pre code.hljs,
+.tiptap-viewer pre code.hljs {
+  display: block;
+  overflow-x: auto;
+  background: transparent;
+  padding: 0;
+}
+
+.tiptap-editor pre,
+.tiptap-viewer pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.tiptap-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px 8px 0 0;
+  background: #f8fafc;
+}
+
+.tiptap-toolbar + .tiptap-editor {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top: none;
+}
