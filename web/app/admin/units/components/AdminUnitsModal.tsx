@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button, Dialog, Flex, Select, Spinner, Text, TextField } from "@radix-ui/themes";
-import { Modal } from "@/components/ui/Modal";
 import { useAuth } from "@/context/AuthProvider";
 import { TipTapEditor } from "@/components/ui/tiptap";
+import { FullScreenModal } from "@/components/ui/FullScreenModal";
 import type { PublishStatus, RichTextDoc, Subject, Unit } from "@/types/catalog";
 
 type UnitForm = Pick<Unit, "name" | "order" | "subjectId"> & {
@@ -128,7 +128,7 @@ export function AdminUnitsModal({
   };
 
   return (
-    <Modal
+    <FullScreenModal
       trigger={<span />}
       open={open}
       onOpenChange={onOpenChange}
@@ -240,6 +240,6 @@ export function AdminUnitsModal({
           </div>
         </Flex>
       )}
-    </Modal>
+    </FullScreenModal>
   );
 }

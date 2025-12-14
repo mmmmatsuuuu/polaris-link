@@ -53,7 +53,7 @@ export function TipTapEditor({
         placeholder: placeholder ?? "ここに入力",
       }),
     ],
-    content: initialContent,
+    content: initialContent as any,
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
       const json = editor.getJSON() as RichTextDoc;

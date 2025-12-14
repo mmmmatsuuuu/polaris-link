@@ -53,13 +53,13 @@ function MultipleChoiceAnswer({ choices, selectedKeys, multiple, onChange }: Mul
           key={choice.key}
           variant="surface"
           className={`cursor-pointer border transition ${
-            selectedKeys.includes(choice.key) ? "border-blue-500 bg-blue-50" : "border-slate-200"
+            selectedKeys.includes(choice.key) ? "border-yellow-500" : "border-slate-200"
           }`}
           onClick={() => toggle(choice.key)}
         >
           <Flex align="center" gap="2">
             {selectedKeys.includes(choice.key) ? (
-              <CheckCircledIcon className="text-blue-600" />
+              <CheckCircledIcon className="text-yellow-600 w-6 h-6" />
             ) : (
               <CircleIcon className="text-slate-400" />
             )}

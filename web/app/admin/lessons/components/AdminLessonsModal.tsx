@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button, Dialog, Flex, Select, Spinner, Text, TextField, Grid, Box } from "@radix-ui/themes";
-import { Modal } from "@/components/ui/Modal";
+import { FullScreenModal } from "@/components/ui/FullScreenModal";
 import { ChipMultiSelect, type ChipOption } from "@/components/ui/ChipMultiSelect";
 import { useAuth } from "@/context/AuthProvider";
 import { TipTapEditor } from "@/components/ui/tiptap";
@@ -142,7 +142,7 @@ export function AdminLessonsModal({
   };
 
   return (
-    <Modal
+    <FullScreenModal
       trigger={<span />}
       open={open}
       onOpenChange={onOpenChange}
@@ -166,8 +166,7 @@ export function AdminLessonsModal({
           <Text color="gray">読み込み中...</Text>
         </Flex>
       ) : (
-        <Grid gap="2" columns={{ initial: "1", md: "2"}}>
-          <Box>
+        <Flex gap="2" direction="column">
             <Flex direction="column" gap="3">
               {status && (
                 <Text size="2" color="red">
@@ -241,7 +240,7 @@ export function AdminLessonsModal({
                 </Text>
                 <Select.Root
                   disabled={isLoading}
-                  value={form.unitId}
+                  value={form.unitId || undefined }
                   onValueChange={(value) => setForm((prev) => ({ ...prev, unitId: value }))}
                 >
                   <Select.Trigger />
@@ -256,10 +255,6 @@ export function AdminLessonsModal({
               </div>
 
             </Flex>
-
-          </Box>
-          <Box>
-
             <div>
               <Text size="2" color="gray">
                 コンテンツ（クリックで追加/削除）
@@ -272,9 +267,8 @@ export function AdminLessonsModal({
                 placeholder="コンテンツを検索・追加"
               />
             </div>
-          </Box>
-        </Grid>
+        </Flex>
       )}
-    </Modal>
+    </FullScreenModal>
   );
 }

@@ -33,6 +33,8 @@ export type Lesson = BaseDocument & {
   unitId: string | null;
   title: string;
   description: RichTextDoc;
+  contentIds: string[];
+  order: number;
   tags: string[];
 };
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button, Dialog, Flex, Select, Spinner, Text, TextField } from "@radix-ui/themes";
-import { Modal } from "@/components/ui/Modal";
+import { FullScreenModal } from "@/components/ui/FullScreenModal";
 import { useAuth } from "@/context/AuthProvider";
 import { TipTapEditor } from "@/components/ui/tiptap";
 import type { PublishStatus, RichTextDoc, Subject } from "@/types/catalog";
@@ -127,7 +127,7 @@ export function AdminSubjectsModal({
   };
 
   return (
-    <Modal
+    <FullScreenModal
       trigger={<span />}
       open={open}
       onOpenChange={onOpenChange}
@@ -213,6 +213,6 @@ export function AdminSubjectsModal({
           </Flex>
         </Flex>
       )}
-    </Modal>
+    </FullScreenModal>
   );
 }

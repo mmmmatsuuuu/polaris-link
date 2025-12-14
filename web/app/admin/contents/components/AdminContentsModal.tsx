@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Dialog, Flex, Select, Spinner, Text, TextField } from "@radix-ui/themes";
-import { Modal } from "@/components/ui/Modal";
+import { Button, Dialog, Flex, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
 import { TagInput } from "@/components/ui/TagInput";
 import { useAuth } from "@/context/AuthProvider";
 import { TipTapEditor } from "@/components/ui/tiptap";
+import { FullScreenModal } from "@/components/ui/FullScreenModal";
 import type { LessonContent, LessonContentMetadata, LessonContentType, PublishStatus, RichTextDoc } from "@/types/catalog";
 
 type ContentForm = Pick<LessonContent, "title" | "order" | "tags"> & {
@@ -135,7 +135,7 @@ export function AdminContentsModal({
   };
 
   return (
-    <Modal
+    <FullScreenModal
       trigger={<span />}
       open={open}
       onOpenChange={onOpenChange}
@@ -351,6 +351,6 @@ export function AdminContentsModal({
           </Flex>
         </Flex>
       )}
-    </Modal>
+    </FullScreenModal>
   );
 }

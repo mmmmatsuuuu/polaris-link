@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Button, Dialog, Flex, Grid, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
-import { Modal } from "@/components/ui/Modal";
+import { FullScreenModal } from "@/components/ui/FullScreenModal";
 import { useAuth } from "@/context/AuthProvider";
 import { TipTapEditor } from "@/components/ui/tiptap";
 import type { PublishStatus, QuizQuestion, QuizQuestionType, RichTextDoc } from "@/types/catalog";
@@ -256,7 +256,7 @@ export function AdminQuestionsModal({
   };
 
   return (
-    <Modal
+    <FullScreenModal
       trigger={<span />}
       open={open}
       onOpenChange={onOpenChange}
@@ -390,6 +390,6 @@ export function AdminQuestionsModal({
           </div>
         </Grid>
       )}
-    </Modal>
+    </FullScreenModal>
   );
 }

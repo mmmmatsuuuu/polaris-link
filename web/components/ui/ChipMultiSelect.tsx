@@ -98,7 +98,7 @@ export function ChipMultiSelect({
               onClick={() => toggle(opt.id)}
               className="justify-start"
             >
-              <Flex direction="column" gap="1" align="center">
+              <Flex direction="row" gap="3" align="center">
                 <Text size="2" weight="medium">
                   {opt.label}
                 </Text>

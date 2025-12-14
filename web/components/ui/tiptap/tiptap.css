@@ -1,32 +1,32 @@
 .tiptap-container {
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .tiptap-editor {
   min-height: 180px;
   padding: 12px 14px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--gray-6);
   border-radius: 8px;
   font-size: 14px;
   line-height: 1.6;
-  color: #0f172a;
+  color: var(--color-text);
+  background: var(--color-surface);
 }
 .tiptap-viewer {
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 14px;
   line-height: 1.6;
-  color: #0f172a;
+  color: var(--color-text);
+  /* background: var(--color-surface); */
 }
-
-
 
 .tiptap-editor:focus,
 .tiptap-viewer:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+  border-color: var(--accent-8);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-8) 25%, transparent);
 }
 
 .tiptap-editor .ProseMirror,
@@ -78,12 +78,14 @@
   padding: 2px 4px;
   border-radius: 4px;
   font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background: var(--gray-3);
+  color: var(--color-text);
 }
 
 .tiptap-editor pre,
 .tiptap-viewer pre {
-  background: #0f172a;
-  color: #e2e8f0;
+  background: var(--gray-1);
+  color: var(--color-text);
   padding: 10px 12px;
   border-radius: 8px;
   overflow-x: auto;
@@ -93,15 +95,15 @@
 
 .tiptap-editor blockquote,
 .tiptap-viewer blockquote {
-  border-left: 3px solid #cbd5e1;
+  border-left: 3px solid var(--gray-6);
   padding-left: 10px;
-  color: #475569;
+  color: var(--gray-11);
   margin: 0.6em 0;
 }
 
 .tiptap-editor a,
 .tiptap-viewer a {
-  color: #2563eb;
+  color: var(--accent-9);
   text-decoration: underline;
   word-break: break-all;
 }
@@ -138,13 +140,30 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--gray-6);
   border-radius: 8px 8px 0 0;
-  background: #f8fafc;
+  background: var(--color-panel);
 }
 
 .tiptap-toolbar + .tiptap-editor {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   border-top: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tiptap-bg: #0b1220;
+    --tiptap-fg: #e2e8f0;
+    --tiptap-border: #1f2937;
+    --tiptap-accent: #60a5fa;
+    --tiptap-code-bg: #111827;
+    --tiptap-code-fg: #e5e7eb;
+    --tiptap-pre-bg: #0b1220;
+    --tiptap-pre-fg: #e5e7eb;
+    --tiptap-muted: #94a3b8;
+    --tiptap-muted-border: #1f2937;
+    --tiptap-link: #93c5fd;
+    --tiptap-toolbar-bg: #111827;
+  }
 }

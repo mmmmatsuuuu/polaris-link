@@ -39,7 +39,7 @@ export function TipTapViewer({ value, className }: TipTapViewerProps) {
         allowBase64: false,
       }),
     ],
-    content,
+    content: content as any,
     immediatelyRender: false,
     editable: false,
   });
