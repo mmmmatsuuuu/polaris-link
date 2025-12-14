@@ -64,6 +64,7 @@ export type LessonContent = {
   type: LessonContentType;
   title: string;
   description: RichTextDoc;
+  tags: string[];
   publishStatus: PublishStatus;
   order: number;
   metadata: LessonContentMetadata;

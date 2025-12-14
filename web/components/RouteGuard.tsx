@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthProvider";
 
 type Role = "teacher" | "student" | null;
 
-const GUEST_ALLOWED = ["/", "/lessons"];
+const GUEST_ALLOWED = ["/", "/lessons", "/dev"];
 const STUDENT_ALLOWED = ["/", "/lessons", "/student"];
 
 export function RouteGuard({ children }: { children: React.ReactNode }) {

@@ -5,21 +5,17 @@ import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { db } from "@/lib/firebase/server";
 import { AdminLessonsTableClient } from "./components/AdminLessonsTableClient";
+import type { Lesson, LessonContent, PublishStatus, Unit } from "@/types/catalog";
 
-type LessonRow = {
-  id: string;
-  title: string;
-  unitId: string;
+type LessonRow = Pick<Lesson, "id" | "title" | "unitId" | "publishStatus" | "order"> & {
   unitName: string;
   subjectName: string;
   contents: number;
-  publishStatus: "public" | "private";
-  order: number;
   updatedAt: string;
 };
 
-type UnitOption = { id: string; name: string; subjectName: string };
-type ContentOption = { id: string; title: string; lessonId?: string, typeAndTags?: string };
+type UnitOption = Pick<Unit, "id" | "name"> & { subjectName: string };
+type ContentOption = Pick<LessonContent, "id" | "title"> & { lessonId?: string; typeAndTags?: string };
 
 function formatDate(value: unknown): string {
   if (value instanceof Timestamp) {

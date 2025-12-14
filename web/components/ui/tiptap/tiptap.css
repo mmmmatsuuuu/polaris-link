@@ -3,8 +3,7 @@
   background: #fff;
 }
 
-.tiptap-editor,
-.tiptap-viewer {
+.tiptap-editor {
   min-height: 180px;
   padding: 12px 14px;
   border: 1px solid #e2e8f0;
@@ -13,6 +12,15 @@
   line-height: 1.6;
   color: #0f172a;
 }
+.tiptap-viewer {
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #0f172a;
+}
+
+
 
 .tiptap-editor:focus,
 .tiptap-viewer:focus {

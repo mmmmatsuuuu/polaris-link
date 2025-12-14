@@ -1,19 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Dialog, Flex, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
+import { Button, Dialog, Flex, Select, Spinner, Text, TextField } from "@radix-ui/themes";
 import { Modal } from "@/components/ui/Modal";
 import { TagInput } from "@/components/ui/TagInput";
 import { useAuth } from "@/context/AuthProvider";
+import { TipTapEditor } from "@/components/ui/tiptap";
+import type { LessonContent, LessonContentMetadata, LessonContentType, PublishStatus, RichTextDoc } from "@/types/catalog";
 
-type ContentForm = {
-  title: string;
-  description: string;
-  type: "video" | "quiz" | "link";
-  publishStatus: "public" | "private";
-  order: number;
-  tags: string[];
-  metadata: Record<string, unknown>;
+type ContentForm = Pick<LessonContent, "title" | "order" | "tags"> & {
+  description: RichTextDoc;
+  type: LessonContentType;
+  publishStatus: PublishStatus;
+  metadata: LessonContentMetadata | Record<string, unknown>;
 };
 
 type AdminContentsModalProps = {
@@ -26,13 +25,23 @@ type AdminContentsModalProps = {
 
 const emptyForm: ContentForm = {
   title: "",
-  description: "",
+  description: { type: "doc", content: [{ type: "paragraph" }] },
   type: "video",
   publishStatus: "private",
   order: 0,
   tags: [],
   metadata: {},
 };
+
+function normalizeDoc(value: unknown, fallback: RichTextDoc): RichTextDoc {
+  if (value && typeof value === "object" && "type" in value) {
+    return value as RichTextDoc;
+  }
+  if (typeof value === "string") {
+    return { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: value }] }] };
+  }
+  return fallback;
+}
 
 export function AdminContentsModal({
   mode,
@@ -72,12 +81,12 @@ export function AdminContentsModal({
         .then((data) => {
           const nextForm: ContentForm = {
             title: data.title ?? "",
-            description: data.description ?? "",
+            description: normalizeDoc(data.description, emptyForm.description),
             type: (data.type as ContentForm["type"]) ?? "video",
             publishStatus: (data.publishStatus as ContentForm["publishStatus"]) ?? "private",
             order: typeof data.order === "number" ? data.order : 0,
             tags: Array.isArray(data.tags) ? (data.tags as string[]) : [],
-            metadata: (data.metadata as Record<string, unknown>) ?? {},
+            metadata: (data.metadata as LessonContentMetadata) ?? {},
           };
           setForm(nextForm);
           setTagsInput(nextForm.tags.join(", "));
@@ -172,11 +181,13 @@ export function AdminContentsModal({
             <Text size="2" color="gray">
               説明
             </Text>
-            <TextArea
-              disabled={isLoading}
-              value={form.description}
-              onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-            />
+            <div className="rounded border border-slate-200">
+              <TipTapEditor
+                value={form.description}
+                onChange={(next) => setForm((prev) => ({ ...prev, description: next }))}
+                placeholder="説明を入力"
+              />
+            </div>
           </div>
 
           <div>

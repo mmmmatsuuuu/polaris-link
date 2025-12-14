@@ -6,13 +6,9 @@ import { useRouter } from "next/navigation";
 import { ContentsTable } from "@/components/ui/ContentsTable";
 import { AdminQuestionsModal } from "./AdminQuestionsModal";
 import { useAuth } from "@/context/AuthProvider";
+import type { QuizQuestion, QuizQuestionType } from "@/types/catalog";
 
-type QuestionRow = {
-  id: string;
-  prompt: string;
-  questionType: "multipleChoice" | "ordering" | "shortAnswer" | "";
-  difficulty: "easy" | "medium" | "hard" | "";
-  publishStatus: "public" | "private";
+type QuestionRow = Pick<QuizQuestion, "id" | "prompt" | "questionType" | "difficulty" | "isActive"> & {
   updatedAt: string;
 };
 
@@ -20,19 +16,19 @@ type Props = {
   rows: QuestionRow[];
 };
 
-const typeLabel = {
+const typeLabel: Record<QuizQuestionType | "", string> = {
   multipleChoice: "選択",
   ordering: "並び替え",
   shortAnswer: "記述",
   "": "-",
-} as const;
+};
 
-const difficultyLabel = {
+const difficultyLabel: Record<QuizQuestion["difficulty"] | "", string> = {
   easy: "★☆☆",
   medium: "★★☆",
   hard: "★★★",
   "": "-",
-} as const;
+};
 
 export function AdminQuestionsTableClient({ rows }: Props) {
   const router = useRouter();
@@ -83,25 +79,25 @@ export function AdminQuestionsTableClient({ rows }: Props) {
           </Button>
         }
         columns={[
-          { header: "問題文", cell: (row) => row.prompt, sortValue: (row) => row.prompt },
+          { header: "問題文", cell: (row) => (typeof row.prompt === "string" ? row.prompt : "(RichText)"), sortValue: (row) => String(row.prompt) },
           {
             header: "種別",
-            cell: (row) => typeLabel[row.questionType],
-            sortValue: (row) => row.questionType,
+            cell: (row) => typeLabel[row.questionType || ""],
+            sortValue: (row) => row.questionType || "",
           },
           {
             header: "難易度",
-            cell: (row) => difficultyLabel[row.difficulty],
-            sortValue: (row) => row.difficulty,
+            cell: (row) => difficultyLabel[row.difficulty || ""],
+            sortValue: (row) => row.difficulty || "",
           },
           {
-            header: "公開状態",
+            header: "出題",
             cell: (row) => (
-              <Badge variant="soft" color={row.publishStatus === "public" ? "green" : "gray"}>
-                {row.publishStatus === "public" ? "公開" : "非公開"}
+              <Badge variant="soft" color={row.isActive ? "green" : "gray"}>
+                {row.isActive ? "出題中" : "停止中"}
               </Badge>
             ),
-            sortValue: (row) => row.publishStatus,
+            sortValue: (row) => (row.isActive ? 1 : 0),
           },
           {
             header: "更新日",

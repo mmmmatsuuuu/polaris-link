@@ -45,7 +45,7 @@ export function TipTapViewer({ value, className }: TipTapViewerProps) {
   });
 
   return (
-    <div className={`tiptap-container ${className ?? ""}`}>
+    <div className={`${className ?? ""}`}>
       <EditorContent editor={editor} className="tiptap-viewer" />
     </div>
   );

@@ -4,15 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import { Button, Dialog, Flex, Grid, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
 import { Modal } from "@/components/ui/Modal";
 import { useAuth } from "@/context/AuthProvider";
+import { TipTapEditor } from "@/components/ui/tiptap";
+import type { PublishStatus, QuizQuestion, QuizQuestionType, RichTextDoc } from "@/types/catalog";
 
-type QuestionForm = {
-  prompt: string;
-  questionType: "multipleChoice" | "ordering" | "shortAnswer";
-  difficulty: "easy" | "medium" | "hard";
-  explanation: string;
+type QuestionForm = Pick<QuizQuestion, "questionType" | "difficulty" | "order"> & {
+  prompt: RichTextDoc;
+  explanation: RichTextDoc;
   choicesText: string;
   correctAnswerText: string;
-  order: number;
+  publishStatus?: PublishStatus;
 };
 
 type AdminQuestionsModalProps = {
@@ -23,17 +23,27 @@ type AdminQuestionsModalProps = {
   onCompleted?: () => void;
 };
 
+type Choice = { key: string; label: RichTextDoc };
+
 const emptyForm: QuestionForm = {
-  prompt: "",
+  prompt: { type: "doc", content: [{ type: "paragraph" }] },
   questionType: "multipleChoice",
   difficulty: "easy",
-  explanation: "",
+  explanation: { type: "doc", content: [{ type: "paragraph" }] },
   choicesText: "",
   correctAnswerText: "",
   order: 0,
 };
 
-type Choice = { key: string; label: string };
+function normalizeDoc(value: unknown, fallback: RichTextDoc): RichTextDoc {
+  if (value && typeof value === "object" && "type" in value) {
+    return value as RichTextDoc;
+  }
+  if (typeof value === "string") {
+    return { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: value }] }] };
+  }
+  return fallback;
+}
 
 function normalizeChoices(value: unknown): Choice[] {
   if (!Array.isArray(value)) return [];
@@ -41,14 +51,13 @@ function normalizeChoices(value: unknown): Choice[] {
     .map((choice, index) => {
       if (typeof choice === "object" && choice !== null && "key" in choice && "label" in choice) {
         const key = typeof (choice as any).key === "string" ? (choice as any).key.trim() : "";
-        const label = typeof (choice as any).label === "string" ? (choice as any).label.trim() : "";
-        if (!key || !label) return null;
-        return { key, label };
+        if (!key) return null;
+        return { key, label: normalizeDoc((choice as any).label, { type: "doc", content: [] }) };
       }
       if (typeof choice === "string") {
         const label = choice.trim();
         if (!label) return null;
-        return { key: `choice-${index + 1}`, label };
+        return { key: `choice-${index + 1}`, label: normalizeDoc(label, { type: "doc", content: [] }) };
       }
       return null;
     })
@@ -56,7 +65,20 @@ function normalizeChoices(value: unknown): Choice[] {
 }
 
 function formatChoicesText(choices: Choice[]): string {
-  return choices.map((choice) => `${choice.key}: ${choice.label}`).join("\n");
+  // Docを平文化してキー: ラベル 形式で表示
+  const toPlain = (doc: RichTextDoc) => {
+    const texts: string[] = [];
+    const walk = (nodes: any[]) => {
+      nodes.forEach((node) => {
+        if (node?.type === "text" && typeof node.text === "string") texts.push(node.text);
+        if (Array.isArray(node?.content)) walk(node.content);
+      });
+    };
+    const content = (doc as any)?.content;
+    if (Array.isArray(content)) walk(content);
+    return texts.join(" ");
+  };
+  return choices.map((choice) => `${choice.key}: ${toPlain(choice.label)}`).join("\n");
 }
 
 function parseChoicesText(text: string): Choice[] {
@@ -69,9 +91,9 @@ function parseChoicesText(text: string): Choice[] {
       if (match) {
         const key = match[1].trim();
         const label = match[2].trim();
-        return key && label ? { key, label } : null;
+        return key ? { key, label: normalizeDoc(label, { type: "doc", content: [] }) } : null;
       }
-      return { key: `choice-${index + 1}`, label: line };
+      return { key: `choice-${index + 1}`, label: normalizeDoc(line, { type: "doc", content: [] }) };
     })
     .filter((c): c is Choice => Boolean(c));
 }
@@ -92,7 +114,7 @@ function resolveAnswerKey(raw: string, choices: Choice[], fallbackIndex: number)
   if (!trimmed) return null;
   const keyMatched = choices.find((c) => c.key === trimmed);
   if (keyMatched) return keyMatched.key;
-  const labelMatched = choices.find((c) => c.label === trimmed);
+  const labelMatched = choices.find((c) => normalizeDoc(trimmed, c.label).content?.length);
   if (labelMatched) return labelMatched.key;
   return trimmed || `answer-${fallbackIndex + 1}`;
 }
@@ -141,18 +163,13 @@ export function AdminQuestionsModal({
           const normalizedAnswer = normalizeCorrectAnswer(data.correctAnswer);
           const choicesText = choices.length > 0 ? formatChoicesText(choices) : "";
           const correctAnswerText = Array.isArray(normalizedAnswer)
-            ? normalizedAnswer
-                .map((answer) => {
-                  const found = choices.find((c) => c.key === answer);
-                  return found ? `${answer}: ${found.label}` : answer;
-                })
-                .join("\n")
+            ? normalizedAnswer.join("\n")
             : (normalizedAnswer as string) ?? "";
           setForm({
-            prompt: data.prompt ?? "",
+            prompt: normalizeDoc(data.prompt, emptyForm.prompt),
             questionType: (data.questionType as QuestionForm["questionType"]) ?? "multipleChoice",
             difficulty: (data.difficulty as QuestionForm["difficulty"]) ?? "easy",
-            explanation: data.explanation ?? "",
+            explanation: normalizeDoc(data.explanation, emptyForm.explanation),
             choicesText,
             correctAnswerText,
             order: typeof data.order === "number" ? data.order : 0,
@@ -215,6 +232,7 @@ export function AdminQuestionsModal({
         choices,
         correctAnswer,
         order: mode === "edit" ? form.order : undefined,
+        publishStatus: form.publishStatus,
       };
 
       const res = await fetch(endpoint, {
@@ -272,11 +290,13 @@ export function AdminQuestionsModal({
             <Text size="2" color="gray">
               問題文
             </Text>
-            <TextArea
-              value={form.prompt}
-              onChange={(e) => setForm((prev) => ({ ...prev, prompt: e.target.value }))}
-              placeholder="問題文を入力"
-            />
+            <div className="rounded border border-slate-200">
+              <TipTapEditor
+                value={form.prompt}
+                onChange={(next) => setForm((prev) => ({ ...prev, prompt: next }))}
+                placeholder="問題文を入力"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -360,11 +380,13 @@ export function AdminQuestionsModal({
             <Text size="2" color="gray">
               解説
             </Text>
-            <TextArea
-              placeholder="解説を入力"
-              value={form.explanation}
-              onChange={(e) => setForm((prev) => ({ ...prev, explanation: e.target.value }))}
-            />
+            <div className="rounded border border-slate-200">
+              <TipTapEditor
+                value={form.explanation}
+                onChange={(next) => setForm((prev) => ({ ...prev, explanation: next }))}
+                placeholder="解説を入力"
+              />
+            </div>
           </div>
         </Grid>
       )}

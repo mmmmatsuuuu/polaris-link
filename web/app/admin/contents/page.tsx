@@ -5,14 +5,9 @@ import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { db } from "@/lib/firebase/server";
 import { AdminContentsTableClient } from "./components/AdminContentsTableClient";
+import type { LessonContent, LessonContentType, PublishStatus } from "@/types/catalog";
 
-type ContentRow = {
-  id: string;
-  title: string;
-  type: "video" | "quiz" | "link";
-  tags: string[];
-  publishStatus: "public" | "private";
-  order: number;
+type ContentRow = Pick<LessonContent, "id" | "title" | "type" | "tags" | "publishStatus" | "order"> & {
   updatedAt: string;
 };
 

@@ -6,23 +6,19 @@ import { useState } from "react";
 import { ContentsTable } from "@/components/ui/ContentsTable";
 import { AdminLessonsModal } from "./AdminLessonsModal";
 import { useAuth } from "@/context/AuthProvider";
+import type { Lesson, LessonContent, Unit } from "@/types/catalog";
 
-type LessonRow = {
-  id: string;
-  title: string;
+type LessonRow = Pick<Lesson, "id" | "title" | "unitId" | "publishStatus" | "order"> & {
   subjectName: string;
-  unitId: string;
   unitName: string;
   contents: number;
-  publishStatus: "public" | "private";
-  order: number;
   updatedAt: string;
 };
 
 type Props = {
   rows: LessonRow[];
-  units: Array<{ id: string; name: string; subjectName: string }>;
-  contents: Array<{ id: string; title: string; lessonId?: string }>;
+  units: Array<Pick<Unit, "id" | "name"> & { subjectName: string }>;
+  contents: Array<Pick<LessonContent, "id" | "title"> & { lessonId?: string }>;
 };
 
 export function AdminLessonsTableClient({ rows, units, contents }: Props) {

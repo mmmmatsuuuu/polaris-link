@@ -1,18 +1,14 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { Box, Button, Section } from "@radix-ui/themes";
 import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/server";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { AdminQuestionsTableClient } from "./components/AdminQuestionsTableClient";
+import type { PublishStatus, QuizQuestion, QuizQuestionType } from "@/types/catalog";
 
-type QuestionRow = {
-  id: string;
-  prompt: string;
-  questionType: "multipleChoice" | "ordering" | "shortAnswer" | "";
-  difficulty: "easy" | "medium" | "hard" | "";
-  publishStatus: "public" | "private";
-  order: number;
+type QuestionRow = Pick<QuizQuestion, "id" | "prompt" | "questionType" | "difficulty" | "isActive" | "order"> & {
   updatedAt: string;
 };
 
@@ -37,15 +33,15 @@ async function fetchQuestions(): Promise<QuestionRow[]> {
       const data = doc.data();
       return {
         id: doc.id,
-        prompt: (data.prompt as string) ?? "",
-        questionType: (data.questionType as QuestionRow["questionType"]) ?? "",
-        difficulty: (data.difficulty as QuestionRow["difficulty"]) ?? "",
-        publishStatus: (data.publishStatus as QuestionRow["publishStatus"]) ?? "private",
+        prompt: data.prompt as any,
+        questionType: (data.questionType as QuizQuestionType) ?? "",
+        difficulty: (data.difficulty as QuizQuestion["difficulty"]) ?? "easy",
+        isActive: Boolean(data.isActive),
         order: typeof data.order === "number" ? data.order : Number.MAX_SAFE_INTEGER,
         updatedAt: formatDate(data.updatedAt),
       };
     })
-    .sort((a, b) => a.order - b.order || a.prompt.localeCompare(b.prompt));
+    .sort((a, b) => a.order - b.order || String(a.prompt).localeCompare(String(b.prompt)));
 }
 
 export default async function QuestionAdminPage() {

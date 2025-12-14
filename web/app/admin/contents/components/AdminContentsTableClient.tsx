@@ -6,14 +6,9 @@ import { useState } from "react";
 import { ContentsTable } from "@/components/ui/ContentsTable";
 import { AdminContentsModal } from "./AdminContentsModal";
 import { useAuth } from "@/context/AuthProvider";
+import type { LessonContent, PublishStatus } from "@/types/catalog";
 
-type ContentRow = {
-  id: string;
-  title: string;
-  type: "video" | "quiz" | "link";
-  tags: string[];
-  publishStatus: "public" | "private";
-  order: number;
+type ContentRow = Pick<LessonContent, "id" | "title" | "type" | "tags" | "publishStatus" | "order"> & {
   updatedAt: string;
 };
 

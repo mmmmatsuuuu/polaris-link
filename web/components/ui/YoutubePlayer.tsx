@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 type YTPlayer = {
   loadVideoById: (videoId: string) => void;
+  cueVideoById: (videoId: string) => void;
   destroy: () => void;
   getDuration: () => number;
   getCurrentTime: () => number;
@@ -26,6 +27,7 @@ type YoutubePlayerProps = {
   onReachedThreshold?: () => void;
   onProgress?: (payload: { progress: number; current: number; duration: number }) => void;
   className?: string;
+  autoplay?: boolean;
 };
 
 declare global {
@@ -42,6 +44,7 @@ export function YoutubePlayer({
   onReachedThreshold,
   onProgress,
   className = "",
+  autoplay = true,
 }: YoutubePlayerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YTPlayer | null>(null);
@@ -67,8 +70,12 @@ export function YoutubePlayer({
   useEffect(() => {
     if (!ready || !playerRef.current) return;
     reachedRef.current = false;
-    playerRef.current.loadVideoById(videoId);
-  }, [videoId, ready]);
+    if (autoplay) {
+      playerRef.current.loadVideoById(videoId);
+    } else {
+      playerRef.current.cueVideoById(videoId);
+    }
+  }, [autoplay, videoId, ready]);
 
   const createPlayer = () => {
     if (!containerRef.current || !window.YT) return;
