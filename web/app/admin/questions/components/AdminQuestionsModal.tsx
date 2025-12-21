@@ -6,6 +6,7 @@ import { FullScreenModal } from "@/components/ui/FullScreenModal";
 import { useAuth } from "@/context/AuthProvider";
 import { TipTapEditor } from "@/components/ui/tiptap";
 import type { QuizQuestion, QuizQuestionType, RichTextDoc } from "@/types/catalog";
+import { TagInput } from "@/components/ui/TagInput";
 import { MultipleChoiceField } from "./MultipleChoiceField";
 import { OrderingField } from "./OrderingField";
 import { ShortAnswerField } from "./ShortAnswerField";
@@ -17,6 +18,7 @@ type QuestionForm = Pick<QuizQuestion, "questionType" | "difficulty" | "order"> 
   explanation: RichTextDoc;
   choices: Choice[];
   correctAnswer: string | string[];
+  tags: string[];
 };
 
 type AdminQuestionsModalProps = {
@@ -56,6 +58,7 @@ const emptyForm: QuestionForm = {
   choices: defaultChoices("multipleChoice"),
   correctAnswer: [],
   order: 0,
+  tags: [],
 };
 
 const toDoc = (value: unknown): RichTextDoc => {
@@ -140,6 +143,9 @@ export function AdminQuestionsModal({
                     ? normalizedAnswer
                     : "",
             order: typeof data.order === "number" ? data.order : 0,
+            tags: Array.isArray(data.tags)
+              ? data.tags.filter((t: unknown): t is string => typeof t === "string").map((t: string) => t.trim())
+              : [],
           });
         })
         .catch((error) => {
@@ -228,6 +234,7 @@ export function AdminQuestionsModal({
         choices: form.choices,
         correctAnswer,
         order: mode === "edit" ? form.order : undefined,
+        tags: form.tags,
       };
       console.log("Saving question with payload:", payload);
       const res = await fetch(endpoint, {
@@ -323,6 +330,17 @@ export function AdminQuestionsModal({
                 <Select.Item value="hard">★★★</Select.Item>
               </Select.Content>
             </Select.Root>
+          </div>
+
+          <div className="col-span-full flex flex-col gap-2">
+            <Text size="2" color="gray">
+              タグ
+            </Text>
+            <TagInput
+              value={form.tags}
+              onChange={(next) => setForm((prev) => ({ ...prev, tags: next }))}
+              placeholder="タグを入力してEnterで追加"
+            />
           </div>
 
           {mode === "edit" && (

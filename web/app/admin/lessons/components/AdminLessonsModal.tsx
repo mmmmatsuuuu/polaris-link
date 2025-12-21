@@ -265,6 +265,7 @@ export function AdminLessonsModal({
                 options={contentOptions}
                 onChange={(next) => setForm((prev) => ({ ...prev, contentIds: next }))}
                 placeholder="コンテンツを検索・追加"
+                columns={2}
               />
             </div>
         </Flex>

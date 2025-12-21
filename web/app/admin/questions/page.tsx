@@ -8,7 +8,7 @@ import { HeroSection } from "@/components/ui/HeroSection";
 import { AdminQuestionsTableClient } from "./components/AdminQuestionsTableClient";
 import type { PublishStatus, QuizQuestion, QuizQuestionType } from "@/types/catalog";
 
-type QuestionRow = Pick<QuizQuestion, "id" | "prompt" | "questionType" | "difficulty" | "isActive" | "order"> & {
+type QuestionRow = Pick<QuizQuestion, "id" | "prompt" | "questionType" | "difficulty" | "isActive" | "order" | "tags"> & {
   updatedAt: string;
 };
 
@@ -38,6 +38,7 @@ async function fetchQuestions(): Promise<QuestionRow[]> {
         difficulty: (data.difficulty as QuizQuestion["difficulty"]) ?? "easy",
         isActive: Boolean(data.isActive),
         order: typeof data.order === "number" ? data.order : Number.MAX_SAFE_INTEGER,
+        tags: Array.isArray(data.tags) ? (data.tags as string[]) : [],
         updatedAt: formatDate(data.updatedAt),
       };
     })

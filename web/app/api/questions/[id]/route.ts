@@ -13,21 +13,22 @@ function toDoc(label: unknown) {
 
 function normalizeChoices(value: unknown): { key: string; label: unknown }[] {
   if (!Array.isArray(value)) return [];
-  return value
-    .map((choice, index) => {
-      if (typeof choice === "object" && choice !== null && "key" in choice && "label" in choice) {
-        const key = typeof (choice as any).key === "string" ? (choice as any).key.trim() : "";
-        if (!key) return null;
-        return { key, label: toDoc((choice as any).label) };
-      }
-      if (typeof choice === "string") {
-        const label = choice.trim();
-        if (!label) return null;
-        return { key: `choice-${index + 1}`, label: toDoc(label) };
-      }
-      return null;
-    })
-    .filter((choice): choice is { key: string; label: unknown } => Boolean(choice));
+  const result: { key: string; label: unknown }[] = [];
+  value.forEach((choice, index) => {
+    if (typeof choice === "object" && choice !== null && "key" in choice && "label" in choice) {
+      const key = typeof (choice as any).key === "string" ? (choice as any).key.trim() : "";
+      if (!key) return;
+      result.push({ key, label: toDoc((choice as any).label) });
+      return;
+    }
+    if (typeof choice === "string") {
+      const label = choice.trim();
+      if (!label) return;
+      result.push({ key: `choice-${index + 1}`, label: toDoc(label) });
+      return;
+    }
+  });
+  return result;
 }
 
 function normalizeCorrectAnswer(value: unknown): string | string[] {
@@ -39,6 +40,14 @@ function normalizeCorrectAnswer(value: unknown): string | string[] {
   }
   if (typeof value === "string") return value.trim();
   return "";
+}
+
+function normalizeTags(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((v): v is string => typeof v === "string")
+    .map((v) => v.trim())
+    .filter(Boolean);
 }
 
 export async function GET(
@@ -86,6 +95,7 @@ export async function PATCH(
     const docRef = doc(db, "questions", id);
     const normalizedChoices = normalizeChoices(body.choices);
     const normalizedCorrectAnswer = normalizeCorrectAnswer(body.correctAnswer);
+    const normalizedTags = normalizeTags(body.tags);
     await updateDoc(docRef, {
       questionType: body.questionType,
       prompt: body.prompt,
@@ -94,6 +104,7 @@ export async function PATCH(
       explanation: body.explanation,
       difficulty: body.difficulty,
       order: body.order,
+      tags: normalizedTags,
       updatedAt: serverTimestamp(),
     });
 

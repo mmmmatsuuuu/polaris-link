@@ -7,6 +7,9 @@ import { useAuth } from "@/context/AuthProvider";
 import { TipTapEditor } from "@/components/ui/tiptap";
 import { FullScreenModal } from "@/components/ui/FullScreenModal";
 import type { LessonContent, LessonContentMetadata, LessonContentType, PublishStatus, RichTextDoc } from "@/types/catalog";
+import { VideoField } from "./VideoField";
+import { QuizField } from "./QuizField";
+import { LinkField } from "./LinkField";
 
 type ContentForm = Pick<LessonContent, "title" | "order" | "tags"> & {
   description: RichTextDoc;
@@ -19,6 +22,7 @@ type AdminContentsModalProps = {
   mode: "create" | "edit";
   contentId?: string;
   open: boolean;
+  questions: { id: string; prompt: unknown; tags?: string[] }[];
   onOpenChange: (open: boolean) => void;
   onCompleted?: () => void;
 };
@@ -47,6 +51,7 @@ export function AdminContentsModal({
   mode,
   contentId,
   open,
+  questions,
   onOpenChange,
   onCompleted,
 }: AdminContentsModalProps) {
@@ -221,94 +226,28 @@ export function AdminContentsModal({
           </div>
 
           {form.type === "video" && (
-            <Flex gap="3">
-              <div className="flex-1">
-                <Text size="2" color="gray">
-                  YouTube Video ID
-                </Text>
-                <TextField.Root
-                  disabled={isLoading}
-                  value={(form.metadata as any)?.youtubeVideoId ?? ""}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      metadata: { ...prev.metadata, youtubeVideoId: e.target.value },
-                    }))
-                  }
-                />
-              </div>
-              <div className="flex-1">
-                <Text size="2" color="gray">
-                  長さ（秒）
-                </Text>
-                <TextField.Root
-                  type="number"
-                  disabled={isLoading}
-                  value={(form.metadata as any)?.durationSec ?? 0}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      metadata: { ...prev.metadata, durationSec: Number(e.target.value) || 0 },
-                    }))
-                  }
-                />
-              </div>
-            </Flex>
+            <VideoField
+              disabled={isLoading}
+              metadata={form.metadata as Record<string, unknown>}
+              onChange={(next) => setForm((prev) => ({ ...prev, metadata: next }))}
+            />
           )}
 
           {form.type === "quiz" && (
-            <Flex gap="3" direction={{ initial: "column", md: "row" }}>
-              <div className="flex-1">
-                <Text size="2" color="gray">
-                  問題プール数
-                </Text>
-                <TextField.Root
-                  type="number"
-                  disabled={isLoading}
-                  value={(form.metadata as any)?.questionPoolSize ?? 0}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      metadata: { ...prev.metadata, questionPoolSize: Number(e.target.value) || 0 },
-                    }))
-                  }
-                />
-              </div>
-              <div className="flex-1">
-                <Text size="2" color="gray">
-                  1回あたり出題数
-                </Text>
-                <TextField.Root
-                  type="number"
-                  disabled={isLoading}
-                  value={(form.metadata as any)?.questionsPerAttempt ?? 0}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      metadata: { ...prev.metadata, questionsPerAttempt: Number(e.target.value) || 0 },
-                    }))
-                  }
-                />
-              </div>
-            </Flex>
+            <QuizField
+              disabled={isLoading}
+              metadata={form.metadata as Record<string, unknown>}
+              questions={questions}
+              onChange={(next) => setForm((prev) => ({ ...prev, metadata: next }))}
+            />
           )}
 
           {form.type === "link" && (
-            <div>
-              <Text size="2" color="gray">
-                URL
-              </Text>
-              <TextField.Root
-                disabled={isLoading}
-                value={(form.metadata as any)?.url ?? ""}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    metadata: { ...prev.metadata, url: e.target.value },
-                  }))
-                }
-              />
-            </div>
+            <LinkField
+              disabled={isLoading}
+              metadata={form.metadata as Record<string, unknown>}
+              onChange={(next) => setForm((prev) => ({ ...prev, metadata: next }))}
+            />
           )}
 
           <Flex gap="3">

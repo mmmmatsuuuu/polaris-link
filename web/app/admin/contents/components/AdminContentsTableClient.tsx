@@ -14,9 +14,10 @@ type ContentRow = Pick<LessonContent, "id" | "title" | "type" | "tags" | "publis
 
 type Props = {
   rows: ContentRow[];
+  questions: { id: string; prompt: unknown; tags?: string[] }[];
 };
 
-export function AdminContentsTableClient({ rows }: Props) {
+export function AdminContentsTableClient({ rows, questions }: Props) {
   const router = useRouter();
   const { user } = useAuth();
   const [modalState, setModalState] = useState<{
@@ -125,6 +126,7 @@ export function AdminContentsTableClient({ rows }: Props) {
         mode={modalState.mode}
         contentId={modalState.id}
         open={modalState.open}
+        questions={questions}
         onOpenChange={(open) =>
           setModalState((prev) => ({ ...prev, open, id: open ? prev.id : undefined }))
         }

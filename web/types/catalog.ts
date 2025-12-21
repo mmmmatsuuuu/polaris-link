@@ -49,7 +49,6 @@ export type LessonContentMetadata =
     }
   | {
       type: "quiz";
-      questionPoolSize: number;
       questionsPerAttempt: number;
       timeLimitSec?: number;
       allowRetry: boolean;

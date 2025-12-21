@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthProvider";
 import type { QuizQuestion, QuizQuestionType } from "@/types/catalog";
 import type { RichTextDoc } from "@/types/catalog";
 
-type QuestionRow = Pick<QuizQuestion, "id" | "prompt" | "questionType" | "difficulty" | "isActive"> & {
+type QuestionRow = Pick<QuizQuestion, "id" | "prompt" | "questionType" | "difficulty" | "isActive" | "tags"> & {
   updatedAt: string;
 };
 
