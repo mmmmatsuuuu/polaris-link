@@ -6,12 +6,9 @@ import { useState } from "react";
 import { ContentsTable } from "@/components/ui/ContentsTable";
 import { AdminSubjectsModal } from "./AdminSubjectsModal";
 import { useAuth } from "@/context/AuthProvider";
+import type { Subject } from "@/types/catalog";
 
-type SubjectRow = {
-  id: string;
-  order: number;
-  name: string;
-  publishStatus: "public" | "private";
+type SubjectRow = Pick<Subject, "id" | "order" | "name" | "publishStatus"> & {
   updatedAt: string;
 };
 

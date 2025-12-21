@@ -1,22 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Button, Dialog, Flex, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
-import { Modal } from "@/components/ui/Modal";
+import { Button, Dialog, Flex, Select, Spinner, Text, TextField } from "@radix-ui/themes";
 import { useAuth } from "@/context/AuthProvider";
+import { TipTapEditor } from "@/components/ui/tiptap";
+import { FullScreenModal } from "@/components/ui/FullScreenModal";
+import type { PublishStatus, RichTextDoc, Subject, Unit } from "@/types/catalog";
 
-type UnitForm = {
-  name: string;
-  description: string;
-  order: number;
-  subjectId: string;
-  publishStatus: "public" | "private";
+type UnitForm = Pick<Unit, "name" | "order" | "subjectId"> & {
+  description: RichTextDoc;
+  publishStatus: PublishStatus;
 };
 
 type AdminUnitsModalProps = {
   mode: "create" | "edit";
   unitId?: string;
-  subjects: Array<{ id: string; name: string }>;
+  subjects: Array<Pick<Subject, "id" | "name">>;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCompleted?: () => void;
@@ -24,11 +23,21 @@ type AdminUnitsModalProps = {
 
 const emptyForm: UnitForm = {
   name: "",
-  description: "",
+  description: { type: "doc", content: [{ type: "paragraph" }] },
   order: 0,
   subjectId: "",
   publishStatus: "private",
 };
+
+function normalizeDoc(value: unknown, fallback: RichTextDoc): RichTextDoc {
+  if (value && typeof value === "object" && "type" in value) {
+    return value as RichTextDoc;
+  }
+  if (typeof value === "string") {
+    return { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: value }] }] };
+  }
+  return fallback;
+}
 
 export function AdminUnitsModal({
   mode,
@@ -70,7 +79,7 @@ export function AdminUnitsModal({
         .then((data) => {
           setForm({
             name: data.name ?? "",
-            description: data.description ?? "",
+            description: normalizeDoc(data.description, emptyForm.description),
             order: typeof data.order === "number" ? data.order : 0,
             subjectId: data.subjectId ?? "",
             publishStatus: (data.publishStatus as UnitForm["publishStatus"]) ?? "private",
@@ -119,7 +128,7 @@ export function AdminUnitsModal({
   };
 
   return (
-    <Modal
+    <FullScreenModal
       trigger={<span />}
       open={open}
       onOpenChange={onOpenChange}
@@ -165,11 +174,13 @@ export function AdminUnitsModal({
             <Text size="2" color="gray">
               説明
             </Text>
-            <TextArea
-              disabled={isLoading}
-              value={form.description}
-              onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-            />
+            <div className="rounded border border-slate-200">
+              <TipTapEditor
+                value={form.description}
+                onChange={(next) => setForm((prev) => ({ ...prev, description: next }))}
+                placeholder="説明を入力"
+              />
+            </div>
           </div>
 
           <Flex gap="3">
@@ -229,6 +240,6 @@ export function AdminUnitsModal({
           </div>
         </Flex>
       )}
-    </Modal>
+    </FullScreenModal>
   );
 }

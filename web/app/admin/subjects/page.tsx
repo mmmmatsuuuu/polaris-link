@@ -5,12 +5,9 @@ import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase/server";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { AdminSubjectsTableClient } from "./components/AdminSubjectsTableClient";
+import type { Subject } from "@/types/catalog";
 
-type SubjectRow = {
-  id: string;
-  order: number;
-  name: string;
-  publishStatus: "public" | "private";
+type SubjectRow = Pick<Subject, "id" | "order" | "name" | "publishStatus"> & {
   updatedAt: string;
 };
 

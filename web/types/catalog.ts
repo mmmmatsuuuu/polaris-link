@@ -2,6 +2,12 @@ export type PublishStatus = "public" | "private";
 
 export type TimestampIsoString = string;
 
+export type RichTextDoc = {
+  type: "doc";
+  content?: unknown[];
+  [key: string]: unknown;
+};
+
 export type BaseDocument = {
   id: string;
   order: number;
@@ -13,20 +19,22 @@ export type BaseDocument = {
 
 export type Subject = BaseDocument & {
   name: string;
-  description: string;
+  description: RichTextDoc;
 };
 
 export type Unit = BaseDocument & {
   subjectId: string;
   name: string;
-  description: string;
+  description: RichTextDoc;
 };
 
 export type Lesson = BaseDocument & {
   subjectId: string;
   unitId: string | null;
   title: string;
-  description: string;
+  description: RichTextDoc;
+  contentIds: string[];
+  order: number;
   tags: string[];
 };
 
@@ -41,7 +49,6 @@ export type LessonContentMetadata =
     }
   | {
       type: "quiz";
-      questionPoolSize: number;
       questionsPerAttempt: number;
       timeLimitSec?: number;
       allowRetry: boolean;
@@ -57,7 +64,8 @@ export type LessonContent = {
   lessonId: string;
   type: LessonContentType;
   title: string;
-  description: string;
+  description: RichTextDoc;
+  tags: string[];
   publishStatus: PublishStatus;
   order: number;
   metadata: LessonContentMetadata;
@@ -72,17 +80,17 @@ export type QuizQuestionType =
 
 export type QuizQuestionChoice = {
   key: string;
-  label: string;
+  label: RichTextDoc;
 };
 
 export type QuizQuestion = {
   id: string;
   contentId: string;
   questionType: QuizQuestionType;
-  prompt: string;
+  prompt: RichTextDoc;
   choices?: QuizQuestionChoice[];
   correctAnswer: string | string[];
-  explanation?: string;
+  explanation?: RichTextDoc;
   order: number;
   difficulty: "easy" | "medium" | "hard";
   isActive: boolean;

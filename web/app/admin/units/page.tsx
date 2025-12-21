@@ -5,19 +5,15 @@ import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { db } from "@/lib/firebase/server";
 import { AdminUnitsTableClient } from "./components/AdminUnitsTableClient";
+import type { PublishStatus, Subject, Unit } from "@/types/catalog";
 
-type UnitRow = {
-  id: string;
-  name: string;
-  subjectId: string;
+type UnitRow = Pick<Unit, "id" | "name" | "subjectId" | "publishStatus" | "order"> & {
   subjectName: string;
   lessons: number;
-  publishStatus: "public" | "private";
-  order: number;
   updatedAt: string;
 };
 
-type SubjectOption = { id: string; name: string };
+type SubjectOption = Pick<Subject, "id" | "name">;
 
 function formatDate(value: unknown): string {
   if (value instanceof Timestamp) {

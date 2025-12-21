@@ -6,13 +6,10 @@ import { useRouter } from "next/navigation";
 import { ContentsTable } from "@/components/ui/ContentsTable";
 import { AdminQuestionsModal } from "./AdminQuestionsModal";
 import { useAuth } from "@/context/AuthProvider";
+import type { QuizQuestion, QuizQuestionType } from "@/types/catalog";
+import type { RichTextDoc } from "@/types/catalog";
 
-type QuestionRow = {
-  id: string;
-  prompt: string;
-  questionType: "multipleChoice" | "ordering" | "shortAnswer" | "";
-  difficulty: "easy" | "medium" | "hard" | "";
-  publishStatus: "public" | "private";
+type QuestionRow = Pick<QuizQuestion, "id" | "prompt" | "questionType" | "difficulty" | "isActive" | "tags"> & {
   updatedAt: string;
 };
 
@@ -20,19 +17,38 @@ type Props = {
   rows: QuestionRow[];
 };
 
-const typeLabel = {
+const typeLabel: Record<QuizQuestionType | "", string> = {
   multipleChoice: "選択",
   ordering: "並び替え",
   shortAnswer: "記述",
   "": "-",
-} as const;
+};
 
-const difficultyLabel = {
+const difficultyLabel: Record<QuizQuestion["difficulty"] | "", string> = {
   easy: "★☆☆",
   medium: "★★☆",
   hard: "★★★",
   "": "-",
-} as const;
+};
+
+const promptPreview = (prompt: unknown, limit = 20) => {
+  if (typeof prompt === "string") return prompt.slice(0, limit);
+  const doc = prompt as RichTextDoc;
+  const texts: string[] = [];
+  const walk = (nodes: any[]) => {
+    nodes.forEach((node) => {
+      if (node?.type === "text" && typeof node.text === "string") {
+        texts.push(node.text);
+      }
+      if (Array.isArray(node?.content)) walk(node.content);
+    });
+  };
+  if (Array.isArray((doc as any)?.content)) {
+    walk((doc as any).content as any[]);
+  }
+  const joined = texts.join(" ").trim();
+  return joined ? joined.slice(0, limit) : "";
+};
 
 export function AdminQuestionsTableClient({ rows }: Props) {
   const router = useRouter();
@@ -83,25 +99,29 @@ export function AdminQuestionsTableClient({ rows }: Props) {
           </Button>
         }
         columns={[
-          { header: "問題文", cell: (row) => row.prompt, sortValue: (row) => row.prompt },
+          {
+            header: "問題文",
+            cell: (row) => promptPreview(row.prompt) || "-",
+            sortValue: (row) => promptPreview(row.prompt) || "",
+          },
           {
             header: "種別",
-            cell: (row) => typeLabel[row.questionType],
-            sortValue: (row) => row.questionType,
+            cell: (row) => typeLabel[row.questionType || ""],
+            sortValue: (row) => row.questionType || "",
           },
           {
             header: "難易度",
-            cell: (row) => difficultyLabel[row.difficulty],
-            sortValue: (row) => row.difficulty,
+            cell: (row) => difficultyLabel[row.difficulty || ""],
+            sortValue: (row) => row.difficulty || "",
           },
           {
-            header: "公開状態",
+            header: "出題",
             cell: (row) => (
-              <Badge variant="soft" color={row.publishStatus === "public" ? "green" : "gray"}>
-                {row.publishStatus === "public" ? "公開" : "非公開"}
+              <Badge variant="soft" color={row.isActive ? "green" : "gray"}>
+                {row.isActive ? "出題中" : "停止中"}
               </Badge>
             ),
-            sortValue: (row) => row.publishStatus,
+            sortValue: (row) => (row.isActive ? 1 : 0),
           },
           {
             header: "更新日",

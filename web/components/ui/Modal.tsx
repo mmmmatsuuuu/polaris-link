@@ -45,14 +45,15 @@ export function Modal({
       </Dialog.Trigger>
 
       <Dialog.Content
-        maxWidth="720px"
+        size="4"
+        maxWidth="100vw"
         style={{
-          width: "min(90vw, 720px)",
-          maxHeight: "80vh",
+          width: "min(96vw, 1200px)",
+          maxHeight: "90vh",
           overflow: "auto",
         }}
       >
-        <Flex justify="between" align="start" mb="3">
+        <Flex justify="between" align="start" mb="4">
           <Box>
             <Dialog.Title hidden={!title}>
               {title}
@@ -67,11 +68,9 @@ export function Modal({
           {children}
         </Box>
 
-        {actions && (
-          <Flex justify="end" gap="2" mt="4">
-            {actions}
-          </Flex>
-        )}
+        <Flex justify="end" gap="2" mt="5">
+          {actions}
+        </Flex>
       </Dialog.Content>
     </Dialog.Root>
   );

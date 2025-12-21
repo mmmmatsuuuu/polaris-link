@@ -106,6 +106,12 @@ UIデザインモックの作成TODO。必要に応じて、詳細なTODOの追�
 - [ ] 教師ページでのデータフェッチ
 - [ ] ロールによる`firestore.rules`の設定
 
+### subjects bulk（コピー&ペーストインポート方針）
+- [ ] スキーマ定義: `web/lib/import/subjects.ts` などに `SubjectImportRow` 型とバリデーション（必要なら `zod` 追加）、300件上限チェックを共通化。
+- [ ] API: `web/app/api/import/subjects/route.ts` を作成。教師権限チェック → スキーマ再検証 → 300件以内で `writeBatch` 実行 → `import_jobs` に結果記録（成功件数・行エラー）。
+- [ ] フロント: `web/app/admin/subjects/bulk/page.tsx` に貼り付けUI（`onPaste`でTSVパース）、即時バリデーション/プレビュー、300件超は分割または拒否、「登録」でAPIへPOSTしレスポンスの行エラーを表示。
+- [ ] 留意点: スキーマヘッダー順序/フォーマット（true/false/1/0、日付許容など）を先に決める。`import_jobs` のフィールド（status, createdAt, total, success, errors）を設計。必要なら `zod` 依存を追加。
+
 ### video_progress
 - [ ] ダミーデータを`./web/app/dummy-data/<collection>.json`に保存。
 - [ ] `/web/app/dev/import`から該当コレクションをFirestoreへ投入。

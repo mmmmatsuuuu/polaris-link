@@ -18,28 +18,54 @@ import { CardList } from "@/components/ui/CardList";
 import { YoutubePlayer } from "@/components/ui/YoutubePlayer";
 import { db } from "@/lib/firebase/server";
 import { getContentLabel } from "../../utils";
+import { TipTapViewer } from "@/components/ui/tiptap";
+import type {
+  Lesson,
+  LessonContent,
+  LessonContentType,
+  LessonContentMetadata,
+  PublishStatus,
+  RichTextDoc,
+} from "@/types/catalog";
 
-type ContentItem = {
-  id: string;
-  type: "video" | "quiz" | "link";
-  title: string;
-  description: string;
-  order: number;
-  metadata: Record<string, unknown>;
-};
+type ContentItem = Pick<LessonContent, "id" | "type" | "title" | "description" | "order" | "metadata">;
 
 type LessonPageData = {
   subjectName: string;
   unitName: string;
-  lesson: {
-    id: string;
-    title: string;
-    description: string;
-    tags: string[];
-    publishStatus: "public" | "private";
-  };
+  lesson: Pick<Lesson, "id" | "title" | "description" | "tags" | "publishStatus">;
   contents: ContentItem[];
 };
+
+function normalizeDoc(value: unknown): RichTextDoc {
+  if (value && typeof value === "object" && "type" in value) {
+    return value as RichTextDoc;
+  }
+  const text = typeof value === "string" ? value : "";
+  return { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text }] }] };
+}
+
+function docToPlain(value: RichTextDoc): string {
+  try {
+    const content = (value as any)?.content;
+    if (Array.isArray(content)) {
+      const texts: string[] = [];
+      const walk = (nodes: any[]) => {
+        nodes.forEach((node) => {
+          if (node?.type === "text" && typeof node.text === "string") {
+            texts.push(node.text);
+          }
+          if (Array.isArray(node?.content)) walk(node.content);
+        });
+      };
+      walk(content);
+      if (texts.length) return texts.join(" ");
+    }
+  } catch {
+    /* noop */
+  }
+  return "";
+}
 
 async function fetchLessonPageData(subjectId: string, lessonId: string): Promise<LessonPageData> {
   const [subjectSnap, lessonSnap] = await Promise.all([
@@ -80,10 +106,10 @@ async function fetchLessonPageData(subjectId: string, lessonId: string): Promise
       id: contentSnap.id,
       type: contentData.type as ContentItem["type"],
       title: (contentData.title as string) ?? "",
-      description: (contentData.description as string) ?? "",
+      description: normalizeDoc(contentData.description),
       order:
         typeof contentData.order === "number" ? contentData.order : Number.MAX_SAFE_INTEGER,
-      metadata: (contentData.metadata as Record<string, unknown>) ?? {},
+      metadata: (contentData.metadata as LessonContentMetadata) ?? {},
     });
   }
 
@@ -95,7 +121,7 @@ async function fetchLessonPageData(subjectId: string, lessonId: string): Promise
     lesson: {
       id: lessonSnap.id,
       title: (lessonData.title as string) ?? "",
-      description: (lessonData.description as string) ?? "",
+      description: normalizeDoc(lessonData.description),
       tags: Array.isArray(lessonData.tags) ? (lessonData.tags as string[]) : [],
       publishStatus: (lessonData.publishStatus as "public" | "private") ?? "private",
     },
@@ -128,7 +154,7 @@ export default async function LessonPage({
         <HeroSection
           kicker={<Breadcrumb items={breadcrumbs} />}
           title={data.lesson.title}
-          subtitle={data.lesson.description}
+          subtitle={<TipTapViewer value={data.lesson.description} className="tiptap-prose" />}
           actions={
             <Flex gap="2" wrap="wrap">
               {data.lesson.tags.map((tag) => (
@@ -179,6 +205,7 @@ export default async function LessonPage({
                                 type: "video",
                                 title: video.title,
                                 description: video.description,
+                                tags: [],
                                 publishStatus: "public",
                                 order: video.order,
                                 metadata: video.metadata as any,
@@ -188,7 +215,7 @@ export default async function LessonPage({
                         </Flex>
                         <Box className="mt-4">
                           {youtubeVideoId ? (
-                            <YoutubePlayer videoId={youtubeVideoId} title={video.title} />
+                            <YoutubePlayer videoId={youtubeVideoId} title={video.title} autoplay={false} />
                           ) : (
                             <Card variant="surface" className="h-64">
                               <Flex align="center" justify="center" className="h-full text-sm text-slate-600">
@@ -227,6 +254,7 @@ export default async function LessonPage({
                           type: "quiz",
                           title: quiz.title,
                           description: quiz.description,
+                          tags: [],
                           publishStatus: "public",
                           order: quiz.order,
                           metadata: quiz.metadata as any,
@@ -258,11 +286,7 @@ export default async function LessonPage({
                   columns={{ initial: "1", sm: "2" }}
                   items={links.map((extra) => ({
                     title: <Text weight="medium">{extra.title}</Text>,
-                    description: (
-                      <Text size="2" color="gray">
-                        {extra.description}
-                      </Text>
-                    ),
+                    description: <TipTapViewer value={extra.description} className="tiptap-prose text-sm" />,
                     actions: (
                       <Button asChild radius="full">
                         <Link href={(extra.metadata as { url?: string })?.url ?? "#"} target="_blank">

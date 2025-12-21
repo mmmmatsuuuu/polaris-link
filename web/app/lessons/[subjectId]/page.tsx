@@ -16,30 +16,28 @@ import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { CardList } from "@/components/ui/CardList";
 import { db } from "@/lib/firebase/server";
+import { TipTapViewer } from "@/components/ui/tiptap";
+import type { Lesson, PublishStatus, Subject, Unit, RichTextDoc } from "@/types/catalog";
 
-type LessonCard = {
-  id: string;
-  title: string;
-  tags: string[];
-  publishStatus: "public" | "private";
-  order: number;
-};
+type LessonCard = Pick<Lesson, "id" | "title" | "tags" | "publishStatus" | "order">;
 
-type UnitSection = {
-  id: string;
-  name: string;
-  description: string;
+type UnitSection = Pick<Unit, "id" | "name" | "description" | "order"> & {
   lessons: LessonCard[];
-  order: number;
 };
 
-type SubjectPageData = {
-  id: string;
-  name: string;
-  description: string;
+type SubjectPageData = Pick<Subject, "id" | "name" | "description"> & {
+  publishStatus?: PublishStatus;
   updatedAt?: string;
   units: UnitSection[];
 };
+
+function normalizeDoc(value: unknown): RichTextDoc {
+  if (value && typeof value === "object" && "type" in value) {
+    return value as RichTextDoc;
+  }
+  const text = typeof value === "string" ? value : "";
+  return { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text }] }] };
+}
 
 function formatDate(value: unknown): string {
   if (
@@ -114,7 +112,7 @@ async function fetchSubjectPageData(subjectId: string): Promise<SubjectPageData>
     units.push({
       id: unitDoc.id,
       name: (unitData.name as string) ?? "",
-      description: (unitData.description as string) ?? "",
+      description: normalizeDoc(unitData.description),
       lessons,
       order: typeof unitData.order === "number" ? unitData.order : Number.MAX_SAFE_INTEGER,
     });
@@ -125,7 +123,7 @@ async function fetchSubjectPageData(subjectId: string): Promise<SubjectPageData>
   return {
     id: subjectSnap.id,
     name: (subjectData.name as string) ?? "",
-    description: (subjectData.description as string) ?? "",
+    description: normalizeDoc(subjectData.description),
     updatedAt: formatDate(subjectData.updatedAt),
     units,
   };
@@ -151,7 +149,7 @@ export default async function SubjectPage({
       <Section size="3" className="border-b border-slate-100 bg-slate-50 px-4">
         <HeroSection
           title={data.name}
-          subtitle={data.description}
+          subtitle={<TipTapViewer value={data.description} className="tiptap-prose" />}
           kicker={<Breadcrumb items={breadcrumbs} />}
           actions={
             <Flex direction="column" gap="1" align={{ initial: "start", md: "start" }}>
@@ -175,7 +173,7 @@ export default async function SubjectPage({
                 columns={{ initial: "1", md: "1" }}
                 items={data.units.map((unit) => ({
                   title: <Heading size="5">{unit.name}</Heading>,
-                  description: <Text color="gray">{unit.description}</Text>,
+                  description: <TipTapViewer value={unit.description} className="tiptap-prose text-sm" />,
                   badge: <Badge variant="soft">授業 {unit.lessons.length}</Badge>,
                   meta: (
                     <Flex direction="column" gap="3" mt="2">

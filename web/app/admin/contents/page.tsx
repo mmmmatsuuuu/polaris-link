@@ -5,14 +5,9 @@ import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { db } from "@/lib/firebase/server";
 import { AdminContentsTableClient } from "./components/AdminContentsTableClient";
+import type { LessonContent, LessonContentType, PublishStatus, RichTextDoc } from "@/types/catalog";
 
-type ContentRow = {
-  id: string;
-  title: string;
-  type: "video" | "quiz" | "link";
-  tags: string[];
-  publishStatus: "public" | "private";
-  order: number;
+type ContentRow = Pick<LessonContent, "id" | "title" | "type" | "tags" | "publishStatus" | "order"> & {
   updatedAt: string;
 };
 
@@ -53,8 +48,21 @@ async function fetchContents(): Promise<{ rows: ContentRow[] }> {
   return { rows };
 }
 
+async function fetchQuestions(): Promise<{ id: string; prompt: RichTextDoc | string | undefined; tags?: string[] }[]> {
+  const snapshot = await getDocs(collection(db, "questions"));
+  return snapshot.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      prompt: (data as any)?.prompt as RichTextDoc | string | undefined,
+      tags: Array.isArray(data.tags) ? (data.tags as string[]) : [],
+    };
+  });
+}
+
 export default async function ContentAdminPage() {
-  const { rows } = await fetchContents();
+  const [contentResult, questionList] = await Promise.all([fetchContents(), fetchQuestions()]);
+  const { rows } = contentResult;
 
   return (
     <Box>
@@ -76,7 +84,7 @@ export default async function ContentAdminPage() {
       </Section>
 
       <Section className="max-w-6xl m-auto">
-        <AdminContentsTableClient rows={rows} />
+        <AdminContentsTableClient rows={rows} questions={questionList} />
       </Section>
     </Box>
   );

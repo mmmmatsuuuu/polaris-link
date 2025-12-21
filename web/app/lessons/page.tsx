@@ -5,12 +5,10 @@ import { db } from "@/lib/firebase/server";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { HeroSection } from "@/components/ui/HeroSection";
 import { CardList } from "@/components/ui/CardList";
+import { TipTapViewer } from "@/components/ui/tiptap";
+import type { RichTextDoc, Subject } from "@/types/catalog";
 
-type SubjectCard = {
-  id: string;
-  name: string;
-  description: string;
-};
+type SubjectCard = Pick<Subject, "id" | "name" | "description">;
 
 async function fetchSubjectCards(): Promise<SubjectCard[]> {
   const subjectsSnap = await getDocs(collection(db, "subjects"));
@@ -21,7 +19,7 @@ async function fetchSubjectCards(): Promise<SubjectCard[]> {
       return {
         id: doc.id,
         name: (data.name as string) ?? "",
-        description: (data.description as string) ?? "",
+        description: (data.description as RichTextDoc) ?? { type: "doc", content: [{ type: "paragraph" }] },
         publishStatus: data.publishStatus as string | undefined,
         order: typeof data.order === "number" ? data.order : Number.MAX_SAFE_INTEGER,
       };
@@ -55,7 +53,7 @@ export default async function LessonsPage() {
             items={subjects.map((subject) => ({
               title: <Text size="5" weight="bold">{subject.name}</Text>,
               description: (
-                <Text size="2" color="gray">{subject.description}</Text>
+                <TipTapViewer value={subject.description} className="tiptap-prose text-sm" />
               ),
               actions: (
                 <Button asChild variant="solid" radius="full">

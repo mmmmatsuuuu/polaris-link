@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Dialog, Flex, Text } from "@radix-ui/themes";
-import { Modal } from "@/components/ui/Modal";
+import { FullScreenModal } from "@/components/ui/FullScreenModal";
 
 type AdminHistoryModalProps = {
   apiEndpoint: string;
@@ -10,7 +10,7 @@ type AdminHistoryModalProps = {
 
 export function AdminHistoryModal({ apiEndpoint, triggerLabel = "フィルター" }: AdminHistoryModalProps) {
   return (
-    <Modal
+    <FullScreenModal
       triggerLabel={triggerLabel}
       actions={
         <>
@@ -28,6 +28,6 @@ export function AdminHistoryModal({ apiEndpoint, triggerLabel = "フィルター
         <Text size="2" color="gray">科目: 情報リテラシー (ダミー)</Text>
         <Text size="2" color="gray">API: {apiEndpoint}</Text>
       </Flex>
-    </Modal>
+    </FullScreenModal>
   );
 }

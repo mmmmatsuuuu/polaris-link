@@ -21,9 +21,10 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { MarkdownContent } from "@/components/ui/MarkdownContent";
+import { TipTapViewer } from "@/components/ui/tiptap";
+import type { RichTextDoc } from "@/types/catalog";
 
-type Choice = { key: string; label: string };
+type Choice = { key: string; label: RichTextDoc };
 
 type MultipleChoiceProps = {
   choices: Choice[];
@@ -52,17 +53,17 @@ function MultipleChoiceAnswer({ choices, selectedKeys, multiple, onChange }: Mul
           key={choice.key}
           variant="surface"
           className={`cursor-pointer border transition ${
-            selectedKeys.includes(choice.key) ? "border-blue-500 bg-blue-50" : "border-slate-200"
+            selectedKeys.includes(choice.key) ? "border-yellow-500" : "border-slate-200"
           }`}
           onClick={() => toggle(choice.key)}
         >
           <Flex align="center" gap="2">
             {selectedKeys.includes(choice.key) ? (
-              <CheckCircledIcon className="text-blue-600" />
+              <CheckCircledIcon className="text-yellow-600 w-6 h-6" />
             ) : (
               <CircleIcon className="text-slate-400" />
             )}
-            <MarkdownContent className="prose prose-slate max-w-none text-sm" content={choice.label} />
+            <TipTapViewer value={choice.label} className="tiptap-prose text-sm" />
           </Flex>
         </Card>
       ))}
@@ -72,7 +73,7 @@ function MultipleChoiceAnswer({ choices, selectedKeys, multiple, onChange }: Mul
 
 type SortableItemProps = {
   id: string;
-  label: string;
+  label: RichTextDoc;
 };
 
 function SortableItem({ id, label }: SortableItemProps) {
@@ -92,7 +93,7 @@ function SortableItem({ id, label }: SortableItemProps) {
     >
       <Flex align="center" gap="2">
         <DragHandleDots2Icon className="text-slate-500" />
-        <MarkdownContent className="prose prose-slate max-w-none text-sm" content={label} />
+        <TipTapViewer value={label} className="tiptap-prose text-sm" />
       </Flex>
     </Card>
   );
@@ -131,7 +132,7 @@ function OrderingAnswer({ choices, onChange }: OrderingProps) {
               <SortableItem
                 key={choiceKey}
                 id={choiceKey}
-                label={choice?.label ?? choiceKey}
+                label={choice?.label ?? { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: choiceKey }] }] }}
               />
             );
           })}
@@ -210,7 +211,10 @@ export function AnswerArea({
     () =>
       choices?.filter(
         (choice): choice is Choice =>
-          typeof choice?.key === "string" && typeof choice?.label === "string",
+          typeof choice?.key === "string" &&
+          choice?.label !== undefined &&
+          typeof choice.label === "object" &&
+          choice.label !== null,
       ) ?? [],
     [choices],
   );

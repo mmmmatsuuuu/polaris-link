@@ -1,18 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Button, Dialog, Flex, Select, Spinner, Text, TextArea, TextField, Grid, Box } from "@radix-ui/themes";
-import { Modal } from "@/components/ui/Modal";
+import { Button, Dialog, Flex, Select, Spinner, Text, TextField, Grid, Box } from "@radix-ui/themes";
+import { FullScreenModal } from "@/components/ui/FullScreenModal";
 import { ChipMultiSelect, type ChipOption } from "@/components/ui/ChipMultiSelect";
 import { useAuth } from "@/context/AuthProvider";
+import { TipTapEditor } from "@/components/ui/tiptap";
+import type { Lesson, PublishStatus, RichTextDoc } from "@/types/catalog";
 
-type LessonForm = {
-  title: string;
-  description: string;
-  order: number;
-  unitId: string;
-  publishStatus: "public" | "private";
-  contentIds: string[];
+type LessonForm = Pick<Lesson, "title" | "order" | "unitId" | "contentIds"> & {
+  description: RichTextDoc;
+  publishStatus: PublishStatus;
 };
 
 type AdminLessonsModalProps = {
@@ -27,12 +25,22 @@ type AdminLessonsModalProps = {
 
 const emptyForm: LessonForm = {
   title: "",
-  description: "",
+  description: { type: "doc", content: [{ type: "paragraph" }] },
   order: 0,
   unitId: "",
   publishStatus: "private",
   contentIds: [],
 };
+
+function normalizeDoc(value: unknown, fallback: RichTextDoc): RichTextDoc {
+  if (value && typeof value === "object" && "type" in value) {
+    return value as RichTextDoc;
+  }
+  if (typeof value === "string") {
+    return { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: value }] }] };
+  }
+  return fallback;
+}
 
 export function AdminLessonsModal({
   mode,
@@ -84,7 +92,7 @@ export function AdminLessonsModal({
         .then((data) => {
           setForm({
             title: data.title ?? "",
-            description: data.description ?? "",
+            description: normalizeDoc(data.description, emptyForm.description),
             order: typeof data.order === "number" ? data.order : 0,
             unitId: data.unitId ?? "",
             publishStatus: (data.publishStatus as LessonForm["publishStatus"]) ?? "private",
@@ -134,7 +142,7 @@ export function AdminLessonsModal({
   };
 
   return (
-    <Modal
+    <FullScreenModal
       trigger={<span />}
       open={open}
       onOpenChange={onOpenChange}
@@ -158,8 +166,7 @@ export function AdminLessonsModal({
           <Text color="gray">読み込み中...</Text>
         </Flex>
       ) : (
-        <Grid gap="2" columns={{ initial: "1", md: "2"}}>
-          <Box>
+        <Flex gap="2" direction="column">
             <Flex direction="column" gap="3">
               {status && (
                 <Text size="2" color="red">
@@ -182,11 +189,13 @@ export function AdminLessonsModal({
                 <Text size="2" color="gray">
                   説明
                 </Text>
-                <TextArea
-                  disabled={isLoading}
-                  value={form.description}
-                  onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                />
+                <div className="rounded border border-slate-200">
+                  <TipTapEditor
+                    value={form.description}
+                    onChange={(next) => setForm((prev) => ({ ...prev, description: next }))}
+                    placeholder="説明を入力"
+                  />
+                </div>
               </div>
 
               <Flex gap="3">
@@ -231,7 +240,7 @@ export function AdminLessonsModal({
                 </Text>
                 <Select.Root
                   disabled={isLoading}
-                  value={form.unitId}
+                  value={form.unitId || undefined }
                   onValueChange={(value) => setForm((prev) => ({ ...prev, unitId: value }))}
                 >
                   <Select.Trigger />
@@ -246,10 +255,6 @@ export function AdminLessonsModal({
               </div>
 
             </Flex>
-
-          </Box>
-          <Box>
-
             <div>
               <Text size="2" color="gray">
                 コンテンツ（クリックで追加/削除）
@@ -260,11 +265,11 @@ export function AdminLessonsModal({
                 options={contentOptions}
                 onChange={(next) => setForm((prev) => ({ ...prev, contentIds: next }))}
                 placeholder="コンテンツを検索・追加"
+                columns={2}
               />
             </div>
-          </Box>
-        </Grid>
+        </Flex>
       )}
-    </Modal>
+    </FullScreenModal>
   );
 }

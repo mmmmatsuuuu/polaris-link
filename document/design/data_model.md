@@ -7,6 +7,7 @@
 - **トップレベルコレクションで階層を表現**: 科目・単元・授業を別コレクションに分割し、IDで参照する（ネストし過ぎるとクエリが煩雑になるため）。
 - **公開状態フィールドを単一で管理**: `publishStatus`（`public`/`private`）で公開・非公開を制御し、公開中のみ生徒画面や未ログイン閲覧に出す。
 - **監査/集計向けログ分離**: 視聴/テスト結果は専用ログコレクションで管理し、進捗表示用の集計はCloud Functionsで別ドキュメントに反映することも視野に入れる。
+- **リッチテキストはネストオブジェクトで保存**: description / prompt / explanation / choices.label は Tiptap の Doc JSON（例: `{ type: "doc", content: [...] }`）をそのまま map として保存する。既存データとの共存は不要（開発環境のみ）。
 
 ## コレクション一覧
 
@@ -51,7 +52,7 @@
 ### `subjects`
 - Fields:
     - `name`: string
-    - `description`: string
+    - `description`: object — Tiptap Doc
     - `order`: number — 表示順。
     - `publishStatus`: `'public' | 'private'`
     - `createdBy`: userId
@@ -61,7 +62,7 @@
 ### `units`
 - Fields:
     - `name`: string
-    - `description`: string
+    - `description`: object — Tiptap Doc
     - `subjectId`: string
     - `order`: number
     - `publishStatus`: `'public' | 'private'`
@@ -73,7 +74,7 @@
 ### `lessons`
 - Fields:
     - `title`: string
-    - `description`: string
+    - `description`: object — Tiptap Doc
     - `unitId`: string
     - `contentIds`: string[] - 所属する`contents`の参照ID。
     - `publishStatus`: `'public' | 'private'`
@@ -89,7 +90,7 @@
 - Fields（共通）:
     - `type`: `'video' | 'quiz' | 'link'`
     - `title`: string
-    - `description`: string
+    - `description`: object — Tiptap Doc
     - `tags`: string[]
     - `publishStatus`: `'public' | 'private'`
     - `order`: number
@@ -103,10 +104,10 @@
 - 小テスト用の問題コレクション。
 - Fields:
     - `questionType`: `'multipleChoice' | 'ordering' | 'shortAnswer'`
-    - `prompt`: string
-    - `choices`: { `key`: string, `label`: string }[] — 選択肢IDと表示文（選択/並び替えのみ）。`key`は採点用の安定IDとして扱う。
+    - `prompt`: object — Tiptap Doc
+    - `choices`: { `key`: string, `label`: object }[] — Tiptap Docで表示文を保存（選択/並び替えのみ）。`key`は採点用の安定IDとして扱う。
     - `correctAnswer`: string | string[] — 選択/並び替えは `choices.key` を参照する。記述式は解答テキスト。
-    - `explanation`: string
+    - `explanation`: object — Tiptap Doc
     - `order`: number — 管理画面での表示位置（出題時はランダム抽選）。
     - `difficulty`: `'easy' | 'medium' | 'hard'`（難易度バランス調整用）
 

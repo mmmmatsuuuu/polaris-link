@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button, Dialog, Flex, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
-import { Modal } from "@/components/ui/Modal";
+import { FullScreenModal } from "@/components/ui/FullScreenModal";
 import { useAuth } from "@/context/AuthProvider";
 
 type StudentForm = {
@@ -127,7 +127,7 @@ export function AdminStudentsModal({
   };
 
   return (
-    <Modal
+    <FullScreenModal
       trigger={<span />}
       open={open}
       onOpenChange={onOpenChange}
@@ -205,6 +205,6 @@ export function AdminStudentsModal({
           </div>
         </Flex>
       )}
-    </Modal>
+    </FullScreenModal>
   );
 }

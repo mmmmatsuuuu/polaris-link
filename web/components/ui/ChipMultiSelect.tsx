@@ -17,6 +17,7 @@ type ChipMultiSelectProps = {
   placeholder?: string;
   disabled?: boolean;
   showFilter?: boolean;
+  columns?: number;
 };
 
 export function ChipMultiSelect({
@@ -26,6 +27,7 @@ export function ChipMultiSelect({
   placeholder = "検索してコンテンツを追加",
   disabled,
   showFilter = true,
+  columns = 1,
 }: ChipMultiSelectProps) {
   const [filter, setFilter] = useState("");
 
@@ -84,13 +86,21 @@ export function ChipMultiSelect({
         </Flex>
       )}
 
-      <Flex direction="column" gap="2" className="h-[160px] overflow-y-auto">
+      <Flex
+        direction="column"
+        gap="2"
+        className="max-h-[160px] overflow-y-auto"
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${Math.max(1, Math.floor(columns))}, minmax(0, 1fr))`,
+        }}
+      >
         {filtered
           .filter((opt) => !value.includes(opt.id))
           .map((opt) => (
             <Button
               key={opt.id}
-              size="4"
+              size="2"
               variant="soft"
               color="gray"
               radius="full"
@@ -98,12 +108,12 @@ export function ChipMultiSelect({
               onClick={() => toggle(opt.id)}
               className="justify-start"
             >
-              <Flex direction="column" gap="1" align="center">
-                <Text size="2" weight="medium">
+              <Flex direction="row" gap="2" align="center" className="overflow-hidden">
+                <Text size="2" weight="medium" className="text-nowrap truncate">
                   {opt.label}
                 </Text>
                 {opt.description && (
-                  <Text size="1" color="gray">
+                  <Text size="1" color="gray" className="text-nowrap truncate">
                     {opt.description}
                   </Text>
                 )}

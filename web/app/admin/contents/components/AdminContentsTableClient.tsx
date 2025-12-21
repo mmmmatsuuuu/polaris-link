@@ -6,22 +6,18 @@ import { useState } from "react";
 import { ContentsTable } from "@/components/ui/ContentsTable";
 import { AdminContentsModal } from "./AdminContentsModal";
 import { useAuth } from "@/context/AuthProvider";
+import type { LessonContent, PublishStatus } from "@/types/catalog";
 
-type ContentRow = {
-  id: string;
-  title: string;
-  type: "video" | "quiz" | "link";
-  tags: string[];
-  publishStatus: "public" | "private";
-  order: number;
+type ContentRow = Pick<LessonContent, "id" | "title" | "type" | "tags" | "publishStatus" | "order"> & {
   updatedAt: string;
 };
 
 type Props = {
   rows: ContentRow[];
+  questions: { id: string; prompt: unknown; tags?: string[] }[];
 };
 
-export function AdminContentsTableClient({ rows }: Props) {
+export function AdminContentsTableClient({ rows, questions }: Props) {
   const router = useRouter();
   const { user } = useAuth();
   const [modalState, setModalState] = useState<{
@@ -130,6 +126,7 @@ export function AdminContentsTableClient({ rows }: Props) {
         mode={modalState.mode}
         contentId={modalState.id}
         open={modalState.open}
+        questions={questions}
         onOpenChange={(open) =>
           setModalState((prev) => ({ ...prev, open, id: open ? prev.id : undefined }))
         }
