@@ -8,6 +8,7 @@ import { Timer } from "./components/Timer";
 import { TipTapViewer } from "@/components/ui/tiptap";
 import { gradeQuiz, type GradeResult, type QuizContentPayload, type QuizQuestionPayload } from "./actions";
 import type { QuizQuestionType } from "@/types/catalog";
+import { useEffect } from "react";
 
 type Props = {
   content: QuizContentPayload;
@@ -27,6 +28,23 @@ export function QuizClient({ content, questions, selectedQuestionIds }: Props) {
 
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (!questions || questions.length === 0) return;
+    setAnswers((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      questions.forEach((q) => {
+        if (q.questionType === "ordering" && Array.isArray(q.choices)) {
+          if (next[q.id] === undefined) {
+            next[q.id] = q.choices.map((c) => c.key);
+            changed = true;
+          }
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [questions]);
 
   const handleMultipleChoiceChange = (questionId: string, next: string[], allowMultiple: boolean) => {
     setAnswers((prev) => ({ ...prev, [questionId]: allowMultiple ? next : next[0] ?? "" }));

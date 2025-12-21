@@ -79,11 +79,17 @@ export async function loadQuestionsByIds(ids: string[]): Promise<QuizQuestionPay
     .filter((snap) => snap.exists())
     .map((snap) => {
       const data = snap.data() as Partial<QuizQuestion>;
+      const questionType = (data.questionType as QuizQuestionType) ?? "multipleChoice";
+      const normalizedChoices = normalizeChoices(data.choices);
+      const shuffledChoices =
+        questionType === "multipleChoice" || questionType === "ordering"
+          ? shuffleChoices(normalizedChoices)
+          : normalizedChoices;
       return {
         id: snap.id,
-        questionType: (data.questionType as QuizQuestionType) ?? "multipleChoice",
+        questionType,
         prompt: normalizeDoc(data.prompt),
-        choices: normalizeChoices(data.choices),
+        choices: shuffledChoices,
         correctAnswer: data.correctAnswer ?? "",
         explanation: normalizeDoc(data.explanation),
       };
@@ -157,6 +163,15 @@ function normalizeChoices(value: unknown): NormalizeChoice[] {
       return null;
     })
     .filter((c): c is NormalizeChoice => Boolean(c));
+}
+
+function shuffleChoices<T>(choices: T[]): T[] {
+  const result = [...choices];
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
 }
 
 function normalizeAnswerArray(value: unknown): string[] {
