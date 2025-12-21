@@ -6,10 +6,16 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import { common, createLowlight } from "lowlight";
 import type { RichTextDoc } from "@/types/catalog";
 import { Button, Separator } from "@radix-ui/themes";
+import { TableKit } from "@tiptap/extension-table";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
+import {
+  createCodeBlockExtension,
+  createLowlightInstance,
+} from "./CodeBlock";
 import "./tiptap.css";
 
 type TipTapEditorProps = {
@@ -33,14 +39,22 @@ export function TipTapEditor({
   showToolbar = true,
 }: TipTapEditorProps) {
   const initialContent = useMemo(() => value ?? emptyDoc, [value]);
-  const lowlight = useMemo(() => createLowlight(common), []);
+  const lowlight = useMemo(() => createLowlightInstance(), []);
+  const codeBlock = useMemo(
+    () => createCodeBlockExtension(lowlight),
+    [lowlight],
+  );
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         codeBlock: false, // replace with lowlight extension
       }),
-      CodeBlockLowlight.configure({ lowlight }),
+      TableKit,
+      TableRow,
+      TableHeader,
+      TableCell,
+      codeBlock,
       Link.configure({
         autolink: true,
         openOnClick: true,
@@ -131,6 +145,25 @@ export function TipTapEditor({
             )}
             {renderButton("1. List", editor.isActive("orderedList"), () =>
               editor.chain().focus().toggleOrderedList().run(),
+            )}
+          </div>
+          <Separator orientation="vertical" size="1" />
+          <div className="flex gap-1">
+            {renderButton("Table", editor.isActive("table"), () =>
+              editor
+                .chain()
+                .focus()
+                .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                .run(),
+            )}
+            {renderButton("Row+", false, () =>
+              editor.chain().focus().addRowAfter().run(),
+            )}
+            {renderButton("Col+", false, () =>
+              editor.chain().focus().addColumnAfter().run(),
+            )}
+            {renderButton("Del Table", false, () =>
+              editor.chain().focus().deleteTable().run(),
             )}
           </div>
           <Separator orientation="vertical" size="1" />

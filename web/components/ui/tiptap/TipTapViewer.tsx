@@ -6,8 +6,14 @@ import StarterKit from "@tiptap/starter-kit";
 import type { RichTextDoc } from "@/types/catalog";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import { common, createLowlight } from "lowlight";
+import { TableKit } from "@tiptap/extension-table";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
+import {
+  createCodeBlockExtension,
+  createLowlightInstance,
+} from "./CodeBlock";
 import "./tiptap.css";
 
 type TipTapViewerProps = {
@@ -22,14 +28,22 @@ const emptyDoc: RichTextDoc = { type: "doc", content: [{ type: "paragraph" }] };
  */
 export function TipTapViewer({ value, className }: TipTapViewerProps) {
   const content = useMemo(() => value ?? emptyDoc, [value]);
-  const lowlight = useMemo(() => createLowlight(common), []);
+  const lowlight = useMemo(() => createLowlightInstance(), []);
+  const codeBlock = useMemo(
+    () => createCodeBlockExtension(lowlight),
+    [lowlight],
+  );
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         codeBlock: false,
       }),
-      CodeBlockLowlight.configure({ lowlight }),
+      TableKit,
+      TableRow,
+      TableHeader,
+      TableCell,
+      codeBlock,
       Link.configure({
         autolink: true,
         openOnClick: true,
