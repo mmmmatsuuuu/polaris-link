@@ -7,6 +7,7 @@ import { ContentsTable } from "@/components/ui/ContentsTable";
 import { AdminQuestionsModal } from "./AdminQuestionsModal";
 import { useAuth } from "@/context/AuthProvider";
 import type { QuizQuestion, QuizQuestionType } from "@/types/catalog";
+import type { RichTextDoc } from "@/types/catalog";
 
 type QuestionRow = Pick<QuizQuestion, "id" | "prompt" | "questionType" | "difficulty" | "isActive"> & {
   updatedAt: string;
@@ -28,6 +29,25 @@ const difficultyLabel: Record<QuizQuestion["difficulty"] | "", string> = {
   medium: "★★☆",
   hard: "★★★",
   "": "-",
+};
+
+const promptPreview = (prompt: unknown, limit = 20) => {
+  if (typeof prompt === "string") return prompt.slice(0, limit);
+  const doc = prompt as RichTextDoc;
+  const texts: string[] = [];
+  const walk = (nodes: any[]) => {
+    nodes.forEach((node) => {
+      if (node?.type === "text" && typeof node.text === "string") {
+        texts.push(node.text);
+      }
+      if (Array.isArray(node?.content)) walk(node.content);
+    });
+  };
+  if (Array.isArray((doc as any)?.content)) {
+    walk((doc as any).content as any[]);
+  }
+  const joined = texts.join(" ").trim();
+  return joined ? joined.slice(0, limit) : "";
 };
 
 export function AdminQuestionsTableClient({ rows }: Props) {
@@ -79,7 +99,11 @@ export function AdminQuestionsTableClient({ rows }: Props) {
           </Button>
         }
         columns={[
-          { header: "問題文", cell: (row) => (typeof row.prompt === "string" ? row.prompt : "(RichText)"), sortValue: (row) => String(row.prompt) },
+          {
+            header: "問題文",
+            cell: (row) => promptPreview(row.prompt) || "-",
+            sortValue: (row) => promptPreview(row.prompt) || "",
+          },
           {
             header: "種別",
             cell: (row) => typeLabel[row.questionType || ""],

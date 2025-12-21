@@ -1,18 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Button, Dialog, Flex, Grid, Select, Spinner, Text, TextArea, TextField } from "@radix-ui/themes";
+import { useEffect, useState } from "react";
+import { Button, Dialog, Flex, Grid, Select, Spinner, Text, TextField } from "@radix-ui/themes";
 import { FullScreenModal } from "@/components/ui/FullScreenModal";
 import { useAuth } from "@/context/AuthProvider";
 import { TipTapEditor } from "@/components/ui/tiptap";
-import type { PublishStatus, QuizQuestion, QuizQuestionType, RichTextDoc } from "@/types/catalog";
+import type { QuizQuestion, QuizQuestionType, RichTextDoc } from "@/types/catalog";
+import { MultipleChoiceField } from "./MultipleChoiceField";
+import { OrderingField } from "./OrderingField";
+import { ShortAnswerField } from "./ShortAnswerField";
+
+type Choice = { key: string; label: RichTextDoc };
 
 type QuestionForm = Pick<QuizQuestion, "questionType" | "difficulty" | "order"> & {
   prompt: RichTextDoc;
   explanation: RichTextDoc;
-  choicesText: string;
-  correctAnswerText: string;
-  publishStatus?: PublishStatus;
+  choices: Choice[];
+  correctAnswer: string | string[];
 };
 
 type AdminQuestionsModalProps = {
@@ -23,101 +27,56 @@ type AdminQuestionsModalProps = {
   onCompleted?: () => void;
 };
 
-type Choice = { key: string; label: RichTextDoc };
+const createEmptyDoc = (): RichTextDoc => ({
+  type: "doc",
+  content: [{ type: "paragraph" }],
+});
+
+const defaultChoices = (type: QuizQuestionType): Choice[] => {
+  if (type === "multipleChoice") {
+    return [
+      { key: "choice-1", label: createEmptyDoc() },
+      { key: "choice-2", label: createEmptyDoc() },
+    ];
+  }
+  if (type === "ordering") {
+    return [
+      { key: "step-1", label: createEmptyDoc() },
+      { key: "step-2", label: createEmptyDoc() },
+    ];
+  }
+  return [];
+};
 
 const emptyForm: QuestionForm = {
-  prompt: { type: "doc", content: [{ type: "paragraph" }] },
+  prompt: createEmptyDoc(),
   questionType: "multipleChoice",
   difficulty: "easy",
-  explanation: { type: "doc", content: [{ type: "paragraph" }] },
-  choicesText: "",
-  correctAnswerText: "",
+  explanation: createEmptyDoc(),
+  choices: defaultChoices("multipleChoice"),
+  correctAnswer: [],
   order: 0,
 };
 
-function normalizeDoc(value: unknown, fallback: RichTextDoc): RichTextDoc {
-  if (value && typeof value === "object" && "type" in value) {
+const toDoc = (value: unknown): RichTextDoc => {
+  if (value && typeof value === "object" && "type" in (value as any)) {
     return value as RichTextDoc;
   }
-  if (typeof value === "string") {
-    return { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: value }] }] };
-  }
-  return fallback;
-}
+  return createEmptyDoc();
+};
 
-function normalizeChoices(value: unknown): Choice[] {
+const toChoices = (value: unknown): Choice[] => {
   if (!Array.isArray(value)) return [];
   return value
-    .map((choice, index) => {
-      if (typeof choice === "object" && choice !== null && "key" in choice && "label" in choice) {
-        const key = typeof (choice as any).key === "string" ? (choice as any).key.trim() : "";
-        if (!key) return null;
-        return { key, label: normalizeDoc((choice as any).label, { type: "doc", content: [] }) };
-      }
-      if (typeof choice === "string") {
-        const label = choice.trim();
-        if (!label) return null;
-        return { key: `choice-${index + 1}`, label: normalizeDoc(label, { type: "doc", content: [] }) };
+    .map((item) => {
+      if (item && typeof item === "object" && "key" in item && "label" in item) {
+        const key = String((item as any).key);
+        return key ? { key, label: toDoc((item as any).label) } : null;
       }
       return null;
     })
     .filter((c): c is Choice => Boolean(c));
-}
-
-function formatChoicesText(choices: Choice[]): string {
-  // Docを平文化してキー: ラベル 形式で表示
-  const toPlain = (doc: RichTextDoc) => {
-    const texts: string[] = [];
-    const walk = (nodes: any[]) => {
-      nodes.forEach((node) => {
-        if (node?.type === "text" && typeof node.text === "string") texts.push(node.text);
-        if (Array.isArray(node?.content)) walk(node.content);
-      });
-    };
-    const content = (doc as any)?.content;
-    if (Array.isArray(content)) walk(content);
-    return texts.join(" ");
-  };
-  return choices.map((choice) => `${choice.key}: ${toPlain(choice.label)}`).join("\n");
-}
-
-function parseChoicesText(text: string): Choice[] {
-  return text
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line, index) => {
-      const match = line.match(/^\s*([^:：|]+)\s*[:：|]\s*(.+)$/);
-      if (match) {
-        const key = match[1].trim();
-        const label = match[2].trim();
-        return key ? { key, label: normalizeDoc(label, { type: "doc", content: [] }) } : null;
-      }
-      return { key: `choice-${index + 1}`, label: normalizeDoc(line, { type: "doc", content: [] }) };
-    })
-    .filter((c): c is Choice => Boolean(c));
-}
-
-function normalizeCorrectAnswer(value: unknown): string | string[] {
-  if (Array.isArray(value)) {
-    return value
-      .filter((v): v is string => typeof v === "string")
-      .map((v) => v.trim())
-      .filter(Boolean);
-  }
-  if (typeof value === "string") return value.trim();
-  return "";
-}
-
-function resolveAnswerKey(raw: string, choices: Choice[], fallbackIndex: number): string | null {
-  const trimmed = raw.trim();
-  if (!trimmed) return null;
-  const keyMatched = choices.find((c) => c.key === trimmed);
-  if (keyMatched) return keyMatched.key;
-  const labelMatched = choices.find((c) => normalizeDoc(trimmed, c.label).content?.length);
-  if (labelMatched) return labelMatched.key;
-  return trimmed || `answer-${fallbackIndex + 1}`;
-}
+};
 
 export function AdminQuestionsModal({
   mode,
@@ -131,11 +90,6 @@ export function AdminQuestionsModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const isChoiceQuestion = useMemo(
-    () => form.questionType === "multipleChoice" || form.questionType === "ordering",
-    [form.questionType],
-  );
 
   useEffect(() => {
     if (!open) return;
@@ -159,19 +113,32 @@ export function AdminQuestionsModal({
           return res.json();
         })
         .then((data) => {
-          const choices = normalizeChoices(data.choices);
-          const normalizedAnswer = normalizeCorrectAnswer(data.correctAnswer);
-          const choicesText = choices.length > 0 ? formatChoicesText(choices) : "";
-          const correctAnswerText = Array.isArray(normalizedAnswer)
-            ? normalizedAnswer.join("\n")
-            : (normalizedAnswer as string) ?? "";
+      const questionType = (data.questionType as QuizQuestionType) ?? "multipleChoice";
+      const choices = toChoices(data.choices);
+      const filledChoices = choices.length > 0 ? choices : defaultChoices(questionType);
+      const normalizedAnswer =
+        typeof data.correctAnswer === "string" || Array.isArray(data.correctAnswer)
+          ? data.correctAnswer
+          : [];
+
           setForm({
-            prompt: normalizeDoc(data.prompt, emptyForm.prompt),
-            questionType: (data.questionType as QuestionForm["questionType"]) ?? "multipleChoice",
+            prompt: toDoc(data.prompt),
+            questionType,
             difficulty: (data.difficulty as QuestionForm["difficulty"]) ?? "easy",
-            explanation: normalizeDoc(data.explanation, emptyForm.explanation),
-            choicesText,
-            correctAnswerText,
+            explanation: toDoc(data.explanation),
+            choices: filledChoices,
+            correctAnswer:
+              questionType === "ordering"
+                ? filledChoices.map((c) => c.key)
+                : questionType === "multipleChoice"
+                  ? (Array.isArray(normalizedAnswer)
+                      ? normalizedAnswer.filter((k) => typeof k === "string")
+                      : typeof normalizedAnswer === "string" && normalizedAnswer
+                        ? [normalizedAnswer]
+                        : [])
+                  : typeof normalizedAnswer === "string"
+                    ? normalizedAnswer
+                    : "",
             order: typeof data.order === "number" ? data.order : 0,
           });
         })
@@ -188,6 +155,22 @@ export function AdminQuestionsModal({
     }
   }, [mode, questionId, open, user?.uid]);
 
+  const handleQuestionTypeChange = (nextType: QuizQuestionType) => {
+    const baseChoices = defaultChoices(nextType);
+    setForm((prev) => ({
+      ...prev,
+      questionType: nextType,
+      choices: baseChoices,
+      correctAnswer:
+        nextType === "ordering"
+          ? baseChoices.map((c) => c.key)
+          : nextType === "multipleChoice"
+            ? []
+            : "",
+    }));
+    console.log("Changed question type to", nextType);
+  };
+
   const handleSave = async () => {
     if (!user?.uid) {
       setStatus("ユーザー情報を取得できませんでした");
@@ -197,30 +180,43 @@ export function AdminQuestionsModal({
     setIsSubmitting(true);
 
     try {
-      const choices = isChoiceQuestion ? parseChoicesText(form.choicesText) : [];
-      if (isChoiceQuestion && choices.length === 0) {
-        setStatus("選択肢を入力してください");
-        setIsSubmitting(false);
-        return;
+      let correctAnswer: string | string[] = form.correctAnswer;
+      if (form.questionType === "multipleChoice") {
+        const selectedKeys = Array.isArray(form.correctAnswer)
+          ? form.correctAnswer
+          : typeof form.correctAnswer === "string" && form.correctAnswer
+            ? [form.correctAnswer]
+            : [];
+        const validKeys = selectedKeys.filter((k) => form.choices.some((c) => c.key === k));
+        if (validKeys.length === 0) {
+          setStatus("正解となる選択肢を1つ以上選んでください");
+          setIsSubmitting(false);
+          return;
+        }
+        correctAnswer = Array.from(new Set(validKeys));
       }
-
-      const answers = form.correctAnswerText
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean);
-      let correctAnswer: string | string[] =
-        form.questionType === "ordering"
-          ? answers
-              .map((answer, index) => resolveAnswerKey(answer, choices, index))
-              .filter((v): v is string => Boolean(v))
-          : form.questionType === "multipleChoice"
-            ? (() => {
-                const resolved = answers
-                  .map((answer, index) => resolveAnswerKey(answer, choices, index))
-                  .filter((v): v is string => Boolean(v));
-                return resolved.length > 1 ? resolved : resolved[0] ?? "";
-              })()
-            : form.correctAnswerText.trim();
+      if (form.questionType === "ordering") {
+        if (form.choices.length < 2) {
+          setStatus("並び替えの選択肢を2つ以上追加してください");
+          setIsSubmitting(false);
+          return;
+        }
+        correctAnswer = form.choices.map((c) => c.key);
+      }
+      if (form.questionType === "shortAnswer") {
+        const answerText =
+          typeof form.correctAnswer === "string"
+            ? form.correctAnswer.trim()
+            : Array.isArray(form.correctAnswer)
+              ? (form.correctAnswer[0] ?? "").trim()
+              : "";
+        if (!answerText) {
+          setStatus("正解を入力してください");
+          setIsSubmitting(false);
+          return;
+        }
+        correctAnswer = answerText;
+      }
 
       const endpoint = mode === "edit" && questionId ? `/api/questions/${questionId}` : "/api/questions";
       const method = mode === "edit" ? "PATCH" : "POST";
@@ -229,12 +225,11 @@ export function AdminQuestionsModal({
         questionType: form.questionType,
         difficulty: form.difficulty,
         explanation: form.explanation,
-        choices,
+        choices: form.choices,
         correctAnswer,
         order: mode === "edit" ? form.order : undefined,
-        publishStatus: form.publishStatus,
       };
-
+      console.log("Saving question with payload:", payload);
       const res = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -303,12 +298,7 @@ export function AdminQuestionsModal({
             <Text size="2" color="gray">
               種別
             </Text>
-            <Select.Root
-              value={form.questionType}
-              onValueChange={(v) =>
-                setForm((prev) => ({ ...prev, questionType: v as QuestionForm["questionType"] }))
-              }
-            >
+            <Select.Root value={form.questionType} onValueChange={(v) => handleQuestionTypeChange(v as QuizQuestionType)}>
               <Select.Trigger />
               <Select.Content>
                 <Select.Item value="multipleChoice">選択問題</Select.Item>
@@ -353,28 +343,66 @@ export function AdminQuestionsModal({
             </div>
           )}
 
-          <div className="col-span-full flex flex-col gap-2">
-            <Text size="2" color="gray">
-              選択肢（1行1選択肢。`キー: 表示文` 形式、キー省略時は自動採番）
-            </Text>
-            <TextArea
-              placeholder={"例\nA: 選択肢A\nB: 選択肢B\nC: 選択肢C"}
-              value={form.choicesText}
-              onChange={(e) => setForm((prev) => ({ ...prev, choicesText: e.target.value }))}
-              disabled={!isChoiceQuestion}
-            />
-          </div>
+          {form.questionType === "multipleChoice" && (
+            <div className="col-span-full flex flex-col gap-2">
+              <Text size="2" color="gray">
+                選択肢と正解（複数選択可）
+              </Text>
+              <MultipleChoiceField
+                choices={form.choices}
+                correctKeys={
+                  Array.isArray(form.correctAnswer)
+                    ? form.correctAnswer
+                    : typeof form.correctAnswer === "string" && form.correctAnswer
+                      ? [form.correctAnswer]
+                      : []
+                }
+                onChange={(nextChoices, nextCorrect) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    choices: nextChoices,
+                    correctAnswer: nextCorrect,
+                  }))
+                }
+              />
+            </div>
+          )}
 
-          <div className="col-span-full flex flex-col gap-2">
-            <Text size="2" color="gray">
-              正解（1行1正解。キーまたはラベルで指定。並び替えは順番に並べる）
-            </Text>
-            <TextArea
-              placeholder={"例\nA\nB"}
-              value={form.correctAnswerText}
-              onChange={(e) => setForm((prev) => ({ ...prev, correctAnswerText: e.target.value }))}
-            />
-          </div>
+          {form.questionType === "ordering" && (
+            <div className="col-span-full flex flex-col gap-2">
+              <Text size="2" color="gray">
+                並び替えの選択肢（追加順が正解順）
+              </Text>
+              <OrderingField
+                items={form.choices}
+                onChange={(nextItems) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    choices: nextItems,
+                    correctAnswer: nextItems.map((c) => c.key),
+                  }))
+                }
+              />
+            </div>
+          )}
+
+          {form.questionType === "shortAnswer" && (
+            <div className="col-span-full flex flex-col gap-2">
+              <Text size="2" color="gray">
+                正解
+              </Text>
+              <ShortAnswerField
+                value={
+                  typeof form.correctAnswer === "string"
+                    ? form.correctAnswer
+                    : Array.isArray(form.correctAnswer)
+                      ? form.correctAnswer[0] ?? ""
+                      : ""
+                }
+                onChange={(v) => setForm((prev) => ({ ...prev, correctAnswer: v }))}
+              />
+            </div>
+          )}
 
           <div className="col-span-full flex flex-col gap-2">
             <Text size="2" color="gray">

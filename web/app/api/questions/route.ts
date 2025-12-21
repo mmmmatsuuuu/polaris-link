@@ -3,26 +3,33 @@ import { addDoc, collection, doc, getDoc, getDocs, serverTimestamp } from "fireb
 import { authorizeRequest } from "@/app/api/_utils/authorizeRequest";
 import { db } from "@/lib/firebase/server";
 
-type RawChoice = { key?: string; label?: string } | string;
+type RawChoice = { key?: string; label?: unknown } | string;
 
-function normalizeChoices(value: unknown): { key: string; label: string }[] {
+function toDoc(label: unknown) {
+  if (label && typeof label === "object" && "type" in (label as any)) return label;
+  if (typeof label === "string") {
+    return { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: label }] }] };
+  }
+  return { type: "doc", content: [] };
+}
+
+function normalizeChoices(value: unknown): { key: string; label: unknown }[] {
   if (!Array.isArray(value)) return [];
   return value
     .map((choice, index) => {
       if (typeof choice === "object" && choice !== null && "key" in choice && "label" in choice) {
         const key = typeof (choice as any).key === "string" ? (choice as any).key.trim() : "";
-        const label = typeof (choice as any).label === "string" ? (choice as any).label.trim() : "";
-        if (!key || !label) return null;
-        return { key, label };
+        if (!key) return null;
+        return { key, label: toDoc((choice as any).label) };
       }
       if (typeof choice === "string") {
         const label = choice.trim();
         if (!label) return null;
-        return { key: `choice-${index + 1}`, label };
+        return { key: `choice-${index + 1}`, label: toDoc(label) };
       }
       return null;
     })
-    .filter((choice): choice is { key: string; label: string } => Boolean(choice));
+    .filter((choice): choice is { key: string; label: unknown } => Boolean(choice));
 }
 
 function normalizeCorrectAnswer(value: unknown): string | string[] {
