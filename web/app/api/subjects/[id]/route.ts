@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { deleteDoc, doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { authorizeRequest } from "@/app/api/_utils/authorizeRequest";
 import { db } from "@/lib/firebase/server";
@@ -59,6 +60,10 @@ export async function PATCH(
       order: body.order,
       updatedAt: serverTimestamp(),
     });
+
+    if (body.publishStatus === "public") {
+      revalidatePath("/lessons");
+    }
 
     return NextResponse.json({ id: id });
   } catch (error) {

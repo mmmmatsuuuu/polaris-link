@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { addDoc, collection, getDocs, serverTimestamp } from "firebase/firestore";
 import { authorizeRequest } from "@/app/api/_utils/authorizeRequest";
 import { db } from "@/lib/firebase/server";
@@ -39,6 +40,10 @@ export async function POST(request: Request) {
       createdBy: body.createdBy ?? "admin",
       updatedAt: serverTimestamp(),
     });
+
+    if (body.publishStatus === "public") {
+      revalidatePath("/lessons");
+    }
 
     return NextResponse.json({ id: docRef.id });
   } catch (error) {
