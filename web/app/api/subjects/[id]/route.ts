@@ -61,9 +61,7 @@ export async function PATCH(
       updatedAt: serverTimestamp(),
     });
 
-    if (body.publishStatus === "public") {
-      revalidatePath("/lessons");
-    }
+    revalidatePath("/lessons");
 
     return NextResponse.json({ id: id });
   } catch (error) {
@@ -86,6 +84,9 @@ export async function DELETE(
     const { id } = await params;
     const docRef = doc(db, "subjects", id);
     await deleteDoc(docRef);
+
+    revalidatePath("/lessons");
+
     return NextResponse.json({ id: id });
   } catch (error) {
     console.error("Failed to delete subject", error);
