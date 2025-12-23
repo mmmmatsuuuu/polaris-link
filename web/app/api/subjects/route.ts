@@ -41,9 +41,7 @@ export async function POST(request: Request) {
       updatedAt: serverTimestamp(),
     });
 
-    if (body.publishStatus === "public") {
-      revalidatePath("/lessons");
-    }
+    revalidatePath("/lessons");
 
     return NextResponse.json({ id: docRef.id });
   } catch (error) {
