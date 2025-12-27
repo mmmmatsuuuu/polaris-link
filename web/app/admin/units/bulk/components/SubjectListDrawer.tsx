@@ -20,7 +20,7 @@ export function SubjectListDrawer() {
     <Drawer
       triggerLabel="科目一覧を見る"
       title="既存の科目一覧"
-      description="参考表示用のモックです。実装時はFirestoreの一覧を表示します。"
+      description="登録済みの科目一覧を表示します。"
     >
       <Flex direction="column" gap="2">
         {subjectSamples.map((subject) => (

@@ -106,7 +106,7 @@ export default async function LessonAdminPage() {
             </Link>
           }
           title="授業管理"
-          subtitle="授業とコンテンツの紐付けを編集するUI例です。"
+          subtitle="授業とコンテンツの紐付けを編集します。"
           actions={
             <Button asChild radius="full" variant="soft">
               <Link href="/admin/lessons/bulk">一括登録</Link>

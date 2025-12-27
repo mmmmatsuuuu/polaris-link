@@ -20,7 +20,7 @@ export default function HistoryAdminPage() {
             </Link>
           }
           title="利用履歴管理"
-          subtitle="フィルター: 期間=2024/04/01-2024/04/30、科目=情報リテラシー（UIモック）"
+          subtitle="期間や科目で絞り込みできます。"
         />
       </Section>
 

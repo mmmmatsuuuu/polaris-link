@@ -68,7 +68,7 @@ export default async function SubjectAdminPage() {
             </Link>
           }
           title="科目管理"
-          subtitle="科目の登録・公開切替・単元紐付けを行うUI例です。"
+          subtitle="科目の登録・公開切替を行います。"
           actions={
             <div className="flex gap-2">
               <Button asChild radius="full" variant="soft">

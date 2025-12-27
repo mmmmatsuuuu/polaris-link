@@ -24,7 +24,7 @@ export default function AdminHubPage() {
         <HeroSection
           kicker={<Text color="gray">管理メニュー</Text>}
           title="教師向け管理ページ"
-          subtitle="各カードから個別の管理画面へ遷移します。UIモックのため実際の操作は行えません。"
+          subtitle="各カードから個別の管理画面へ遷移します。"
         />
       </Section>
 

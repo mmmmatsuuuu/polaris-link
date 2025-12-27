@@ -20,7 +20,7 @@ export function LessonListDrawer() {
     <Drawer
       triggerLabel="授業一覧を見る"
       title="既存の授業一覧"
-      description="参考表示用のモックです。実装時はFirestoreの一覧を表示します。"
+      description="登録済みの授業一覧を表示します。"
     >
       <Flex direction="column" gap="2">
         {lessonSamples.map((lesson) => (

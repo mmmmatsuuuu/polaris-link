@@ -20,7 +20,7 @@ export function ContentListDrawer() {
     <Drawer
       triggerLabel="コンテンツ一覧を見る"
       title="既存のコンテンツ一覧"
-      description="参考表示用のモックです。実装時はFirestoreの一覧を表示します。"
+      description="登録済みのコンテンツ一覧を表示します。"
     >
       <Flex direction="column" gap="2">
         {contentSamples.map((content) => (

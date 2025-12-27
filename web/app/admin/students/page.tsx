@@ -21,7 +21,7 @@ export default async function StudentAdminPage() {
             </Link>
           }
           title="生徒管理"
-          subtitle="メールアドレスのホワイトリスト登録やステータス変更を行うUI例です。"
+          subtitle="メールアドレスのホワイトリスト登録やステータス変更を行います。"
           actions={
             <div className="flex gap-2">
               <Button radius="full">生徒を追加</Button>

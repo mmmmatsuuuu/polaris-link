@@ -58,7 +58,7 @@ export default async function QuestionAdminPage() {
             </Link>
           }
           title="問題管理"
-          subtitle="小テスト問題の編集やプレビューのUI例です。"
+          subtitle="小テスト問題の編集やプレビューを行います。"
           actions={
             <Button asChild radius="full" variant="soft">
               <Link href="/admin/questions/bulk">一括登録</Link>

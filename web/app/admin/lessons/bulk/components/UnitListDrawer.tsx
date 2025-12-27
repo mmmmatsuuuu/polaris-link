@@ -20,7 +20,7 @@ export function UnitListDrawer() {
     <Drawer
       triggerLabel="単元一覧を見る"
       title="既存の単元一覧"
-      description="参考表示用のモックです。実装時はFirestoreの一覧を表示します。"
+      description="登録済みの単元一覧を表示します。"
     >
       <Flex direction="column" gap="2">
         {unitSamples.map((unit) => (
