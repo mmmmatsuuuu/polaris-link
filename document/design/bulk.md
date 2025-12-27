@@ -186,7 +186,6 @@
 {
   "contents": [
     {
-      "lessonId": "existingLessonId",
       "type": "video",
       "title": "導入動画",
       "description": { "type": "doc", "content": [] },
@@ -203,7 +202,6 @@
 {
   "contents": [
     {
-      "lessonId": "existingLessonId",
       "type": "quiz",
       "title": "確認テスト",
       "description": { "type": "doc", "content": [] },
@@ -225,7 +223,6 @@
 {
   "contents": [
     {
-      "lessonId": "existingLessonId",
       "type": "link",
       "title": "参考資料",
       "description": { "type": "doc", "content": [] },
@@ -238,7 +235,6 @@
 }
 ```
 バリデーション
-- `lessonId`: 任意、指定する場合は`lessons`に存在するID
 - `type`: 必須、`video`/`quiz`/`link`
 - `title`: 必須、空文字不可
 - `description`: 任意、TipTap Doc形式
