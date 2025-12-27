@@ -44,7 +44,7 @@ export default function TeacherStudentUsagePage() {
         <HeroSection
           kicker="生徒別"
           title="個別利用状況"
-          subtitle="検索・並び替え（UIモック）: 氏名/最終ログイン/学習時間"
+          subtitle="検索・並び替え: 氏名/最終ログイン/学習時間"
           actions={<Link href="/teacher">教師ダッシュボードに戻る</Link>}
         />
       </Section>

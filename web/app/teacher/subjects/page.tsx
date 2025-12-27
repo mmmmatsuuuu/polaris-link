@@ -45,7 +45,7 @@ export default function TeacherSubjectUsagePage() {
         <HeroSection
           kicker="集計"
           title="科目別利用状況"
-          subtitle="フィルター: 科目=すべて / 期間=今月（UIモック）"
+          subtitle="フィルターで科目や期間を絞り込めます。"
         />
       </Section>
 

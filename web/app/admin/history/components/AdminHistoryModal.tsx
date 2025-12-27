@@ -24,8 +24,8 @@ export function AdminHistoryModal({ apiEndpoint, triggerLabel = "フィルター
       }
     >
       <Flex direction="column" gap="3">
-        <Text size="2" color="gray">期間: 今月 (ダミー)</Text>
-        <Text size="2" color="gray">科目: 情報リテラシー (ダミー)</Text>
+        <Text size="2" color="gray">期間: 今月</Text>
+        <Text size="2" color="gray">科目: 情報リテラシー</Text>
         <Text size="2" color="gray">API: {apiEndpoint}</Text>
       </Flex>
     </FullScreenModal>

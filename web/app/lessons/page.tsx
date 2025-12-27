@@ -42,7 +42,7 @@ export default async function LessonsPage() {
         <HeroSection
           kicker={<Breadcrumb items={breadcrumbItems} />}
           title="科目一覧"
-          subtitle="科目カードをクリックするとサンプルの科目ページに遷移し、さらに授業ページや小テストページへ移動できます。"
+          subtitle="科目カードをクリックすると科目ページに遷移し、授業ページや小テストページへ移動できます。"
         />
       </Section>
 
