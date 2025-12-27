@@ -1,36 +1,74 @@
-import { Box, Button, Card, Flex, Heading, Section, Text } from "@radix-ui/themes";
-
-const steps = [
-  "CSVテンプレートをダウンロード",
-  "科目名/説明/公開状態を入力",
-  "ファイルをアップロード",
-  "結果ログを確認",
-];
+import { Badge, Box, Button, Card, Flex, Heading, Section, Text } from "@radix-ui/themes";
+import { ExampleDrawer } from "./components/ExampleDrawer";
 
 export default function SubjectBulkPage() {
+  const status: "idle" | "processing" | "error" | "success" = "idle";
+  const statusStyle = {
+    idle: "bg-white border-slate-200",
+    processing: "bg-blue-50 border-blue-200",
+    error: "bg-red-50 border-red-200",
+    success: "bg-emerald-50 border-emerald-200",
+  }[status];
+
   return (
     <Box className="bg-slate-50">
       <Section>
-        <Card variant="classic" className="mx-auto max-w-3xl">
-          <Heading size="7">科目一括登録</Heading>
-          <Text color="gray">CSVを使って複数の科目をまとめて登録するUI例です。</Text>
-          <Flex direction="column" gap="3" mt="5">
-            {steps.map((step, index) => (
-              <Flex key={step} gap="3" align="start">
-                <Button variant="solid" color="gray" radius="full" size="1">
-                  {index + 1}
-                </Button>
-                <Text color="gray">{step}</Text>
+        <Flex direction="column" gap="4" className="mx-auto max-w-3xl">
+          <Card variant="classic">
+            <Heading size="7">科目一括登録</Heading>
+            <Text color="gray">JSONファイルを使って科目をまとめて登録します。上限は300件です。</Text>
+            <Flex direction="column" gap="2" mt="4">
+              <Flex align="center" gap="2">
+                <Badge color="red">必須</Badge>
+                <Text size="2" color="gray">
+                  name
+                </Text>
               </Flex>
-            ))}
-          </Flex>
-          <Flex direction="column" gap="3" mt="6">
-            <Button radius="full">テンプレートをダウンロード</Button>
-            <Card variant="surface" className="border border-dashed border-slate-300 py-10 text-center">
-              <Text color="gray">ファイルをドラッグ & ドロップ</Text>
+              <Flex align="center" gap="2">
+                <Badge color="gray">任意</Badge>
+                <Text size="2" color="gray">
+                  description, publishStatus, order
+                </Text>
+              </Flex>
+              <Text size="2" color="gray">
+                エラー時は登録されません（全件ロールバック）。
+              </Text>
+            </Flex>
+            <Flex gap="2" mt="4" wrap="wrap">
+              <ExampleDrawer />
+            </Flex>
+          </Card>
+
+          <Card variant="surface">
+            <Text weight="bold">ファイルアップロード</Text>
+            <Text size="2" color="gray" mt="1">
+              JSONファイルはUTF-8で保存してください。
+            </Text>
+            <Flex gap="2" mt="3">
+              <Button radius="full" variant="soft">
+                JSONファイルを選択
+              </Button>
+              <Button radius="full">一括登録を実行</Button>
+            </Flex>
+            <Card
+              variant="surface"
+              mt="3"
+              className="border border-dashed border-slate-300 px-4 py-6 text-center"
+            >
+              <Text color="gray">ここにファイルをドラッグ & ドロップ</Text>
             </Card>
-          </Flex>
-        </Card>
+
+            <Box mt="4" className={`rounded-md border px-4 py-3 ${statusStyle}`}>
+              <Text weight="bold">進捗・エラー表示</Text>
+              <Text size="2" color="gray" mt="2">
+                アップロード中... / 検証中... / 登録中...
+              </Text>
+              <Text size="2" color="gray" mt="2">
+                エラー例: 0行目 name: 必須項目が未入力です。
+              </Text>
+            </Box>
+          </Card>
+        </Flex>
       </Section>
     </Box>
   );
