@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Button, Flex, Text } from "@radix-ui/themes";
+import { Box, Flex, Text } from "@radix-ui/themes";
+import { CopyButton } from "@/components/ui/CopyButton";
 import { Drawer } from "@/components/ui/Drawer";
 
 type LessonSample = {
@@ -15,10 +16,6 @@ const lessonSamples: LessonSample[] = [
 ];
 
 export function LessonListDrawer() {
-  const handleCopy = async (value: string) => {
-    await navigator.clipboard.writeText(value);
-  };
-
   return (
     <Drawer
       triggerLabel="授業一覧を見る"
@@ -38,9 +35,7 @@ export function LessonListDrawer() {
                 {lesson.id}
               </Text>
             </Box>
-            <Button size="1" variant="soft" onClick={() => void handleCopy(lesson.id)}>
-              IDをコピー
-            </Button>
+            <CopyButton value={lesson.id} />
           </Flex>
         ))}
       </Flex>

@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Button, Flex, Text } from "@radix-ui/themes";
+import { Box, Flex, Text } from "@radix-ui/themes";
+import { CopyButton } from "@/components/ui/CopyButton";
 import { Drawer } from "@/components/ui/Drawer";
 
 type ContentSample = {
@@ -15,10 +16,6 @@ const contentSamples: ContentSample[] = [
 ];
 
 export function ContentListDrawer() {
-  const handleCopy = async (value: string) => {
-    await navigator.clipboard.writeText(value);
-  };
-
   return (
     <Drawer
       triggerLabel="コンテンツ一覧を見る"
@@ -38,9 +35,7 @@ export function ContentListDrawer() {
                 {content.id}
               </Text>
             </Box>
-            <Button size="1" variant="soft" onClick={() => void handleCopy(content.id)}>
-              IDをコピー
-            </Button>
+            <CopyButton value={content.id} />
           </Flex>
         ))}
       </Flex>
