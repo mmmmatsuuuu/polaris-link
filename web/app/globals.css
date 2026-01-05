@@ -21,3 +21,28 @@
 [data-appearance="dark"] .text-slate-300 {
   color: #e2e8f0 !important;
 }
+
+
+.drawer-content[data-state="open"] {
+  animation: Transform 220ms ease-in, Opacity 220ms ease-in;
+}
+
+.drawer-content[data-state="closed"] {
+  animation: Transform 180ms ease-out, Opacity 180ms ease-out;
+}
+@keyframes Transform {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes Opacity {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

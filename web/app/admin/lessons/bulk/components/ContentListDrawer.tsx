@@ -27,7 +27,7 @@ export function ContentListDrawer() {
           <Flex
             key={content.id}
             justify="between"
-            className="rounded-md border border-slate-200 bg-white px-3 py-2"
+            className="rounded-md border border-slate-200 px-3 py-2"
           >
             <Box>
               <Text size="2">{content.title}</Text>
