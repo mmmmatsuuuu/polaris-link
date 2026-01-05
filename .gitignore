@@ -2,10 +2,13 @@
 
 .codex
 
-/web/dummy-data
 
 # web/
 ./web/node_modules
+/web/dummy-data
+/web/bulk-dummy-data
 
 # firebase/
 ./firebase/emulator-data
+/firebase/bulk
+/firebase/data
