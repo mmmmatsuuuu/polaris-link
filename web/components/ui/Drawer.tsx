@@ -40,6 +40,7 @@ export function Drawer({
         {trigger ?? <Button radius="full">{triggerLabel}</Button>}
       </Dialog.Trigger>
       <Dialog.Content
+        className="drawer-content"
         style={{
           position: "fixed",
           top: 0,
@@ -48,8 +49,7 @@ export function Drawer({
           maxWidth: "92vw",
           height: "100vh",
           margin: 0,
-          borderRadius: "12px 0 0 12px",
-          transform: "none",
+          borderRadius: "0",
         }}
       >
         <Flex direction="column" height="100%">

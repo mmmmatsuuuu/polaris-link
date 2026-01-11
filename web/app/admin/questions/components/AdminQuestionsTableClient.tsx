@@ -115,15 +115,6 @@ export function AdminQuestionsTableClient({ rows }: Props) {
             sortValue: (row) => row.difficulty || "",
           },
           {
-            header: "出題",
-            cell: (row) => (
-              <Badge variant="soft" color={row.isActive ? "green" : "gray"}>
-                {row.isActive ? "出題中" : "停止中"}
-              </Badge>
-            ),
-            sortValue: (row) => (row.isActive ? 1 : 0),
-          },
-          {
             header: "更新日",
             cell: (row) => row.updatedAt,
             sortValue: (row) => Date.parse(row.updatedAt),

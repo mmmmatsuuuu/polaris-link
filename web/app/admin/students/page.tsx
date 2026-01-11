@@ -24,9 +24,8 @@ export default async function StudentAdminPage() {
           subtitle="メールアドレスのホワイトリスト登録やステータス変更を行います。"
           actions={
             <div className="flex gap-2">
-              <Button radius="full">生徒を追加</Button>
               <Button asChild radius="full" variant="soft">
-                <Link href="/admin/students/bulk">CSV一括登録</Link>
+                <Link href="/admin/students/bulk">一括登録</Link>
               </Button>
             </div>
           }

@@ -77,7 +77,7 @@ export default async function ContentAdminPage() {
           subtitle="動画・小テスト・教材を管理します。"
           actions={
             <Button asChild radius="full" variant="soft">
-              <Link href="/admin/contents/bulk">CSV一括登録</Link>
+              <Link href="/admin/contents/bulk">一括登録</Link>
             </Button>
           }
         />
