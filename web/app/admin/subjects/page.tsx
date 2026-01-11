@@ -72,7 +72,7 @@ export default async function SubjectAdminPage() {
           actions={
             <div className="flex gap-2">
               <Button asChild radius="full" variant="soft">
-                <Link href="/admin/subjects/bulk">CSV一括登録</Link>
+                <Link href="/admin/subjects/bulk">一括登録</Link>
               </Button>
             </div>
           }

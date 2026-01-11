@@ -90,7 +90,7 @@ export default async function UnitAdminPage() {
           subtitle="単元と科目・授業の紐付けを編集します。"
           actions={
             <Button asChild radius="full" variant="soft">
-              <Link href="/admin/units/bulk">CSV一括登録</Link>
+              <Link href="/admin/units/bulk">一括登録</Link>
             </Button>
           }
         />

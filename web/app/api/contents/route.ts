@@ -33,7 +33,6 @@ export async function POST(request: Request) {
       title: body.title ?? "",
       description: body.description ?? "",
       type: body.type ?? "video",
-      lessonId: body.lessonId ?? "",
       publishStatus: body.publishStatus ?? "private",
       order: nextOrder,
       metadata: body.metadata ?? {},
