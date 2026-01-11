@@ -26,3 +26,4 @@
 - `web/app/api/lessons/bulk/route.ts` を追加し、授業の一括登録APIを実装。
 - `web/app/admin/students/bulk` にフロントバリデーション/確認UI/登録処理を横展開。
 - `web/app/api/students/bulk/route.ts` を追加し、生徒の一括登録APIを実装。
+- `web/app/admin/contents/bulk/components/QuestionListDrawer.tsx` をFirestore参照に変更し、promptの抜粋を表示。

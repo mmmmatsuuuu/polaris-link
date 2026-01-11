@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Badge, Box, Button, Card, Flex, Heading, Section, Text } from "@radix-ui/themes";
 import { ExampleDrawer } from "./components/ExampleDrawer";
+import { QuestionListDrawer } from "./components/QuestionListDrawer";
 import { StatusPanel } from "./components/StatusPanel";
 import { validateContentsPayload, type ContentBulkItem, type ValidationError } from "./components/validation";
 import { useAuth } from "@/context/AuthProvider";
@@ -144,6 +145,7 @@ export default function ContentBulkPage() {
               </Flex>
             </Flex>
             <Flex gap="2" mt="4" wrap="wrap">
+              <QuestionListDrawer />
               <ExampleDrawer />
             </Flex>
           </Card>
