@@ -66,12 +66,12 @@
 ## 実装タスク
 
 ### A) TipTap拡張
-- [ ] `web/components/ui/tiptap/extensions/ImageUploadExtension.ts` を追加
+- [x] `web/components/ui/tiptap/extensions/ImageUploadExtension.ts` を追加
   - handlePaste / handleDrop
   - Uploading挿入 -> async処理
-- [ ] `web/components/ui/tiptap/extensions/UploadingImage.ts` を追加
+- [x] `web/components/ui/tiptap/extensions/UploadingImage.ts` を追加
   - atom inline node
-- [ ] `web/components/ui/tiptap/extensions/ExtendedImage.ts` を追加
+- [x] `web/components/ui/tiptap/extensions/ExtendedImage.ts` を追加
   - width/align属性
 
 ### B) ユーティリティ
