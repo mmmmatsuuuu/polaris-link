@@ -88,9 +88,9 @@
   - ExtendedImage を使用
 
 ### D) UI
-- [ ] `web/components/ui/tiptap/ImageActionMenu.tsx`
+- [x] `web/components/ui/tiptap/ImageActionMenu.tsx`
   - Radix Popover/Dropdown
-- [ ] `web/components/ui/tiptap/tiptap.css`
+- [x] `web/components/ui/tiptap/tiptap.css`
   - Uploadingノード表示
   - 画像width/alignのスタイル
 
