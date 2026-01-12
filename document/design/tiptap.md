@@ -102,6 +102,7 @@
 - エラーメッセージはToastに限定せず `onImageUploadError` で委譲。
 - docId は不要（`images/{uuid}.{ext}` で保存）。
 - align は wrapper(div) + flex + justify-content 方式で実装。
+- Firebase Storageは当面使わない想定（無料枠の都合）。必要になれば運用方針に合わせて再検討する。
 
 ## 手動テスト
 1) 画像貼付で Uploading 表示

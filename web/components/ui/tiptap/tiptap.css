@@ -156,6 +156,18 @@
   padding: 0;
   border: 0;
   background: transparent;
+  color: transparent;
+  font-size: 1px;
+  line-height: 1;
+}
+
+.tiptap-image-menu-trigger-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .tiptap-image-menu {

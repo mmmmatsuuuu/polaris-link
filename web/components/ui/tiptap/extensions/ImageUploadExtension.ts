@@ -17,7 +17,7 @@ type ImageUploadExtensionOptions = {
   onError?: ImageUploadErrorHandler;
 };
 
-function getImageFilesFromItems(items: DataTransferItemList | null): File[] {
+function getImageFilesFromItems(items: DataTransferItemList | null | undefined): File[] {
   if (!items) return [];
   const files: File[] = [];
   for (const item of Array.from(items)) {
@@ -29,7 +29,7 @@ function getImageFilesFromItems(items: DataTransferItemList | null): File[] {
   return files;
 }
 
-function getImageFilesFromFileList(files: FileList | null): File[] {
+function getImageFilesFromFileList(files: FileList | null | undefined): File[] {
   if (!files) return [];
   return Array.from(files).filter((file) => file.type.startsWith("image/"));
 }
@@ -96,7 +96,9 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
         const snapshot = extension.storage.snapshots.get(id);
         if (snapshot) {
           extension.storage.snapshots.clear();
-          extension.editor.commands.setContent(snapshot.doc, false);
+          extension.editor.commands.setContent(snapshot.doc, {
+            emitUpdate: false,
+          });
           const docSize = extension.editor.state.doc.content.size;
           const from = Math.min(Math.max(1, snapshot.selection.from), docSize);
           const to = Math.min(Math.max(1, snapshot.selection.to), docSize);
@@ -185,33 +187,6 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
     ];
   },
 
-  addCommands() {
-    return {
-      replaceUploadingWithImage:
-        (id: string, url: string) =>
-        ({ state, dispatch }) => {
-          const pos = findUploadingNodePos(state.doc, id);
-          if (pos === null) return false;
-          const imageType = state.schema.nodes.image;
-          if (!imageType) return false;
-          const imageNode = imageType.create({ src: url });
-          if (dispatch) {
-            dispatch(state.tr.replaceWith(pos, pos + 1, imageNode));
-          }
-          return true;
-        },
-      removeUploading:
-        (id: string) =>
-        ({ state, dispatch }) => {
-          const pos = findUploadingNodePos(state.doc, id);
-          if (pos === null) return false;
-          if (dispatch) {
-            dispatch(state.tr.delete(pos, pos + 1));
-          }
-          return true;
-        },
-    };
-  },
 
   addStorage() {
     return {

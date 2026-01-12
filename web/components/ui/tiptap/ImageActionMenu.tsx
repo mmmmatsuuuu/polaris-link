@@ -63,13 +63,12 @@ export function ImageActionMenu({
 
   return (
     <DropdownMenu.Root open={isOpen} onOpenChange={onOpenChange}>
-      <DropdownMenu.Trigger asChild>
-        <button
-          type="button"
-          className="tiptap-image-menu-trigger"
-          style={triggerStyle}
-          aria-hidden="true"
-        />
+      <DropdownMenu.Trigger
+        className="tiptap-image-menu-trigger"
+        style={triggerStyle}
+        aria-hidden="true"
+      >
+        <span className="tiptap-image-menu-trigger-label">menu</span>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content
         align="start"
