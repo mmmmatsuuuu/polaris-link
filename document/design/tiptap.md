@@ -75,9 +75,9 @@
   - width/align属性
 
 ### B) ユーティリティ
-- [ ] `web/lib/tiptap/resizeImage.ts`
+- [x] `web/lib/tiptap/resizeImage.ts`
   - `resizeToMaxWidth(fileOrBlob, maxWidth=1000): Promise<File>`
-- [ ] `web/lib/firebase/storageUpload.ts`
+- [x] `web/lib/firebase/storageUpload.ts`
   - `uploadImageToStorage(file: File, docId: string): Promise<{url, path}>`
 
 ### C) エディタ統合
