@@ -10,18 +10,9 @@ service firebase.storage {
       return isSignedIn() && request.auth.token.role == "teacher";
     }
 
-    match /lesson_assets/{lessonId}/{fileName=**} {
+    match /images/{fileName=**} {
       allow read: if true;
-      allow write: if isTeacher();
-    }
-
-    match /csv_uploads/{fileName=**} {
-      allow read, write: if isTeacher();
-    }
-
-    match /public_resources/{fileName=**} {
-      allow read: if true;
-      allow write: if isTeacher();
+      allow write: if isSignedIn();
     }
 
     match /{allPaths=**} {

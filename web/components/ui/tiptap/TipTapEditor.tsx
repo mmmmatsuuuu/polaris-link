@@ -40,6 +40,7 @@ const emptyDoc: RichTextDoc = { type: "doc", content: [{ type: "paragraph" }] };
 export function TipTapEditor({
   value,
   onChange,
+  onImageUploadError,
   placeholder,
   className,
   showToolbar = true,

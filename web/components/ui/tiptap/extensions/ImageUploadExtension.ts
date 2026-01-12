@@ -71,6 +71,51 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
   },
 
   addProseMirrorPlugins() {
+    const extension = this;
+    const handleFileUpload = async (view: any, file: File, id: string) => {
+      try {
+        const maxWidth = extension.options.maxWidth ?? 1000;
+        const resized = extension.options.resizeImage
+          ? await extension.options.resizeImage(file, maxWidth)
+          : file;
+
+        const result = await extension.options.uploadImage(resized);
+        const { state, dispatch } = view;
+        const pos = findUploadingNodePos(state.doc, id);
+        if (pos === null) return;
+
+        const imageType = state.schema.nodes.image;
+        if (!imageType) return;
+        const imageNode = imageType.create({ src: result.url });
+        dispatch(state.tr.replaceWith(pos, pos + 1, imageNode));
+        extension.storage.snapshots.delete(id);
+      } catch (error) {
+        const normalized = error instanceof Error ? error : new Error("Upload failed");
+        extension.storage.lastError = normalized;
+
+        const snapshot = extension.storage.snapshots.get(id);
+        if (snapshot) {
+          extension.storage.snapshots.clear();
+          extension.editor.commands.setContent(snapshot.doc, false);
+          const docSize = extension.editor.state.doc.content.size;
+          const from = Math.min(Math.max(1, snapshot.selection.from), docSize);
+          const to = Math.min(Math.max(1, snapshot.selection.to), docSize);
+          extension.editor.commands.setTextSelection({ from, to });
+        } else {
+          const { state, dispatch } = view;
+          const pos = findUploadingNodePos(state.doc, id);
+          if (pos !== null) {
+            dispatch(state.tr.delete(pos, pos + 1));
+          }
+        }
+
+        if (extension.options.onError) {
+          extension.options.onError(normalized, { file, id });
+        } else if (typeof window !== "undefined") {
+          window.alert(normalized.message);
+        }
+      }
+    };
     return [
       new Plugin({
         props: {
@@ -98,7 +143,7 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
             });
 
             imageFiles.forEach((file, index) => {
-              void this.handleFileUpload(view, file, ids[index]);
+              void handleFileUpload(view, file, ids[index]);
             });
 
             return true;
@@ -130,7 +175,7 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
             });
 
             imageFiles.forEach((file, index) => {
-              void this.handleFileUpload(view, file, ids[index]);
+              void handleFileUpload(view, file, ids[index]);
             });
 
             return true;
@@ -173,50 +218,5 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
       lastError: null as Error | null,
       snapshots: new Map<string, PasteSnapshot>(),
     };
-  },
-
-  async handleFileUpload(view: any, file: File, id: string) {
-    try {
-      const maxWidth = this.options.maxWidth ?? 1000;
-      const resized = this.options.resizeImage
-        ? await this.options.resizeImage(file, maxWidth)
-        : file;
-
-      const result = await this.options.uploadImage(resized);
-      const { state, dispatch } = view;
-      const pos = findUploadingNodePos(state.doc, id);
-      if (pos === null) return;
-
-      const imageType = state.schema.nodes.image;
-      if (!imageType) return;
-      const imageNode = imageType.create({ src: result.url });
-      dispatch(state.tr.replaceWith(pos, pos + 1, imageNode));
-      this.storage.snapshots.delete(id);
-    } catch (error) {
-      const normalized = error instanceof Error ? error : new Error("Upload failed");
-      this.storage.lastError = normalized;
-
-      const snapshot = this.storage.snapshots.get(id);
-      if (snapshot) {
-        this.storage.snapshots.clear();
-        this.editor.commands.setContent(snapshot.doc, false);
-        const docSize = this.editor.state.doc.content.size;
-        const from = Math.min(Math.max(1, snapshot.selection.from), docSize);
-        const to = Math.min(Math.max(1, snapshot.selection.to), docSize);
-        this.editor.commands.setTextSelection({ from, to });
-      } else {
-        const { state, dispatch } = view;
-        const pos = findUploadingNodePos(state.doc, id);
-        if (pos !== null) {
-          dispatch(state.tr.delete(pos, pos + 1));
-        }
-      }
-
-      if (this.options.onError) {
-        this.options.onError(normalized, { file, id });
-      } else if (typeof window !== "undefined") {
-        window.alert(normalized.message);
-      }
-    }
   },
 });
