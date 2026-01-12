@@ -15,7 +15,7 @@
 1) TipTap拡張で paste/drop を処理（ProseMirror plugin）。
 2) Uploadingノード(atomic)を挿入して置換する方式。
 3) クライアントで最大幅1000pxにリサイズ。
-4) Firebase Storageへアップロード（uuidパス）。
+4) Firebase Storageへアップロード（`images/{uuid}.{ext}`）。
 5) 失敗時はプレースホルダ削除 + 貼り付け前の状態へ戻す + トースト。
 6) 画像アクションメニュー（削除/幅/配置）をRadix UIで。
 7) 重複排除は初期PRでは見送り（フックだけ残す）。
@@ -78,14 +78,13 @@
 - [x] `web/lib/tiptap/resizeImage.ts`
   - `resizeToMaxWidth(fileOrBlob, maxWidth=1000): Promise<File>`
 - [x] `web/lib/firebase/storageUpload.ts`
-  - `uploadImageToStorage(file: File, docId: string): Promise<{url, path}>`
+  - `uploadImageToStorage(file: File): Promise<{url, path}>`
 
 ### C) エディタ統合
-- [ ] `web/components/ui/tiptap/TipTapEditor.tsx`
+- [x] `web/components/ui/tiptap/TipTapEditor.tsx`
   - 拡張追加
-  - `docId` prop を追加
   - エラーメッセージ連携（`onImageUploadError`）
-- [ ] `web/components/ui/tiptap/TipTapViewer.tsx`
+- [x] `web/components/ui/tiptap/TipTapViewer.tsx`
   - ExtendedImage を使用
 
 ### D) UI
@@ -101,7 +100,7 @@
 
 ## 決定事項
 - エラーメッセージはToastに限定せず `onImageUploadError` で委譲。
-- docId は `TipTapEditor` の props に追加。
+- docId は不要（`images/{uuid}.{ext}` で保存）。
 - align は wrapper(div) + flex + justify-content 方式で実装。
 
 ## 手動テスト

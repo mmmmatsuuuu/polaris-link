@@ -5,7 +5,6 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
 import type { RichTextDoc } from "@/types/catalog";
 import { Button, Separator } from "@radix-ui/themes";
 import { TableKit } from "@tiptap/extension-table";
@@ -16,11 +15,17 @@ import {
   createCodeBlockExtension,
   createLowlightInstance,
 } from "./CodeBlock";
+import { ExtendedImage } from "./extensions/ExtendedImage";
+import { UploadingImage } from "./extensions/UploadingImage";
+import { ImageUploadExtension } from "./extensions/ImageUploadExtension";
+import { resizeToMaxWidth } from "@/lib/tiptap/resizeImage";
+import { uploadImageToStorage } from "@/lib/firebase/storageUpload";
 import "./tiptap.css";
 
 type TipTapEditorProps = {
   value: RichTextDoc;
   onChange: (next: RichTextDoc) => void;
+  onImageUploadError?: (error: Error) => void;
   placeholder?: string;
   className?: string;
   showToolbar?: boolean;
@@ -44,6 +49,17 @@ export function TipTapEditor({
     () => createCodeBlockExtension(lowlight),
     [lowlight],
   );
+  const imageUploadExtension = useMemo(() => {
+    const onError = onImageUploadError
+      ? (error: Error) => onImageUploadError(error)
+      : undefined;
+    return ImageUploadExtension.configure({
+      maxWidth: 1000,
+      resizeImage: resizeToMaxWidth,
+      uploadImage: uploadImageToStorage,
+      onError,
+    });
+  }, [onImageUploadError]);
 
   const editor = useEditor({
     extensions: [
@@ -60,9 +76,11 @@ export function TipTapEditor({
         openOnClick: true,
         protocols: ["http", "https", "mailto"],
       }),
-      Image.configure({
+      UploadingImage,
+      ExtendedImage.configure({
         allowBase64: false,
       }),
+      imageUploadExtension,
       Placeholder.configure({
         placeholder: placeholder ?? "ここに入力",
       }),

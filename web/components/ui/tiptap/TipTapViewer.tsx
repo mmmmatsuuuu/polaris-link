@@ -5,7 +5,6 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import type { RichTextDoc } from "@/types/catalog";
 import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
 import { TableKit } from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
@@ -14,6 +13,7 @@ import {
   createCodeBlockExtension,
   createLowlightInstance,
 } from "./CodeBlock";
+import { ExtendedImage } from "./extensions/ExtendedImage";
 import "./tiptap.css";
 
 type TipTapViewerProps = {
@@ -49,7 +49,7 @@ export function TipTapViewer({ value, className }: TipTapViewerProps) {
         openOnClick: true,
         linkOnPaste: true,
       }),
-      Image.configure({
+      ExtendedImage.configure({
         allowBase64: false,
       }),
     ],

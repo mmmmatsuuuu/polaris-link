@@ -6,10 +6,9 @@ type UploadResult = { url: string; path: string };
 type ImageUploadErrorHandler = (error: Error, context: { file: File; id: string }) => void;
 
 type ImageUploadExtensionOptions = {
-  docId: string;
   maxWidth?: number;
   resizeImage?: (file: File, maxWidth: number) => Promise<File>;
-  uploadImage: (file: File, docId: string) => Promise<UploadResult>;
+  uploadImage: (file: File) => Promise<UploadResult>;
   onError?: ImageUploadErrorHandler;
 };
 
@@ -57,7 +56,6 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
 
   addOptions() {
     return {
-      docId: "",
       maxWidth: 1000,
       resizeImage: undefined,
       uploadImage: async () => {
@@ -160,7 +158,7 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
         ? await this.options.resizeImage(file, maxWidth)
         : file;
 
-      const result = await this.options.uploadImage(resized, this.options.docId);
+      const result = await this.options.uploadImage(resized);
       const { state, dispatch } = view;
       const pos = findUploadingNodePos(state.doc, id);
       if (pos === null) return;

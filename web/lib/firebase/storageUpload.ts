@@ -14,16 +14,13 @@ function getExtension(type: string, name: string) {
   return match ? match[1] : "png";
 }
 
-export async function uploadImageToStorage(
-  file: File,
-  docId: string,
-): Promise<UploadResult> {
+export async function uploadImageToStorage(file: File): Promise<UploadResult> {
   const ext = getExtension(file.type, file.name);
   const id =
     typeof globalThis !== "undefined" && "crypto" in globalThis
       ? globalThis.crypto.randomUUID?.() ?? `img_${Date.now()}`
       : `img_${Date.now()}`;
-  const path = `documents/${docId}/images/${id}.${ext}`;
+  const path = `images/${id}.${ext}`;
   const storageRef = ref(storage, path);
 
   const metadata = file.type ? { contentType: file.type } : undefined;
