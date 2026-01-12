@@ -49,7 +49,6 @@
 ### 失敗時の復帰方針
 - なるべく Uploading 挿入以外の変更を出さない設計にする。
 - 失敗時は Uploading を削除し、見た目として貼り付け前に戻す。
-- もし必要なら paste 前の state を保持して復元。
 
 ### 画像属性
 - `width`: "100%" | "75%" | "50%"
@@ -61,6 +60,8 @@
 - 実装方式:
   - Option A: Image NodeView + メニュー
   - Option B: クリック時に selection から対象ノードを操作（簡易）
+- エラーメッセージはToast固定にせず、`onImageUploadError` コールバックで委譲。
+  - 未指定の場合は `window.alert` などの簡易通知で対応。
 
 ## 実装タスク
 
@@ -83,7 +84,7 @@
 - [ ] `web/components/ui/tiptap/TipTapEditor.tsx`
   - 拡張追加
   - `docId` prop を追加
-  - Toast連携（必要なら）
+  - エラーメッセージ連携（`onImageUploadError`）
 - [ ] `web/components/ui/tiptap/TipTapViewer.tsx`
   - ExtendedImage を使用
 
@@ -95,13 +96,13 @@
   - 画像width/alignのスタイル
 
 ### E) エラーハンドリング
-- [ ] 失敗時のToast表示
+- [ ] 失敗時の通知（Toast必須ではない）
 - [ ] 貼り付け前状態へ戻すことを保証
 
-## 確認事項
-- Toastの表示場所は既存のProviderを使えるか？
-- docIdの受け渡し方法（TipTapEditorのpropsに追加するのが最短）。
-- alignの実装は画像単体styleか、wrapper要否。
+## 決定事項
+- エラーメッセージはToastに限定せず `onImageUploadError` で委譲。
+- docId は `TipTapEditor` の props に追加。
+- align は wrapper(div) + flex + justify-content 方式で実装。
 
 ## 手動テスト
 1) 画像貼付で Uploading 表示
