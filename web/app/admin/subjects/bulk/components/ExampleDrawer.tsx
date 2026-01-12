@@ -5,9 +5,29 @@ import { Drawer } from "@/components/ui/Drawer";
 
 const exampleJson = `{
   "subjects": [
-    { "name": "数学", "publishStatus": "public", "order": 1 }
+    {
+      "name": "数学",
+      "description": { "type": "doc", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "数学の基礎と応用" }] }] },
+      "publishStatus": "public"
+    },
+    {
+      "name": "英語",
+      "description": { "type": "doc", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "読解と文法の基礎" }] }] },
+      "publishStatus": "public"
+    },
+    {
+      "name": "物理",
+      "description": { "type": "doc", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "力学と電磁気の入門" }] }] },
+      "publishStatus": "public"
+    },
+    {
+      "name": "化学",
+      "description": { "type": "doc", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "化学反応と物質の性質" }] }] },
+      "publishStatus": "private"
+    }
   ]
-}`;
+}
+`;
 
 export function ExampleDrawer() {
   return (
