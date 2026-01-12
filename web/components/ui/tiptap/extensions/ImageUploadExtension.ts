@@ -5,6 +5,11 @@ import { Fragment, Slice } from "prosemirror-model";
 type UploadResult = { url: string; path: string };
 type ImageUploadErrorHandler = (error: Error, context: { file: File; id: string }) => void;
 
+type PasteSnapshot = {
+  doc: Record<string, unknown>;
+  selection: { from: number; to: number };
+};
+
 type ImageUploadExtensionOptions = {
   maxWidth?: number;
   resizeImage?: (file: File, maxWidth: number) => Promise<File>;
@@ -77,11 +82,20 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
             const uploadingType = state.schema.nodes.uploadingImage;
             if (!uploadingType) return false;
 
+            const snapshot: PasteSnapshot = {
+              doc: state.doc.toJSON(),
+              selection: { from: state.selection.from, to: state.selection.to },
+            };
+
             const ids = imageFiles.map(() => generateId());
             const nodes = ids.map((id) => uploadingType.create({ id }));
             const fragment = Fragment.fromArray(nodes);
             const tr = state.tr.replaceSelection(new Slice(fragment, 0, 0));
             view.dispatch(tr);
+
+            ids.forEach((id) => {
+              this.storage.snapshots.set(id, snapshot);
+            });
 
             imageFiles.forEach((file, index) => {
               void this.handleFileUpload(view, file, ids[index]);
@@ -100,11 +114,20 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
             const coords = view.posAtCoords({ left: event.clientX, top: event.clientY });
             const insertPos = coords?.pos ?? state.selection.from;
 
+            const snapshot: PasteSnapshot = {
+              doc: state.doc.toJSON(),
+              selection: { from: state.selection.from, to: state.selection.to },
+            };
+
             const ids = imageFiles.map(() => generateId());
             const nodes = ids.map((id) => uploadingType.create({ id }));
             const fragment = Fragment.fromArray(nodes);
             const tr = state.tr.insert(insertPos, fragment);
             view.dispatch(tr);
+
+            ids.forEach((id) => {
+              this.storage.snapshots.set(id, snapshot);
+            });
 
             imageFiles.forEach((file, index) => {
               void this.handleFileUpload(view, file, ids[index]);
@@ -148,6 +171,7 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
   addStorage() {
     return {
       lastError: null as Error | null,
+      snapshots: new Map<string, PasteSnapshot>(),
     };
   },
 
@@ -167,14 +191,25 @@ export const ImageUploadExtension = Extension.create<ImageUploadExtensionOptions
       if (!imageType) return;
       const imageNode = imageType.create({ src: result.url });
       dispatch(state.tr.replaceWith(pos, pos + 1, imageNode));
+      this.storage.snapshots.delete(id);
     } catch (error) {
       const normalized = error instanceof Error ? error : new Error("Upload failed");
       this.storage.lastError = normalized;
 
-      const { state, dispatch } = view;
-      const pos = findUploadingNodePos(state.doc, id);
-      if (pos !== null) {
-        dispatch(state.tr.delete(pos, pos + 1));
+      const snapshot = this.storage.snapshots.get(id);
+      if (snapshot) {
+        this.storage.snapshots.clear();
+        this.editor.commands.setContent(snapshot.doc, false);
+        const docSize = this.editor.state.doc.content.size;
+        const from = Math.min(Math.max(1, snapshot.selection.from), docSize);
+        const to = Math.min(Math.max(1, snapshot.selection.to), docSize);
+        this.editor.commands.setTextSelection({ from, to });
+      } else {
+        const { state, dispatch } = view;
+        const pos = findUploadingNodePos(state.doc, id);
+        if (pos !== null) {
+          dispatch(state.tr.delete(pos, pos + 1));
+        }
       }
 
       if (this.options.onError) {
