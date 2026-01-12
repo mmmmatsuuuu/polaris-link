@@ -1,11 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
 import type { RichTextDoc } from "@/types/catalog";
 import { Button, Separator } from "@radix-ui/themes";
 import { TableKit } from "@tiptap/extension-table";
@@ -16,11 +15,18 @@ import {
   createCodeBlockExtension,
   createLowlightInstance,
 } from "./CodeBlock";
+import { ExtendedImage } from "./extensions/ExtendedImage";
+import { UploadingImage } from "./extensions/UploadingImage";
+import { ImageUploadExtension } from "./extensions/ImageUploadExtension";
+import { resizeToMaxWidth } from "@/lib/tiptap/resizeImage";
+import { uploadImageToStorage } from "@/lib/firebase/storageUpload";
+import { ImageActionMenu } from "./ImageActionMenu";
 import "./tiptap.css";
 
 type TipTapEditorProps = {
   value: RichTextDoc;
   onChange: (next: RichTextDoc) => void;
+  onImageUploadError?: (error: Error) => void;
   placeholder?: string;
   className?: string;
   showToolbar?: boolean;
@@ -34,6 +40,7 @@ const emptyDoc: RichTextDoc = { type: "doc", content: [{ type: "paragraph" }] };
 export function TipTapEditor({
   value,
   onChange,
+  onImageUploadError,
   placeholder,
   className,
   showToolbar = true,
@@ -43,6 +50,23 @@ export function TipTapEditor({
   const codeBlock = useMemo(
     () => createCodeBlockExtension(lowlight),
     [lowlight],
+  );
+  const imageUploadExtension = useMemo(() => {
+    const onError = onImageUploadError
+      ? (error: Error) => onImageUploadError(error)
+      : undefined;
+    return ImageUploadExtension.configure({
+      maxWidth: 1000,
+      resizeImage: resizeToMaxWidth,
+      uploadImage: uploadImageToStorage,
+      onError,
+    });
+  }, [onImageUploadError]);
+
+  const editorWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [imageMenuOpen, setImageMenuOpen] = useState(false);
+  const [imageAnchor, setImageAnchor] = useState<{ left: number; top: number } | null>(
+    null,
   );
 
   const editor = useEditor({
@@ -60,9 +84,11 @@ export function TipTapEditor({
         openOnClick: true,
         protocols: ["http", "https", "mailto"],
       }),
-      Image.configure({
+      UploadingImage,
+      ExtendedImage.configure({
         allowBase64: false,
       }),
+      imageUploadExtension,
       Placeholder.configure({
         placeholder: placeholder ?? "ここに入力",
       }),
@@ -74,6 +100,21 @@ export function TipTapEditor({
       onChange(json);
     },
   });
+
+  useEffect(() => {
+    if (!editor) return;
+    const handleSelection = () => {
+      if (!editor.isActive("image")) {
+        setImageMenuOpen(false);
+      }
+    };
+    editor.on("selectionUpdate", handleSelection);
+    editor.on("blur", handleSelection);
+    return () => {
+      editor.off("selectionUpdate", handleSelection);
+      editor.off("blur", handleSelection);
+    };
+  }, [editor]);
 
   const renderButton = (
     label: string,
@@ -179,7 +220,36 @@ export function TipTapEditor({
         </div>
       )}
 
-      <EditorContent editor={editor} className="tiptap-editor" />
+      <div className="tiptap-editor-wrapper" ref={editorWrapperRef}>
+        <EditorContent
+          editor={editor}
+          className="tiptap-editor"
+          onClick={(event) => {
+            const target = event.target as HTMLElement | null;
+            const img = target?.closest?.("img[data-tiptap-image]") as
+              | HTMLImageElement
+              | null;
+            if (!img || !editorWrapperRef.current) {
+              setImageMenuOpen(false);
+              return;
+            }
+
+            const wrapperRect = editorWrapperRef.current.getBoundingClientRect();
+            const rect = img.getBoundingClientRect();
+            setImageAnchor({
+              left: rect.left - wrapperRect.left,
+              top: rect.top - wrapperRect.top,
+            });
+            setImageMenuOpen(true);
+          }}
+        />
+        <ImageActionMenu
+          editor={editor}
+          isOpen={imageMenuOpen}
+          onOpenChange={setImageMenuOpen}
+          anchorPosition={imageAnchor}
+        />
+      </div>
     </div>
   );
 }

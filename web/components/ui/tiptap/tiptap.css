@@ -115,6 +115,104 @@
   margin: 8px 0;
 }
 
+.tiptap-uploading-image {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px dashed var(--gray-6);
+  background: var(--gray-2);
+  color: var(--gray-11);
+  font-size: 12px;
+}
+
+.tiptap-image {
+  display: flex;
+  width: 100%;
+  margin: 8px 0;
+}
+
+.tiptap-image.align-left {
+  justify-content: flex-start;
+}
+
+.tiptap-image.align-center {
+  justify-content: center;
+}
+
+.tiptap-image.align-right {
+  justify-content: flex-end;
+}
+
+.tiptap-image img {
+  margin: 0;
+}
+
+.tiptap-image-menu-trigger {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  font-size: 1px;
+  line-height: 1;
+}
+
+.tiptap-image-menu-trigger-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.tiptap-image-menu {
+  min-width: 160px;
+  background: var(--color-panel);
+  border: 1px solid var(--gray-6);
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--gray-12) 20%, transparent);
+  z-index: 10;
+}
+
+.tiptap-image-menu-item {
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.tiptap-image-menu-item:hover {
+  background: var(--gray-3);
+}
+
+.tiptap-image-menu-item.danger {
+  color: var(--red-10);
+}
+
+.tiptap-image-menu-item.is-active {
+  background: var(--accent-3);
+  color: var(--accent-11);
+}
+
+.tiptap-image-menu-label {
+  font-size: 11px;
+  color: var(--gray-11);
+  padding: 4px 8px;
+}
+
+.tiptap-image-menu-separator {
+  height: 1px;
+  background: var(--gray-5);
+  margin: 4px 0;
+}
+
 .tiptap-editor pre code.hljs,
 .tiptap-viewer pre code.hljs {
   display: block;
@@ -180,10 +278,14 @@
   background: var(--color-panel);
 }
 
-.tiptap-toolbar + .tiptap-editor {
+.tiptap-toolbar + .tiptap-editor-wrapper .tiptap-editor {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   border-top: none;
+}
+
+.tiptap-editor-wrapper {
+  position: relative;
 }
 
 .tiptap-editor table,
