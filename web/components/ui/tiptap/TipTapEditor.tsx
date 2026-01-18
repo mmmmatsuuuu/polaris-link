@@ -19,7 +19,7 @@ import { ExtendedImage } from "./extensions/ExtendedImage";
 import { UploadingImage } from "./extensions/UploadingImage";
 import { ImageUploadExtension } from "./extensions/ImageUploadExtension";
 import { resizeToMaxWidth } from "@/lib/tiptap/resizeImage";
-import { uploadImageToStorage } from "@/lib/firebase/storageUpload";
+import { uploadImageToImageKit } from "@/lib/imagekit/uploadImage";
 import { ImageActionMenu } from "./ImageActionMenu";
 import "./tiptap.css";
 
@@ -58,7 +58,7 @@ export function TipTapEditor({
     return ImageUploadExtension.configure({
       maxWidth: 1000,
       resizeImage: resizeToMaxWidth,
-      uploadImage: uploadImageToStorage,
+      uploadImage: uploadImageToImageKit,
       onError,
     });
   }, [onImageUploadError]);
