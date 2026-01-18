@@ -8,7 +8,7 @@
   padding: 12px 14px;
   border: 1px solid var(--gray-6);
   border-radius: 8px;
-  font-size: 18px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--color-text);
   background: var(--color-surface);
@@ -16,7 +16,7 @@
 .tiptap-viewer {
   padding: 4px 6px;
   border-radius: 4px;
-  font-size: 18px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--color-text);
   /* background: var(--color-surface); */
