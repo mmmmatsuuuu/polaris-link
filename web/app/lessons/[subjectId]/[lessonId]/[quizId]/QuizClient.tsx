@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Badge, Box, Button, Card, Flex, Heading, Section, Text } from "@radix-ui/themes";
 import { AnswerArea } from "./components/AnswerArea";
@@ -98,8 +98,8 @@ export function QuizClient({ content, questions, selectedQuestionIds }: Props) {
       <Section>
         <Flex direction="column" gap="4" className="mx-auto max-w-4xl">
           <Card variant="classic">
-            <Heading size="4">問題</Heading>
-            <Text color="gray" size="2">
+            <Heading size="8">問題</Heading>
+            <Text color="gray" size="4">
               以下の問題に答えなさい。
             </Text>
             {questions.length === 0 ? (
@@ -111,7 +111,7 @@ export function QuizClient({ content, questions, selectedQuestionIds }: Props) {
                 {questions.map((question, index) => (
                   <Card key={question.id} variant="surface" className="border border-slate-200">
                     <Flex justify="between" align="center" gap="3">
-                      <Text size="1" color="gray" className="uppercase tracking-wide">
+                      <Text size="4" color="gray" className="uppercase tracking-wide">
                         問題 {index + 1}
                       </Text>
                     </Flex>
