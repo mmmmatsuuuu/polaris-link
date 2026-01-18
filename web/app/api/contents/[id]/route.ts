@@ -50,7 +50,7 @@ export async function PATCH(
       title: body.title,
       description: body.description,
       type: body.type,
-      tags: body.tags,
+      tags: Array.isArray(body.tags) ? body.tags : [],
       publishStatus: body.publishStatus,
       order: body.order,
       metadata: body.metadata ?? {},

@@ -150,7 +150,7 @@ type ShortAnswerProps = {
 function ShortAnswer({ value, onChange }: ShortAnswerProps) {
   return (
     <Flex direction="column" gap="2">
-      <Text size="2" color="gray">
+      <Text color="gray">
         回答を入力してください
       </Text>
       <TextArea

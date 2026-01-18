@@ -33,6 +33,7 @@ export async function POST(request: Request) {
       title: body.title ?? "",
       description: body.description ?? "",
       type: body.type ?? "video",
+      tags: Array.isArray(body.tags) ? body.tags : [],
       publishStatus: body.publishStatus ?? "private",
       order: nextOrder,
       metadata: body.metadata ?? {},

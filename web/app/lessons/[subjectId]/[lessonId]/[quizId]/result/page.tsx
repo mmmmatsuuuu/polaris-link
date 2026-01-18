@@ -49,6 +49,19 @@ export default function QuizResultPage() {
     { label: "授業", href: `/lessons/${subjectId}/${lessonId}` },
     { label: "小テスト結果" },
   ];
+  const renderAnswerList = (value: unknown, emptyLabel: string) => {
+    if (!value) {
+      return <Text size="2">{emptyLabel}</Text>;
+    }
+    const items = Array.isArray(value) ? value : [value];
+    return (
+      <ol className="list-decimal pl-5 text-sm text-slate-700">
+        {items.map((item, idx) => (
+          <li key={`${String(item)}-${idx}`}>{String(item)}</li>
+        ))}
+      </ol>
+    );
+  };
 
   return (
     <Box className="bg-white">
@@ -61,6 +74,16 @@ export default function QuizResultPage() {
             </Text>
           }
           kicker={<div>{breadcrumbs.map((b, i) => (b.href ? <Link key={i} href={b.href} className="text-sm text-slate-500 hover:underline mr-2">{b.label}</Link> : <span key={i} className="text-sm text-slate-600">{b.label}</span>))}</div>}
+          actions={
+            <>
+              <Button asChild variant="soft" color="gray">
+                <Link href={`/lessons/${subjectId}/${lessonId}/${quizId}`}>回答に戻る</Link>
+              </Button>
+              <Button asChild>
+                <Link href={`/lessons/${subjectId}/${lessonId}`}>授業に戻る</Link>
+              </Button>
+            </>
+          }
           maxWidthClassName="max-w-4xl"
         />
       </Section>
@@ -73,16 +96,20 @@ export default function QuizResultPage() {
             </Card>
           )}
           {questions.map((question, index) => (
-            <Card key={question.id} variant="classic">
-              <Flex justify="between" align="center">
-                <Text size="1" color="gray" className="uppercase tracking-wide">
+            <Card
+              key={question.id}
+              variant="classic"
+              className={
+                question.isCorrect
+                  ? "border-l-4 border-l-green-500 bg-green-50/40"
+                  : "border-l-4 border-l-red-500 bg-red-50/40"
+              }
+            >
+              <Flex justify="between" align="center" gap="2" wrap="wrap">
+                <Text size="3" color="gray" className="uppercase tracking-wide">
                   問題 {index + 1}
                 </Text>
-                <Badge
-                  color={question.isCorrect ? "green" : "red"}
-                  variant="soft"
-                  radius="full"
-                >
+                <Badge color={question.isCorrect ? "green" : "red"} variant="solid" radius="full" size="3">
                   {question.isCorrect ? "正解" : "不正解"}
                 </Badge>
               </Flex>
@@ -93,45 +120,36 @@ export default function QuizResultPage() {
                   <Text color="gray">(no prompt)</Text>
                 )}
               </div>
-              <Text mt="3" size="2" color="gray">
-                あなたの回答:
-              </Text>
-              <Card variant="surface" mt="2">
-                <Text size="2" color="gray">
-                  {question.userAnswer
-                    ? Array.isArray(question.userAnswer)
-                      ? question.userAnswer.join(", ")
-                      : String(question.userAnswer)
-                    : "未回答"}
-                </Text>
-              </Card>
-              <Text mt="3" size="2" color="gray">
-                正答:
-              </Text>
-              <Card variant="surface" mt="2">
-                <Text size="2" color="gray">
-                  {question.correctAnswer
-                    ? Array.isArray(question.correctAnswer)
-                      ? question.correctAnswer.join(", ")
-                      : String(question.correctAnswer)
-                    : "未設定"}
-                </Text>
-              </Card>
+              <Flex mt="3" gap="3" direction={{ initial: "column", sm: "row" }}>
+                <Box className="flex-1">
+                  <Text size="2" weight="bold" className="text-slate-700">
+                    ユーザーの回答
+                  </Text>
+                  <Card variant="surface" mt="2" className="border border-slate-200">
+                    {renderAnswerList(question.userAnswer, "未回答")}
+                  </Card>
+                </Box>
+                <Box className="flex-1">
+                  <Text size="2" weight="bold" className="text-slate-700">
+                    正答
+                  </Text>
+                  <Card variant="surface" mt="2" className="border border-slate-200">
+                    {renderAnswerList(question.correctAnswer, "未設定")}
+                  </Card>
+                </Box>
+              </Flex>
               {question.explanation && (
-                <Card variant="surface" mt="3">
-                  <TipTapViewer value={question.explanation} className="tiptap-prose max-w-none text-sm" />
-                </Card>
+                <Box mt="3">
+                  <Text size="2" weight="bold" className="text-slate-700">
+                    解説
+                  </Text>
+                  <Card variant="surface" mt="2" className="border border-slate-200 bg-white">
+                    <TipTapViewer value={question.explanation} className="tiptap-prose max-w-none text-sm" />
+                  </Card>
+                </Box>
               )}
             </Card>
           ))}
-          <Flex gap="2" justify="end">
-            <Button asChild variant="soft" color="gray">
-              <Link href={`/lessons/${subjectId}/${lessonId}/${quizId}`}>回答に戻る</Link>
-            </Button>
-            <Button asChild>
-              <Link href={`/lessons/${subjectId}/${lessonId}`}>授業に戻る</Link>
-            </Button>
-          </Flex>
         </Flex>
       </Section>
     </Box>

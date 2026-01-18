@@ -4,11 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Button, Dialog, Flex, Select, Spinner, Text, TextField, Grid, Box } from "@radix-ui/themes";
 import { FullScreenModal } from "@/components/ui/FullScreenModal";
 import { ChipMultiSelect, type ChipOption } from "@/components/ui/ChipMultiSelect";
+import { TagInput } from "@/components/ui/TagInput";
 import { useAuth } from "@/context/AuthProvider";
 import { TipTapEditor } from "@/components/ui/tiptap";
 import type { Lesson, PublishStatus, RichTextDoc } from "@/types/catalog";
 
-type LessonForm = Pick<Lesson, "title" | "order" | "unitId" | "contentIds"> & {
+type LessonForm = Pick<Lesson, "title" | "order" | "unitId" | "contentIds" | "tags"> & {
   description: RichTextDoc;
   publishStatus: PublishStatus;
 };
@@ -30,6 +31,7 @@ const emptyForm: LessonForm = {
   unitId: "",
   publishStatus: "private",
   contentIds: [],
+  tags: [],
 };
 
 function normalizeDoc(value: unknown, fallback: RichTextDoc): RichTextDoc {
@@ -97,6 +99,7 @@ export function AdminLessonsModal({
             unitId: data.unitId ?? "",
             publishStatus: (data.publishStatus as LessonForm["publishStatus"]) ?? "private",
             contentIds: Array.isArray(data.contentIds) ? (data.contentIds as string[]) : [],
+            tags: Array.isArray(data.tags) ? (data.tags as string[]) : [],
           });
         })
         .catch((error) => {
@@ -196,6 +199,18 @@ export function AdminLessonsModal({
                     placeholder="説明を入力"
                   />
                 </div>
+              </div>
+
+              <div>
+                <Text size="2" color="gray">
+                  タグ
+                </Text>
+                <TagInput
+                  disabled={isLoading}
+                  value={form.tags}
+                  onChange={(next) => setForm((prev) => ({ ...prev, tags: next }))}
+                  placeholder="タグを入力してEnterで追加"
+                />
               </div>
 
               <Flex gap="3">
