@@ -53,14 +53,18 @@ export default function QuizResultPage() {
     if (!value) {
       return <Text size="2">{emptyLabel}</Text>;
     }
-    const items = Array.isArray(value) ? value : [value];
-    return (
-      <ol className="list-decimal pl-5 text-sm text-slate-700">
-        {items.map((item, idx) => (
-          <li key={`${String(item)}-${idx}`}>{String(item)}</li>
-        ))}
-      </ol>
-    );
+    if (Array.isArray(value) && value.length > 1) {
+      const items = value.length > 1 ? value : [emptyLabel];
+      return (
+        <ol className="list-decimal pl-5 text-sm text-slate-700">
+          {items.map((item, idx) => (
+            <li key={`${String(item)}-${idx}`}>{String(item)}</li>
+          ))}
+        </ol>
+      );
+    } else {
+      return <Text size="2">{String(value)}</Text>;
+    }
   };
 
   return (
@@ -101,8 +105,8 @@ export default function QuizResultPage() {
               variant="classic"
               className={
                 question.isCorrect
-                  ? "border-l-4 border-l-green-500 bg-green-50/40"
-                  : "border-l-4 border-l-red-500 bg-red-50/40"
+                  ? "border-l-4 border-l-green-500 bg-green-50/20"
+                  : "border-l-4 border-l-red-500 bg-red-50/20"
               }
             >
               <Flex justify="between" align="center" gap="2" wrap="wrap">
@@ -126,7 +130,7 @@ export default function QuizResultPage() {
                     ユーザーの回答
                   </Text>
                   <Card variant="surface" mt="2" className="border border-slate-200">
-                    {renderAnswerList(question.userAnswer, "未回答")}
+                    { renderAnswerList(question.userAnswer, "未回答")}
                   </Card>
                 </Box>
                 <Box className="flex-1">
